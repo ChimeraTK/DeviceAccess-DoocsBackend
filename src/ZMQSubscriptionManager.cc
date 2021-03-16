@@ -326,15 +326,19 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
       std::unique_lock<std::mutex> listeners_lock(subscription.second.listeners_mutex);
       for(auto& listener : subscription.second.listeners) {
         if(listener->_backend.get() == backend) {
-          // Due to the way the functions are used in different context deactivate locks the mutexes internally
-          // while the activate requires the locks to be held already when it is called.
-          auto path = subscription.first;
-          listeners_lock.unlock();
-          subscriptionLock.unlock();
-          deactivateSubscription(path);
-          subscriptionLock.lock();
-          listeners_lock.lock();
-          activateSubscription(path);
+          subscription.second.hasException = false; // solution as it should be, but freezes, see issue #7880
+
+          /* Code that is causing long delays in open(), see issue #7880
+             // Due to the way the functions are used in different context deactivate locks the mutexes internally
+             // while the activate requires the locks to be held already when it is called.
+             auto path = subscription.first;
+             listeners_lock.unlock();
+             subscriptionLock.unlock();
+             deactivateSubscription(path);
+             subscriptionLock.lock();
+             listeners_lock.lock();
+             activateSubscription(path);
+          */
         } // if backend
       }   // for listener
     }     // for scubscription
