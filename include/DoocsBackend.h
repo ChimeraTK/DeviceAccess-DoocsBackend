@@ -43,7 +43,7 @@ namespace ChimeraTK {
    public:
     ~DoocsBackend() override;
 
-    DoocsBackend(const std::string& serverAddress, const std::string& cacheFile = {});
+    DoocsBackend(const std::string& serverAddress, const std::string& cacheFile = {}, const std::string& updateCache = {});
 
     const RegisterCatalogue& getRegisterCatalogue() const override;
 
