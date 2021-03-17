@@ -58,33 +58,33 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
 
     // If required, poll the initial value and push it into the queue. This must be done after the subcription has been
     // made.
-    if(!newSubscription && accessor->isActiveZMQ) {
+    if(accessor->isActiveZMQ && subscriptionMap[path].gotInitialValue) {
       listeners_lock.unlock(); // lock no longer required and pollInitialValue might take a while...
-      pollInitialValue(path, accessor);
+      pollInitialValue(path, {accessor});
     }
   } // namespace DoocsBackendNamespace
 
   /******************************************************************************************************************/
 
-  void ZMQSubscriptionManager::pollInitialValue(const std::string& path, DoocsBackendRegisterAccessorBase* accessor) {
+  void ZMQSubscriptionManager::pollInitialValue(const std::string& path,
+                                                const std::list<DoocsBackendRegisterAccessorBase*> &accessors) {
+    // Poll initial value vie RPC
     EqData src, dst;
     EqAdr adr;
     EqCall eq;
     adr.adr(path);
     auto rc = eq.get(&adr, &src, &dst);
     if(rc && DoocsBackend::isCommunicationError(dst.error())) {
-      // communication error: push exception
-      try {
-        throw ChimeraTK::runtime_error("ZeroMQ connection interrupted: " + dst.get_string());
+      // communication error: push to queues
+      for(auto accessor : accessors) {
+        pushError(accessor, "ZeroMQ connection for "+path+" interrupted: " + dst.get_string());
       }
-      catch(...) {
-        accessor->notifications.push_overwrite_exception(std::current_exception());
-      }
-      accessor->_backend->informRuntimeError(path);
     }
     else {
-      // no error: push data
-      accessor->notifications.push_overwrite(dst);
+      // no communication error: push data
+      for(auto accessor : accessors) {
+        accessor->notifications.push_overwrite(dst);
+      }
     }
   }
 
@@ -152,9 +152,8 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
       dmsgStartCalled = true;
     }
 
-    // set active flag, reset hasException flag
+    // set active flag
     subscriptionMap[path].active = true;
-    subscriptionMap[path].hasException = false;
   }
 
   /******************************************************************************************************************/
@@ -188,13 +187,24 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
 
     for(auto& subscription : subscriptionMap) {
       std::unique_lock<std::mutex> listeners_lock(subscription.second.listeners_mutex);
+      std::list<DoocsBackendRegisterAccessorBase*> listeners;
       for(auto& listener : subscription.second.listeners) {
         if(listener->_backend.get() == backend) {
           listener->isActiveZMQ = true;
-          if(!subscription.second.hasException) {
-            pollInitialValue(subscription.first, listener);
+          if(subscription.second.gotInitialValue) {
+            // If the DOOCS initial value was already seen by the callback, put listener to list for initial value poll
+            listeners.push_back(listener);
           }
         }
+      }
+      if(subscription.second.gotInitialValue) {
+        // Poll initial values if and only if the DOOCS initial value was already seen by the callback function. It is
+        // important to do this decision together with setting the isActiveZMQ under the same lock, to avoid a race
+        // condition which might lead to duplicate initial values (the callback function also uses the same lock
+        // when setting gotInitialValue and checking isActiveZMQ).
+        listeners_lock.unlock();
+        pollInitialValue(subscription.first, listeners);
+        listeners_lock.lock();
       }
     }
   }
@@ -215,43 +225,36 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
 
   /******************************************************************************************************************/
 
+  void ZMQSubscriptionManager::pushError(DoocsBackendRegisterAccessorBase* listener,  const std::string &message) {
+    // Don't push exceptions into deactivated listeners.
+    // The check in subscription.second.hasException is not sufficient because it is reset in open(),
+    // but activateAsyncRead() might not have been called when the next setException comes in.
+    if(!listener->isActiveZMQ) return;
+
+    // First deactivate the listener to avoid race conditions with pushing the exception. Nothing must be pushed
+    // after the exception until a succefful open() and activateAsyncRead(). (see. Spec B.9.3.1 and B.9.3.2)
+    listener->isActiveZMQ = false;
+
+    // Now finally put the exception to the queue
+    try {
+      throw ChimeraTK::runtime_error(message);
+     }
+     catch(...) {
+      listener->notifications.push_overwrite_exception(std::current_exception());
+    }
+  }
+
+  /******************************************************************************************************************/
+
   void ZMQSubscriptionManager::deactivateAllListenersAndPushException(DoocsBackend* backend) {
     std::unique_lock<std::mutex> lock(subscriptionMap_mutex);
 
     for(auto& subscription : subscriptionMap) {
-      // put exception to queue
-      {
-        std::unique_lock<std::mutex> listeners_lock(subscription.second.listeners_mutex);
-        if(subscription.second.hasException) continue;
-        // Determine if the subscription has a listener on the affected backend. If so, we deactivate the whole subscription (to be reviewed),
-        // otherwise we leave it intact.
-        bool subscriptionIsForThisBackend = false;
-        for(auto& listener : subscription.second.listeners) {
-          if(listener->_backend.get() == backend) {
-            subscriptionIsForThisBackend = true;
-          }
-        }
-        if(not subscriptionIsForThisBackend) continue;
-
-        subscription.second.hasException = true;
-        for(auto& listener : subscription.second.listeners) {
-          // Don't push exceptions into deactivated listeners.
-          // The check in subscription.second.hasException is not sufficient because it is reset in open(),
-          // but activateAsyncRead() might not have been called when the next setException comes in.
-          if(!listener->isActiveZMQ) continue;
-
-          // First deactivate the listener to avoid race conditions with pushing the exception. Nothing must be pushed
-          // after the exception until a succefful open() and activateAsyncRead(). (see. Spec B.9.3.1 and B.9.3.2)
-          listener->isActiveZMQ = false;
-
-          // Now finally put the exception to the queue
-          try {
-            throw ChimeraTK::runtime_error("Exception reported by another accessor.");
-          }
-          catch(...) {
-            listener->notifications.push_overwrite_exception(std::current_exception());
-          }
-        }
+      std::unique_lock<std::mutex> listeners_lock(subscription.second.listeners_mutex);
+      for(auto& listener : subscription.second.listeners) {
+        // only handle listeners belonging to the current backend
+        if(listener->_backend.get() != backend) continue;
+        pushError(listener, "Exception reported by another accessor.");
       }
     }
   }
@@ -274,11 +277,6 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
       subscription->startedCv.notify_all();
     }
 
-    // We must not push anything to the subscribers as long as the subscription has an exception.
-    if(subscription->hasException) {
-      return;
-    }
-
     // store thread id of the thread calling this function, if not yet done
     if(pthread_equal(subscription->zqmThreadId, pthread_t_invalid)) {
       subscription->zqmThreadId = pthread_self();
@@ -286,62 +284,34 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
 
     // check for error
     if(!DoocsBackend::isCommunicationError(data->error())) {
+      // Set flag that we have received an initial value. (If the flag is not set, any received value is by
+      // definition the initial value.) This must be done independent from listener activation status, because this
+      // is to keep track of the DOOCS-provided initial value.
+      if(!subscription->gotInitialValue) subscription->gotInitialValue = true;
+
       // data has been received: push the data
       for(auto& listener : subscription->listeners) {
         if(listener->isActiveZMQ) {
+          // push data to listener queue
           listener->notifications.push_overwrite(*data);
         }
       }
     }
     else {
-      // error: push an exception
-      try {
-        throw ChimeraTK::runtime_error("ZeroMQ connection interrupted: " + data->get_string());
-      }
-      catch(...) {
-        subscription->hasException = true;
-        for(auto& listener : subscription->listeners) {
-          if(listener->isActiveZMQ) {
-            listener->notifications.push_overwrite_exception(std::current_exception());
-            lock.unlock();
-            listener->_backend->informRuntimeError(listener->_path);
-            lock.lock();
-          }
-        }
+      // Clear initial value flag: we will get a new initial value from DOOCS after the DOOCS-internal recovery
+      // (independent of the backend's error state and recovery!)
+      subscription->gotInitialValue = false;
+
+      // Push exception to the listeners
+      for(auto& listener : subscription->listeners) {
+        pushError(listener, "ZeroMQ connection interrupted: " + data->get_string());
+        lock.unlock();
+        listener->_backend->informRuntimeError(listener->_path);
+        lock.lock();
       }
     }
   }
 
   /******************************************************************************************************************/
-
-  void ZMQSubscriptionManager::reActicateAllSubscriptions(DoocsBackend* backend) {
-    std::unique_lock<std::mutex> subscriptionLock(subscriptionMap_mutex);
-
-    //FIXME: This is not really clean. If there are listeners from multiple backends
-    // on the same subscription the subscription is activated for all of them. As this
-    // is an unlikely scenario (why would you have two devices subscribed to the same property=
-    // the implementation is good enough for now. Subscriptions from other backends are not activated if
-    // they don't have shared listeners.
-    for(auto& subscription : subscriptionMap) {
-      std::unique_lock<std::mutex> listeners_lock(subscription.second.listeners_mutex);
-      for(auto& listener : subscription.second.listeners) {
-        if(listener->_backend.get() == backend) {
-          subscription.second.hasException = false; // solution as it should be, but freezes, see issue #7880
-
-          /* Code that is causing long delays in open(), see issue #7880
-             // Due to the way the functions are used in different context deactivate locks the mutexes internally
-             // while the activate requires the locks to be held already when it is called.
-             auto path = subscription.first;
-             listeners_lock.unlock();
-             subscriptionLock.unlock();
-             deactivateSubscription(path);
-             subscriptionLock.lock();
-             listeners_lock.lock();
-             activateSubscription(path);
-          */
-        } // if backend
-      }   // for listener
-    }     // for scubscription
-  }
 
 }} // namespace ChimeraTK::DoocsBackendNamespace

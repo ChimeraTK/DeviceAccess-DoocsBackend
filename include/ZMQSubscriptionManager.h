@@ -44,10 +44,6 @@ namespace ChimeraTK {
       /// DoocsBackend::setException().
       void deactivateAllListenersAndPushException(DoocsBackend* backend);
 
-      /// Deactivate and re-activate all subscriptions for a given backend. Should be called in DoocsBackend::open() as
-      /// part of the recovery.
-      void reActicateAllSubscriptions(DoocsBackend* backend);
-
      private:
       ZMQSubscriptionManager();
       ~ZMQSubscriptionManager();
@@ -59,8 +55,11 @@ namespace ChimeraTK {
       // Deactivate ZeroMQ subscription. Caller must not own subscriptionMap_mutex or any listeners_mutex.
       void deactivateSubscription(const std::string& path);
 
-      // Poll initial value via RPC call and push it into the queue
-      void pollInitialValue(const std::string& path, DoocsBackendRegisterAccessorBase* accessor);
+      // Poll initial value via RPC call and push it into the queues
+      void pollInitialValue(const std::string& path, const std::list<DoocsBackendRegisterAccessorBase*> &accessors);
+
+      // Push error to listener
+      static void pushError(DoocsBackendRegisterAccessorBase* listener, const std::string &message);
 
       /** static flag if dmsg_start() has been called already, with mutex for thread safety */
       bool dmsgStartCalled{false};
@@ -93,9 +92,13 @@ namespace ChimeraTK {
         bool started{false};
         std::condition_variable startedCv{};
 
-        /// Flag whether an exception has been reported to the listeners since the last activation. Used to prevent
-        /// duplicate exceptions in setException(). Will be cleared during activation. Access requires listeners_mutex.
-        bool hasException{false};
+        /// Set when the first non-error value is received by the callback function. Will be cleared again when the
+        /// subscription has seen a DOOCS error first hand. This is used to control whether an initial value needs to
+        /// be polled by the backend or if this is expected from the DOOCS ZMQ thread.
+        /// Note that the initial value from DOOCS is sent after DOOCS-internal recovery, which is independent of the
+        /// exception state of the backend and its recovery!
+        /// Access requires holding the listeners_mutex.
+        bool gotInitialValue{false};
       };
 
       /// A "random" value of pthread_t which we consider "invalid" in context of Subscription::zqmThreadId. Technically

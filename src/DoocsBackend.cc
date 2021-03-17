@@ -158,7 +158,7 @@ namespace ChimeraTK {
       lastFailedAddress = "";
     }
 
-    DoocsBackendNamespace::ZMQSubscriptionManager::getInstance().reActicateAllSubscriptions(this);
+    DoocsBackendNamespace::ZMQSubscriptionManager::getInstance().activateAllListeners(this);
 
     _opened = true;
     _isFunctional = true;
@@ -199,7 +199,9 @@ namespace ChimeraTK {
 
   void DoocsBackend::informRuntimeError(const std::string& address) {
     std::lock_guard<std::mutex> lk(_mxRecovery);
-    lastFailedAddress = address;
+    if(lastFailedAddress != "") {
+      lastFailedAddress = address;
+    }
   }
 
   /********************************************************************************************************************/
