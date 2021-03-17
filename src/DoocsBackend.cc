@@ -77,13 +77,16 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  DoocsBackend::DoocsBackend(const std::string& serverAddress, const std::string& cacheFile)
+  DoocsBackend::DoocsBackend(const std::string& serverAddress, const std::string& cacheFile, const std::string& updateCache)
   : _serverAddress(serverAddress), _cacheFile(cacheFile) {
     if(cacheFileExists() && isCachingEnabled()) {
       _catalogue_mutable = Cache::readCatalogue(_cacheFile);
     }
-    _catalogueFuture =
+    //anything else then 1 is no cache update.
+    if (updateCache == "1"){
+      _catalogueFuture =
         std::async(std::launch::async, fetchCatalogue, serverAddress, cacheFile, _cancelFlag.get_future());
+    }
     FILL_VIRTUAL_FUNCTION_TEMPLATE_VTABLE(getRegisterAccessor_impl);
   }
 
@@ -128,14 +131,17 @@ namespace ChimeraTK {
       address = std::string(serverAddress).substr(1);
     }
     std::string cacheFile{};
+    std::string updateCache{"0"};
     try {
       cacheFile = parameters.at("cacheFile");
+      updateCache = parameters.at("updateCache");
     }
     catch(std::out_of_range&) {
       // empty cacheFile string => no caching
+      // empty updateCache string => no cache update
     }
     // create and return the backend
-    return boost::shared_ptr<DeviceBackend>(new DoocsBackend(address, cacheFile));
+    return boost::shared_ptr<DeviceBackend>(new DoocsBackend(address, cacheFile, updateCache));
   }
 
   /********************************************************************************************************************/
@@ -157,9 +163,7 @@ namespace ChimeraTK {
       }
       lastFailedAddress = "";
     }
-
     DoocsBackendNamespace::ZMQSubscriptionManager::getInstance().activateAllListeners(this);
-
     _opened = true;
     _isFunctional = true;
     _startVersion = {};
