@@ -203,7 +203,7 @@ namespace ChimeraTK {
 
   void DoocsBackend::informRuntimeError(const std::string& address) {
     std::lock_guard<std::mutex> lk(_mxRecovery);
-    if(lastFailedAddress != "") {
+    if(lastFailedAddress == "") {
       lastFailedAddress = address;
     }
   }
