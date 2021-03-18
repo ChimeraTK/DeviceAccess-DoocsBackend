@@ -82,8 +82,9 @@ namespace ChimeraTK {
     if(cacheFileExists() && isCachingEnabled()) {
       _catalogue_mutable = Cache::readCatalogue(_cacheFile);
     }
-    //anything else then 1 is no cache update.
-    if (updateCache == "1"){
+    //if _catalogue_mutable is now set, fetchCatalogue only if updateCache is set to 1.
+    if ( _catalogue_mutable == nullptr  ||
+       (_catalogue_mutable != nullptr  && updateCache == "1")  )  {
       _catalogueFuture =
         std::async(std::launch::async, fetchCatalogue, serverAddress, cacheFile, _cancelFlag.get_future());
     }

@@ -49,7 +49,7 @@ class DoocsLauncher : public ThreadedDoocsServer {
     DoocsServer1 = "(doocs:doocs://localhost:" + rpcNo() + "/F/D)";
     DoocsServer1_cached = "(doocs:doocs://localhost:" + rpcNo() + "/F/D?cacheFile=" + cacheFile1 + ")";
     DoocsServer2 = "(doocs:doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY)";
-    DoocsServer2_cached = "(doocs:doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY?cacheFile=" + cacheFile2 + ")";
+    DoocsServer2_cached = "(doocs:doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY?cacheFile=" + cacheFile2 + "&updateCache=1)";
 
     // wait until server has started (both the update thread and the rpc thread)
     EqCall eq;
