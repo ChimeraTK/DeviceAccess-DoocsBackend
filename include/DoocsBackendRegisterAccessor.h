@@ -131,7 +131,10 @@ namespace ChimeraTK {
       // Otherwise it might be possible that the EventIDMapper allready removed the old event id from
       // its cache and will generate a new versionnumber for the same event id.
       // This prevents not updating slow- if ever changing variables that are polled periodically
-      if(_lastEventId != dst.get_event_id()) {
+      //
+      // During startup, we can receive multiple receives with event_id == 0. The first check ensures that
+      // we do not hand out the VersionNumber{nullptr} then
+      if(_lastEventId == 0 || _lastEventId != dst.get_event_id()) {
         // Get VersionNumber from the EventIdMapper. See spec B.1.3.3.
         auto newVersionNumber = EventIdMapper::getInstance().getVersionForEventId(dst.get_event_id());
 
