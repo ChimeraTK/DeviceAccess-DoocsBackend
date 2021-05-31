@@ -1469,11 +1469,26 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
   auto catalogue = device.getRegisterCatalogue();
   auto eqfct = reinterpret_cast<eq_dummy*>(find_device("MYDUMMY"));
 
+  auto acc1 = device.getScalarRegisterAccessor<int>("MYDUMMY/SOME_INT");
+  auto acc2 = device.getScalarRegisterAccessor<float>("MYDUMMY/SOME_FLOAT");
+
+  // Start with eventID 0 - even with that, we should not get VersionNumber{nullptr}
+  auto id = eqfct->counter;
+  eqfct->counter = 0;
+
   // Run update once to have the ZMQ variable's mp number updated
   DoocsServerTestHelper::runUpdate();
 
-  auto acc1 = device.getScalarRegisterAccessor<int>("MYDUMMY/SOME_INT");
-  auto acc2 = device.getScalarRegisterAccessor<float>("MYDUMMY/SOME_FLOAT");
+  acc1.read();
+  acc2.read();
+
+  BOOST_CHECK(acc1.getVersionNumber() != ChimeraTK::VersionNumber{nullptr});
+  BOOST_CHECK(acc1.getVersionNumber() != ChimeraTK::VersionNumber{nullptr});
+
+  eqfct->counter = id;
+
+  // Run update once to have the ZMQ variable's mp number updated
+  DoocsServerTestHelper::runUpdate();
 
   acc1.read();
   acc2.read();
