@@ -317,7 +317,7 @@ namespace ChimeraTK {
       p.reset(new DoocsBackendFloatRegisterAccessor<UserType>(
           sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags));
     }
-    else if(doocsTypeId == DATA_TEXT || doocsTypeId == DATA_STRING || doocsTypeId == DATA_STRING16) {
+    else if(doocsTypeId == DATA_TEXT || doocsTypeId == DATA_STRING) {
       p.reset(new DoocsBackendStringRegisterAccessor<UserType>(
           sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags));
     }

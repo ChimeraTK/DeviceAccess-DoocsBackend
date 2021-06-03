@@ -259,7 +259,7 @@ namespace ChimeraTK {
     }
 
     // strings report number of characters, not number of strings..
-    if(typeId == DATA_TEXT || typeId == DATA_STRING || typeId == DATA_STRING16) {
+    if(typeId == DATA_TEXT || typeId == DATA_STRING) {
       actualLength = 1;
     }
 

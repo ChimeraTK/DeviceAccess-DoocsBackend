@@ -13,17 +13,15 @@ RegisterInfoList DoocsBackendRegisterInfo::create(const std::string &name, unsig
 
   if (info->_length == 0)
     info->_length = 1; // DOOCS reports 0 if not an array
-  if (doocsType == DATA_TEXT || doocsType == DATA_STRING || doocsType == DATA_STRING16 ||
+  if(doocsType == DATA_TEXT || doocsType == DATA_STRING ||
       doocsType == DATA_USTR) { // in case of strings, DOOCS reports the length
     // of the string
     info->_length = 1;
     info->dataDescriptor = ChimeraTK::RegisterInfo::DataDescriptor(ChimeraTK::RegisterInfo::FundamentalType::string);
     list.push_back(info);
-
-  } else if (doocsType == DATA_INT || doocsType == DATA_A_INT ||
-      doocsType == DATA_A_SHORT || doocsType == DATA_A_LONG ||
-      doocsType == DATA_A_BYTE ||
-      doocsType == DATA_IIII) { // integral data types
+  }
+  else if(doocsType == DATA_INT || doocsType == DATA_A_INT || doocsType == DATA_A_SHORT || doocsType == DATA_A_LONG ||
+      doocsType == DATA_A_BYTE || doocsType == DATA_IIII) { // integral data types
     size_t digits;
     if (doocsType == DATA_A_SHORT) { // 16 bit signed
       digits = 6;
@@ -40,8 +38,8 @@ RegisterInfoList DoocsBackendRegisterInfo::create(const std::string &name, unsig
     info->dataDescriptor = ChimeraTK::RegisterInfo::DataDescriptor(
         ChimeraTK::RegisterInfo::FundamentalType::numeric, true, true, digits);
     list.push_back(info);
-
-  } else if (doocsType == DATA_IFFF) {
+  }
+  else if(doocsType == DATA_IFFF) {
     info->_name = name + "/I";
     info->dataDescriptor = ChimeraTK::RegisterInfo::DataDescriptor(
         ChimeraTK::RegisterInfo::FundamentalType::numeric, true, true, 11); // 32 bit integer
@@ -61,8 +59,8 @@ RegisterInfoList DoocsBackendRegisterInfo::create(const std::string &name, unsig
     list.push_back(infoF1);
     list.push_back(infoF2);
     list.push_back(infoF3);
-
-  } else { // floating point data types: always treat like double
+  }
+  else { // floating point data types: always treat like double
     info->dataDescriptor = ChimeraTK::RegisterInfo::DataDescriptor(
         ChimeraTK::RegisterInfo::FundamentalType::numeric, false, true, 320, 300);
     list.push_back(info);

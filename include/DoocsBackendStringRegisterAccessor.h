@@ -47,8 +47,7 @@ namespace ChimeraTK {
     }
     // check data type
     if(DoocsBackendRegisterAccessor<UserType>::src.type() != DATA_TEXT &&
-        DoocsBackendRegisterAccessor<UserType>::src.type() != DATA_STRING &&
-        DoocsBackendRegisterAccessor<UserType>::src.type() != DATA_STRING16) {
+        DoocsBackendRegisterAccessor<UserType>::src.type() != DATA_STRING) {
       this->shutdown();
       throw ChimeraTK::logic_error(std::string("DOOCS data type ") +
           std::to_string(DoocsBackendRegisterAccessor<UserType>::dst.type()) +
