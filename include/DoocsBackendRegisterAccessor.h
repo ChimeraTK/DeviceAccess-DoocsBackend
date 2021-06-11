@@ -66,7 +66,6 @@ namespace ChimeraTK {
 
    protected:
     /// first valid eventId
-    doocs::EventId _startEventId{0};
     doocs::EventId _lastEventId;
   };
 
@@ -115,15 +114,21 @@ namespace ChimeraTK {
       // messages of the DOOCS history archiver, which rejects data due to wrong time stamps. Hence we better generate
       // our own time stamp here.
 
-      // If the eventid is older than the last one, keep VersionNumber unchanged and set data fault flag.
+      // See spec. B.1.3.4.2
+      TransferElement::setDataValidity(dst.error() == 0 ? DataValidity::ok : DataValidity::faulty);
+
+      // If the eventid is valid (!= 0) but older than the last one, we have backward running eventids but VersionNumber must not run backwards.
+      // Keep VersionNumber unchanged and return.
       // See spec B.1.3.2.
       // (Note: after a re-connection to a slow variable the version number might be the same)
-      if(dst.get_event_id() < _lastEventId) {
-        TransferElement::setDataValidity(DataValidity::faulty);
-        if(_startEventId > doocs::EventId(0) && dst.get_event_id() > _startEventId + 10) {
-          std::cout << "warning, " << _path << " current eventId " << dst.get_event_id()
-                    << " is not bigger than the last vaild eventId " << _lastEventId << std::endl;
-        }
+      if (dst.get_event_id() != doocs::EventId(0) && dst.get_event_id() < _lastEventId) {
+        return;
+      }
+
+      if (_lastEventId == doocs::EventId()) {
+        // See spec. B.1.3.4.1
+        TransferElement::_versionNumber = {};
+        _lastEventId = dst.get_event_id();
         return;
       }
 
@@ -134,42 +139,27 @@ namespace ChimeraTK {
       //
       // During startup, we can receive multiple receives with event_id == 0. The first check ensures that
       // we do not hand out the VersionNumber{nullptr} then
-      if(_lastEventId == doocs::EventId() || _lastEventId != dst.get_event_id()) {
+      //if(_lastEventId == doocs::EventId() || _lastEventId != dst.get_event_id()) {
         // Get VersionNumber from the EventIdMapper. See spec B.1.3.3.
-        auto newVersionNumber = EventIdMapper::getInstance().getVersionForEventId(dst.get_event_id());
+      auto newVersionNumber = EventIdMapper::getInstance().getVersionForEventId(dst.get_event_id());
 
-        // Minimum version is _backend->_startVersion. See spec. B.1.3.3.1.
-        auto startVersion = _backend->getStartVersion();
-        if(newVersionNumber < startVersion) {
-          newVersionNumber = startVersion;
-        }
-
-        // Version still must not go backwards. See spec B.1.3.3.2.
-        if(newVersionNumber < TransferElement::_versionNumber) {
-          TransferElement::setDataValidity(DataValidity::faulty);
-          if(_startEventId > doocs::EventId(0) && dst.get_event_id() > _startEventId + 10) {
-            std::cout << "warning, " << _path << " newVersionNumber " << std::string(newVersionNumber)
-                      << " smaller than the last vaild versionNumber " << std::string(TransferElement::_versionNumber)
-                      << std::endl;
-          }
-          return;
-        }
-
-        assert(newVersionNumber >= TransferElement::_versionNumber);
-        assert(newVersionNumber >= startVersion);
-
-        // See spec. B.1.3.4.1
-        TransferElement::_versionNumber = newVersionNumber;
-        _lastEventId = dst.get_event_id();
+      // Minimum version is _backend->_startVersion. See spec. B.1.3.3.1.
+      auto startVersion = _backend->getStartVersion();
+      if(newVersionNumber < startVersion) {
+        newVersionNumber = startVersion;
       }
 
-      // See spec. B.1.3.4.2
-      TransferElement::setDataValidity(dst.error() == 0 ? DataValidity::ok : DataValidity::faulty);
-
-      // Just used for the suppression of the warning messages...
-      if(_startEventId == doocs::EventId(0)) {
-        _startEventId = _lastEventId;
+      // Version still must not go backwards. See spec B.1.3.3.2.
+      // If the sender is sending a valid eventid, afterwards sends eventid 0, and after that sends
+      // same eventid again, then the last sent version in this transfer element has been increased
+      // by eventid 0 and now newVersionNumber which is coming from the EventIDMapper is older.
+      if(newVersionNumber < TransferElement::_versionNumber) {
+        return;
       }
+
+      // See spec. B.1.3.4.1
+      TransferElement::_versionNumber = newVersionNumber;
+      _lastEventId = dst.get_event_id();
     }
 
     bool isReadOnly() const override { return isReadable() && not isWriteable(); }
@@ -207,8 +197,8 @@ namespace ChimeraTK {
     void write_internal();
 
     /**
-     *  Perform initialisation (i.e. connect to server etc.). 
-     * 
+     *  Perform initialisation (i.e. connect to server etc.).
+     *
      *  Note: must *only* throw ChimeraTK::logic_error. Just do not proceed with the initialisation if a runtime_error
      *  is to be thrown - this will then be done in the transfer.
      */
