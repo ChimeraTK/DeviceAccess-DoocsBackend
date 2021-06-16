@@ -1472,31 +1472,52 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
 
   auto acc1 = device.getScalarRegisterAccessor<int>("MYDUMMY/SOME_INT");
   auto acc2 = device.getScalarRegisterAccessor<float>("MYDUMMY/SOME_FLOAT");
+  auto acc1_id = device.getScalarRegisterAccessor<int64_t>("MYDUMMY/SOME_INT/eventId");
+  auto acc2_id = device.getScalarRegisterAccessor<int64_t>("MYDUMMY/SOME_FLOAT/eventId");
 
   // Start with eventID 0 - even with that, we should not get VersionNumber{nullptr}
   auto id = eqfct->counter;
   eqfct->counter = 0;
 
-  // Run update once to have the ZMQ variable's mp number updated
+  // Run update once to have the ZMQ variable's mp number updated to 0 (before reading anything, i.e.
+  // before having id in the EventID mapper
   DoocsServerTestHelper::runUpdate();
 
   acc1.read();
+  acc1_id.read();
   acc2.read();
+  acc2_id.read();
 
   BOOST_CHECK(acc1.getVersionNumber() != ChimeraTK::VersionNumber{nullptr});
-  BOOST_CHECK(acc1.getVersionNumber() != ChimeraTK::VersionNumber{nullptr});
+  BOOST_CHECK(acc2.getVersionNumber() != ChimeraTK::VersionNumber{nullptr});
+  // notice: The version numbers for acc1 and acc2 are not the same, and also
+  // those of acc1_id and acc2_id  do not match any of them. Data with eventId 0 cannot be correlated at all.
+  BOOST_CHECK(acc1_id == 0);
+  BOOST_CHECK(acc2_id == 0);
 
   eqfct->counter = id;
 
-  // Run update once to have the ZMQ variable's mp number updated
+  // Run update once to have the ZMQ variable's mp number updated. As it was not in the mapper yet,
+  // the according VersionNumber will be larger that the ones from the last reads with eventID 0, so the
+  // correlation works. (see further test with eventID 0 at the end of the sequence).
   DoocsServerTestHelper::runUpdate();
 
   acc1.read();
   acc2.read();
+  acc1_id.read();
+  acc2_id.read();
 
   BOOST_CHECK_MESSAGE(acc1.getVersionNumber() == acc2.getVersionNumber(),
       static_cast<std::string>(acc1.getVersionNumber()) + " should be equal to " +
           static_cast<std::string>(acc2.getVersionNumber()));
+  BOOST_CHECK_MESSAGE(acc1.getVersionNumber() == acc1_id.getVersionNumber(),
+      static_cast<std::string>(acc1.getVersionNumber()) + " should be equal to " +
+          static_cast<std::string>(acc1_id.getVersionNumber()));
+  BOOST_CHECK_MESSAGE(acc2.getVersionNumber() == acc2_id.getVersionNumber(),
+      static_cast<std::string>(acc2.getVersionNumber()) + " should be equal to " +
+          static_cast<std::string>(acc2_id.getVersionNumber()));
+  BOOST_CHECK_EQUAL(acc1_id, id);
+  BOOST_CHECK_EQUAL(acc2_id, id);
 
   // update() will set a new eventId
   DoocsServerTestHelper::runUpdate();
@@ -1571,7 +1592,9 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
           static_cast<std::string>(acc2.getVersionNumber()));
   lastVersion = acc3.getVersionNumber();
 
+  //+++++++++++++++++++++++++++++++++
   // Check out-of-order updates
+  //+++++++++++++++++++++++++++++++++
   // We use acc3 from device2 to fill two events in normal order, then read the two events in inverse order on acc1
   // and acc2 of device1.
   auto id1 = eqfct->counter; // eqfct->counter gets incremented at the end of update()...
@@ -1600,6 +1623,74 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
   BOOST_CHECK_MESSAGE(acc1.getVersionNumber() == ver2,
       static_cast<std::string>(acc1.getVersionNumber()) + " should be equal to " + static_cast<std::string>(ver2));
   BOOST_CHECK(acc1.dataValidity() == DataValidity::ok);
+
+  //++++++++++++++++++++++++++++++++++++++++++++++
+  // Check eventID 0 mixed with regular updates
+  //++++++++++++++++++++++++++++++++++++++++++++++
+  // first do two update so we get out of the out-of-order sequence
+  DoocsServerTestHelper::
+      runUpdate(); // after the first update we are back to ID 2 from above. Just get a new one again..
+  DoocsServerTestHelper::runUpdate();
+
+  acc1.read();
+  auto lastRegularAcc1Version = acc1.getVersionNumber();
+  acc1_id.read();
+  int64_t lastRegularEventId = acc1_id;
+  BOOST_CHECK_MESSAGE(acc1.getVersionNumber() == acc1_id.getVersionNumber(),
+      static_cast<std::string>(acc1.getVersionNumber()) + " should be equal to " +
+          static_cast<std::string>(acc1_id.getVersionNumber()));
+
+  // now process some data with event ID 0
+  auto idAfterZero = eqfct->counter; // the id that would have been given out
+  eqfct->counter = 0;
+  DoocsServerTestHelper::runUpdate();
+
+  // the version number increases with event ID 0
+  acc1.read();
+  acc1_id.read();
+  auto acc1VersionForId0 = acc1.getVersionNumber();
+  auto acc1_idVersionForId0 = acc1_id.getVersionNumber();
+  BOOST_CHECK(acc1.getVersionNumber() > lastRegularAcc1Version);
+  BOOST_CHECK(acc1_id.getVersionNumber() > lastRegularAcc1Version);
+  BOOST_CHECK_EQUAL(acc1_id, 0);
+
+  // Now send the same eventID again as we had it before the 0 (a new version has already been tested in the start sequence,
+  // where id 0 was the first one to be received)
+  eqfct->counter = lastRegularEventId;
+  DoocsServerTestHelper::runUpdate();
+
+  acc1.read();
+  acc1_id.read();
+  BOOST_CHECK_MESSAGE(acc1.getVersionNumber() == acc1VersionForId0, // version has not changed
+      static_cast<std::string>(acc1.getVersionNumber()) + " should be equal to " +
+          static_cast<std::string>(acc1VersionForId0));
+  BOOST_CHECK_MESSAGE(acc1_id.getVersionNumber() == acc1_idVersionForId0, // version has not changed
+      static_cast<std::string>(acc1_id.getVersionNumber()) + " should be equal to " +
+          static_cast<std::string>(acc1_idVersionForId0));
+  BOOST_CHECK_EQUAL(acc1_id, lastRegularEventId); // the data content of acc1_id changed -> we lost the consistency
+
+  // acc2 has not seen the id 0 and still is consistent
+  acc2.read();
+  acc2_id.read();
+  BOOST_CHECK_MESSAGE(acc2.getVersionNumber() == lastRegularAcc1Version, // version has not changed
+      static_cast<std::string>(acc2.getVersionNumber()) + " should be equal to " +
+          static_cast<std::string>(lastRegularAcc1Version));
+  BOOST_CHECK_MESSAGE(acc2_id.getVersionNumber() == lastRegularAcc1Version, // version has not changed
+      static_cast<std::string>(acc2_id.getVersionNumber()) + " should be equal to " +
+          static_cast<std::string>(lastRegularAcc1Version));
+  BOOST_CHECK_EQUAL(acc2_id, lastRegularEventId);
+
+  // after the next update, acc1 is back to consistent again
+  DoocsServerTestHelper::runUpdate();
+
+  acc1.read();
+  acc1_id.read();
+  BOOST_CHECK(acc1.getVersionNumber() > acc1VersionForId0);
+
+  BOOST_CHECK_MESSAGE(acc1.getVersionNumber() == acc1_id.getVersionNumber(),
+      static_cast<std::string>(acc1.getVersionNumber()) + " should be equal to " +
+          static_cast<std::string>(acc1_id.getVersionNumber()));
+  BOOST_CHECK_EQUAL(acc1_id, idAfterZero);
 }
 
 /**********************************************************************************************************************/
