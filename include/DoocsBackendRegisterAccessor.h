@@ -121,11 +121,11 @@ namespace ChimeraTK {
       // Keep VersionNumber unchanged and return.
       // See spec B.1.3.2.
       // (Note: after a re-connection to a slow variable the version number might be the same)
-      if (dst.get_event_id() != doocs::EventId(0) && dst.get_event_id() < _lastEventId) {
+      if(dst.get_event_id() != doocs::EventId(0) && dst.get_event_id() < _lastEventId) {
         return;
       }
 
-      if (_lastEventId == doocs::EventId()) {
+      if(_lastEventId == doocs::EventId()) {
         // See spec. B.1.3.4.1
         TransferElement::_versionNumber = {};
         _lastEventId = dst.get_event_id();
@@ -140,7 +140,7 @@ namespace ChimeraTK {
       // During startup, we can receive multiple receives with event_id == 0. The first check ensures that
       // we do not hand out the VersionNumber{nullptr} then
       //if(_lastEventId == doocs::EventId() || _lastEventId != dst.get_event_id()) {
-        // Get VersionNumber from the EventIdMapper. See spec B.1.3.3.
+      // Get VersionNumber from the EventIdMapper. See spec B.1.3.3.
       auto newVersionNumber = EventIdMapper::getInstance().getVersionForEventId(dst.get_event_id());
 
       // Minimum version is _backend->_startVersion. See spec. B.1.3.3.1.
