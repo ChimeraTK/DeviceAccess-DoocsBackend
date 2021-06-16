@@ -49,7 +49,8 @@ class DoocsLauncher : public ThreadedDoocsServer {
     DoocsServer1 = "(doocs:doocs://localhost:" + rpcNo() + "/F/D)";
     DoocsServer1_cached = "(doocs:doocs://localhost:" + rpcNo() + "/F/D?cacheFile=" + cacheFile1 + ")";
     DoocsServer2 = "(doocs:doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY)";
-    DoocsServer2_cached = "(doocs:doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY?cacheFile=" + cacheFile2 + "&updateCache=1)";
+    DoocsServer2_cached =
+        "(doocs:doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY?cacheFile=" + cacheFile2 + "&updateCache=1)";
 
     // wait until server has started (both the update thread and the rpc thread)
     EqCall eq;
@@ -1594,11 +1595,11 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
       static_cast<std::string>(acc2.getVersionNumber()) + " should be equal to " + static_cast<std::string>(ver1));
   BOOST_CHECK(acc2.dataValidity() == DataValidity::ok);
 
-  // backwards going eventId on same accessor does not change VersionNumber and sets DataValidity::faulty
+  // backwards going eventId on same accessor does not change VersionNumber. Data validity stays ok
   acc1.read();
   BOOST_CHECK_MESSAGE(acc1.getVersionNumber() == ver2,
       static_cast<std::string>(acc1.getVersionNumber()) + " should be equal to " + static_cast<std::string>(ver2));
-  BOOST_CHECK(acc1.dataValidity() == DataValidity::faulty);
+  BOOST_CHECK(acc1.dataValidity() == DataValidity::ok);
 }
 
 /**********************************************************************************************************************/

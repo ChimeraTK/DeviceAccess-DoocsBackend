@@ -125,7 +125,7 @@ namespace ChimeraTK {
         return;
       }
 
-      if(_lastEventId == doocs::EventId()) {
+      if(dst.get_event_id() == doocs::EventId()) {
         // See spec. B.1.3.4.1
         TransferElement::_versionNumber = {};
         _lastEventId = dst.get_event_id();
