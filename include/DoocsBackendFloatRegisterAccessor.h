@@ -120,9 +120,16 @@ namespace ChimeraTK {
 
   /**********************************************************************************************************************/
 
+  template<>
+  void DoocsBackendFloatRegisterAccessor<ChimeraTK::Void>::doPostRead(TransferType type, bool hasNewData) {
+    DoocsBackendRegisterAccessor<ChimeraTK::Void>::doPostRead(type, hasNewData);
+  }
+
+  /**********************************************************************************************************************/
+
   template<typename UserType>
   void DoocsBackendFloatRegisterAccessor<UserType>::doPostRead(TransferType type, bool hasNewData) {
-    static_assert(std::numeric_limits<UserType>::is_integer,
+    static_assert(std::numeric_limits<UserType>::is_integer || std::is_same<UserType, ChimeraTK::Boolean>::value,
         "Data type not implemented."); // only integral types left!
 
     DoocsBackendRegisterAccessor<UserType>::doPostRead(type, hasNewData);
@@ -167,6 +174,14 @@ namespace ChimeraTK {
     }
   }
 
+  /**********************************************************************************************************************/
+
+  template<>
+  void DoocsBackendFloatRegisterAccessor<ChimeraTK::Void>::doPreWrite(TransferType type, VersionNumber version) {
+    DoocsBackendRegisterAccessor<ChimeraTK::Void>::doPreWrite(type, version);
+
+    src.set(0);
+  }
   /**********************************************************************************************************************/
 
   template<typename UserType>
