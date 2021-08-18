@@ -313,7 +313,7 @@ struct RegSomeStatus : ScalarDefaults<RegSomeStatus> {
 struct RegSomeBit : ScalarDefaults<RegSomeBit> {
   std::string path() { return "MYDUMMY/SOME_BIT"; }
   D_bit& prop{location->prop_someBit};
-  typedef uint8_t minimumUserType;
+  typedef ChimeraTK::Boolean minimumUserType;
   uint8_t increment{0}; // unused
 
   template<typename UserType>
