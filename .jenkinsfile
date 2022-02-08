@@ -1,2 +1,2 @@
 @Library('ChimeraTK') _
-autojob(['ChimeraTK/DeviceAccess', 'ChimeraTK/DOOCS_server_test_helper'], 'https://github.com/ChimeraTK/DeviceAccess-DoocsBackend')
+autojob(['ChimeraTK/DeviceAccess', 'ChimeraTK/DoocsServerTestHelper'], 'https://github.com/ChimeraTK/DeviceAccess-DoocsBackend')
