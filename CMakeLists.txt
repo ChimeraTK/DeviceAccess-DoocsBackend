@@ -29,34 +29,39 @@ PKG_CHECK_MODULES(glib REQUIRED glib-2.0)
 include_directories(SYSTEM "${LibXML++_INCLUDEDIR}/${LIBXML++_VERSION}" ${glib_INCLUDE_DIRS} ${LibXML++_INCLUDE_DIRS})
 
 set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include/)
-ENABLE_TESTING()
 
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${DOOCS_DIR}")
 
 aux_source_directory(${CMAKE_SOURCE_DIR}/src library_sources)
 
-# Create the executables for automated unit testing.
-# Currently we assume that they are all tests contained in one file, so
-# each file gives a new executable. This section has to be adapted if this should change.
-# loop over all sources files in execultables_src directory
-aux_source_directory(${CMAKE_SOURCE_DIR}/tests/executables_src testExecutables)
-foreach( testExecutableSrcFile ${testExecutables})
-  # NAME_WE means the base name without path and (longest) extension
-  get_filename_component(excutableName ${testExecutableSrcFile} NAME_WE)
-  # each test includes a DOOCS server
-  add_executable(${excutableName} ${testExecutableSrcFile} ${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer/doocsDummy_rpc_server.cc ${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer/eq_dummy.cc)
-  set_target_properties(${excutableName} PROPERTIES COMPILE_FLAGS "${ChimeraTK-DeviceAccess_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-  set_target_properties(${excutableName} PROPERTIES LINK_FLAGS "${DOOCS_LINKER_FLAGS} ${doocs-server-test-helper_LINKER_FLAGS} ${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
-  target_include_directories(${excutableName} PRIVATE "${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer")
-  target_link_libraries(${excutableName} ${doocs-server-test-helper_LIBRARIES} ${ChimeraTK-DeviceAccess_LIBRARIES} ${DOOCS_LIBRARIES} ${PROJECT_NAME})
-  add_test(${excutableName} ${excutableName})
-  # copy config file
-  FILE( COPY ${CMAKE_SOURCE_DIR}/tests/doocsDummy_rpc_server.conf DESTINATION ${PROJECT_BINARY_DIR})
-  FILE( RENAME ${PROJECT_BINARY_DIR}/doocsDummy_rpc_server.conf ${PROJECT_BINARY_DIR}/${excutableName}.conf)
-endforeach( testExecutableSrcFile )
+option(BUILD_TESTS "Build test programs" ON)
+if(BUILD_TESTS)
 
-FILE( COPY ${CMAKE_SOURCE_DIR}/tests/dummies.dmap DESTINATION ${PROJECT_BINARY_DIR})
+  # Create the executables for automated unit testing.
+  # Currently we assume that they are all tests contained in one file, so
+  # each file gives a new executable. This section has to be adapted if this should change.
+  # loop over all sources files in execultables_src directory
+  ENABLE_TESTING()
+  aux_source_directory(${CMAKE_SOURCE_DIR}/tests/executables_src testExecutables)
+  foreach( testExecutableSrcFile ${testExecutables})
+    # NAME_WE means the base name without path and (longest) extension
+    get_filename_component(excutableName ${testExecutableSrcFile} NAME_WE)
+    # each test includes a DOOCS server
+    add_executable(${excutableName} ${testExecutableSrcFile} ${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer/doocsDummy_rpc_server.cc ${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer/eq_dummy.cc)
+    set_target_properties(${excutableName} PROPERTIES COMPILE_FLAGS "${ChimeraTK-DeviceAccess_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
+    set_target_properties(${excutableName} PROPERTIES LINK_FLAGS "${DOOCS_LINKER_FLAGS} ${doocs-server-test-helper_LINKER_FLAGS} ${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
+    target_include_directories(${excutableName} PRIVATE "${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer")
+    target_link_libraries(${excutableName} ${doocs-server-test-helper_LIBRARIES} ${ChimeraTK-DeviceAccess_LIBRARIES} ${DOOCS_LIBRARIES} ${PROJECT_NAME})
+    add_test(${excutableName} ${excutableName})
+    # copy config file
+    FILE( COPY ${CMAKE_SOURCE_DIR}/tests/doocsDummy_rpc_server.conf DESTINATION ${PROJECT_BINARY_DIR})
+    FILE( RENAME ${PROJECT_BINARY_DIR}/doocsDummy_rpc_server.conf ${PROJECT_BINARY_DIR}/${excutableName}.conf)
+  endforeach( testExecutableSrcFile )
+
+  FILE( COPY ${CMAKE_SOURCE_DIR}/tests/dummies.dmap DESTINATION ${PROJECT_BINARY_DIR})
+
+endif()
 
 #The make coverage command is only available in debug mode
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
