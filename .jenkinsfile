@@ -1,2 +1,2 @@
 @Library('ChimeraTK') _
-buildTestDeploy(['ChimeraTK-DeviceAccess', 'DOOCS_server_test_helper'])
+autojob(['ChimeraTK/DeviceAccess', 'ChimeraTK/DoocsServerTestHelper'], 'https://github.com/ChimeraTK/DeviceAccess-DoocsBackend')
