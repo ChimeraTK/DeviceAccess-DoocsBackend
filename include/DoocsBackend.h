@@ -5,8 +5,9 @@
  *      Author: Martin Hierholzer
  */
 
-#ifndef MTCA4U_DOOCS_BACKEND_H
-#define MTCA4U_DOOCS_BACKEND_H
+#pragma once
+
+#include "RegisterInfo.h"
 
 #include <mutex>
 #include <future>
@@ -18,34 +19,50 @@ namespace ChimeraTK {
 
   class DoocsBackendRegisterAccessorBase;
 
-  /** Backend to access DOOCS control system servers.
+  /**
+   * Backend to access DOOCS control system servers.
    *
-   *  The sdm URI should look like this:
-   *  sdm://./doocs=FACILITY,DEVICE
+   * The CDD should look like this:
+   * 
+   * (doocs:FACILITY/DEVICE)
+   * 
+   * or:
+   * 
+   * (doocs:FACILITY/DEVICE/LOCATION)
    *
-   *  FACILITY and DEVICE are the first two components of the DOOCS addresses
-   * targeted by this device. The full addess is completed by adding the location
-   * and property name from the register path names. Thus the register path names
-   *  must be of the form "LOCATION/PROPERTY".
+   * The given path components are prefixed to the register names, hence if the LOCATION is not specified in the CDD,
+   * the register names will be of the form LOCATION/PROPERTY, while otherwise the register names will be just the
+   * property names.
+   * 
+   * If the parameter "cacheFile" in the CDD is specified, e.g.:
+   * 
+   * (doocs:FACILITY/DEVICE/LOCATION?cacheFile=myDooceDevice.cache)
+   * 
+   * the register catalogue will be cached in the given file and reused next time. This allows to speed up the filling
+   * of the catalogue (which may take a very long time for large number of properties).
+   * 
+   * Please note that the cache file is only updated when the "updateCache" parameter is set to 1, e.g.:
+   * 
+   * (doocs:FACILITY/DEVICE/LOCATION?cacheFile=myDooceDevice.cache&updateCache=1)
+   * 
+   * Otherwise no catalogue updating will be initiated if the cache file is already present.
    *
-   *  If AccessMode::wait_for_new_data is specified when obtaining accessors,
-   * ZeroMQ is used to subscribe to the variable and blocking read() will wait
-   * until new data has arrived via the subscribtion. If the flag is not
-   *  specified, data will be retrieved through standard RPC calls. Note that in
-   * either case a first read transfer is performed upon creation of the accessor
-   * to make sure the property exists and the server is reachable. Due to
-   * limitations in the DOOCS API it is not possible to test whether a property
-   * has been published via ZeroMQ or not, so specifying
-   * AccessMode::wait_for_new_data for non-ZeroMQ properties will make read()
-   * waiting forever.
+   * If AccessMode::wait_for_new_data is specified when obtaining accessors, ZeroMQ is used to subscribe to the variable
+   * and blocking read() will wait until new data has arrived via the subscribtion. If the flag is not specified, data
+   * will be retrieved through standard RPC calls. Note that in either case a first read transfer is performed upon
+   * creation of the accessor to make sure the property exists and the server is reachable, and to obtain the initial
+   * value.
    */
   class DoocsBackend : public DeviceBackendImpl {
    public:
     ~DoocsBackend() override;
 
-    DoocsBackend(const std::string& serverAddress, const std::string& cacheFile = {}, const std::string& updateCache = {});
+    DoocsBackend(
+        const std::string& serverAddress, const std::string& cacheFile = {}, const std::string& updateCache = {});
 
-    const RegisterCatalogue& getRegisterCatalogue() const override;
+    RegisterCatalogue getRegisterCatalogue() const override;
+
+    const DoocsBackendRegisterCatalogue& getBackendRegisterCatalogue() const;
 
     void open() override;
 
@@ -67,9 +84,6 @@ namespace ChimeraTK {
 
     /** DOOCS address component for the server (FACILITY/DEVICE) */
     std::string _serverAddress;
-
-    /** We need to make the catalogue mutable, since we fill it within getRegisterCatalogue() */
-    mutable std::unique_ptr<RegisterCatalogue> _catalogue_mutable{};
 
     /** Class to register the backend type with the factory. */
     class BackendRegisterer {
@@ -101,8 +115,9 @@ namespace ChimeraTK {
 
    private:
     std::string _cacheFile;
-    mutable std::future<std::unique_ptr<RegisterCatalogue>> _catalogueFuture;
     std::promise<void> _cancelFlag{};
+    mutable std::future<DoocsBackendRegisterCatalogue> _catalogueFuture;
+    mutable DoocsBackendRegisterCatalogue catalogue;
 
     bool cacheFileExists();
     bool isCachingEnabled() const;
@@ -120,5 +135,3 @@ namespace ChimeraTK {
   };
 
 } // namespace ChimeraTK
-
-#endif /* MTCA4U_DOOCS_BACKEND_H */

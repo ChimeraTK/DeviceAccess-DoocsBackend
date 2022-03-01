@@ -21,16 +21,16 @@ namespace Cache {
   static xmlpp::Element* getRootNode(xmlpp::DomParser& parser);
   static unsigned int convertToUint(const std::string& s, int line);
   static int convertToInt(const std::string& s, int line);
-  static std::vector<boost::shared_ptr<DoocsBackendRegisterInfo>> parseRegister(xmlpp::Element const* registerNode);
+  static void parseRegister(xmlpp::Element const* registerNode, DoocsBackendRegisterCatalogue& catalogue);
   static unsigned int parseLength(xmlpp::Element const* c);
   static int parseTypeId(xmlpp::Element const* c);
   static ChimeraTK::AccessModeFlags parseAccessMode(xmlpp::Element const* c);
-  static void addRegInfoXmlNode(DoocsBackendRegisterInfo& r, xmlpp::Node* rootNode);
+  static void addRegInfoXmlNode(const DoocsBackendRegisterInfo& r, xmlpp::Node* rootNode);
 
   /********************************************************************************************************************/
 
-  std::unique_ptr<ChimeraTK::RegisterCatalogue> readCatalogue(const std::string& xmlfile) {
-    auto catalogue = std::make_unique<ChimeraTK::RegisterCatalogue>();
+  DoocsBackendRegisterCatalogue readCatalogue(const std::string& xmlfile) {
+    DoocsBackendRegisterCatalogue catalogue;
     auto parser = createDomParser(xmlfile);
     auto registerList = getRootNode(*parser);
 
@@ -39,38 +39,26 @@ namespace Cache {
       if(reg == nullptr) {
         continue;
       }
-      auto regInfolist = parseRegister(reg);
-      for (auto & regInfo: regInfolist){
-        catalogue->addRegister(regInfo);
-      }
+      parseRegister(reg, catalogue);
     }
     return catalogue;
   }
 
-
   /********************************************************************************************************************/
-  bool is_empty(std::ifstream& f){
-    return f.peek() == std::ifstream::traits_type::eof();
-  }
+  bool is_empty(std::ifstream& f) { return f.peek() == std::ifstream::traits_type::eof(); }
 
-  bool is_empty(std::ifstream&& f){
-     return is_empty(f);
-  }
+  bool is_empty(std::ifstream&& f) { return is_empty(f); }
 
   /********************************************************************************************************************/
 
-  void saveCatalogue(ChimeraTK::RegisterCatalogue& c, const std::string& xmlfile) {
+  void saveCatalogue(const DoocsBackendRegisterCatalogue& c, const std::string& xmlfile) {
     xmlpp::Document doc;
 
     auto rootNode = doc.create_root_node("catalogue");
     rootNode->set_attribute("version", "1.0");
 
-    for(auto it = c.begin(); it != c.end(); ++it) {
-      auto basePtr = it.get().get();
-      auto doocsRegInfo = dynamic_cast<DoocsBackendRegisterInfo*>(basePtr);
-      if(doocsRegInfo != nullptr) {
-        addRegInfoXmlNode(*doocsRegInfo, rootNode);
-      }
+    for(auto& doocsRegInfo : c) {
+      addRegInfoXmlNode(doocsRegInfo, rootNode);
     }
 
     const std::string pathTemplate = "%%%%%%-doocs-backend-cache-%%%%%%.tmp";
@@ -91,70 +79,59 @@ namespace Cache {
     // check for empty tmp file:
     // xmlpp::Document::write_to_file_formatted sometimes misbehaves on exceptions, creating
     // empty files.
-    if(is_empty(std::ifstream(temporaryName))){
+    if(is_empty(std::ifstream(temporaryName))) {
       throw ChimeraTK::runtime_error(std::string{"Failed to save cache File"});
     }
 
     try {
       boost::filesystem::rename(temporaryName, xmlfile);
-    }  catch (boost::filesystem::filesystem_error& e) {
+    }
+    catch(boost::filesystem::filesystem_error& e) {
       throw ChimeraTK::runtime_error(std::string{"Failed to replace cache file: "} + e.what());
     }
   }
 
   /********************************************************************************************************************/
 
-  std::vector<boost::shared_ptr<DoocsBackendRegisterInfo>>
-      parseRegister(xmlpp::Element const *registerNode) {
+  void parseRegister(xmlpp::Element const* registerNode, DoocsBackendRegisterCatalogue& catalogue) {
     std::string name;
     unsigned int len{};
     int doocsTypeId{};
-    ChimeraTK::RegisterInfo::DataDescriptor descriptor{};
+    ChimeraTK::DataDescriptor descriptor{};
     ChimeraTK::AccessModeFlags flags{};
 
-    for (auto &node : registerNode->get_children()) {
-      auto e = dynamic_cast<const xmlpp::Element *>(node);
-      if (e == nullptr) {
+    for(auto& node : registerNode->get_children()) {
+      auto e = dynamic_cast<const xmlpp::Element*>(node);
+      if(e == nullptr) {
         continue;
       }
       std::string nodeName = e->get_name();
 
-      if (nodeName == "name") {
+      if(nodeName == "name") {
         name = e->get_child_text()->get_content();
-      } else if (nodeName == "length") {
+      }
+      else if(nodeName == "length") {
         len = parseLength(e);
-      } else if (nodeName == "access_mode") {
+      }
+      else if(nodeName == "access_mode") {
         flags = parseAccessMode(e);
-      } else if (nodeName == "doocs_type_id") {
+      }
+      else if(nodeName == "doocs_type_id") {
         doocsTypeId = parseTypeId(e);
       }
     }
 
     bool is_ifff = (doocsTypeId == DATA_IFFF);
-    std::vector<boost::shared_ptr<DoocsBackendRegisterInfo>> list;
 
-    if (is_ifff) {
+    if(is_ifff) {
       auto pattern = detail::endsWith(name, {"/I", "/F1", "/F2", "/F3"}).second;
       // remove pattern from name for getRegInfo to work correctly;
       // precondition: patten is contained in name.
       name.erase(name.end() - pattern.length(), name.end());
+    }
 
-      list = DoocsBackendRegisterInfo::create(name, len, doocsTypeId);
-      // !!!
-      list.erase(
-          std::remove_if(list.begin(), list.end(), //
-              [&pattern](boost::shared_ptr<DoocsBackendRegisterInfo> &e) {
-                return !boost::algorithm::ends_with(
-                    static_cast<std::string>(e->_name), pattern);
-              }),
-          list.end());
-    } else {
-      list = DoocsBackendRegisterInfo::create(name, len, doocsTypeId);
-    }
-    for (auto e : list) {
-      e->accessModeFlags = flags;
-    }
-    return list;
+    // add corresponding registers (note: only registers not yet being in the catalogue will be added)
+    catalogue.addProperty(name, len, doocsTypeId, flags);
   }
 
   /********************************************************************************************************************/
@@ -199,7 +176,7 @@ namespace Cache {
       }
       return root;
     }
-    catch(std::exception& e){
+    catch(std::exception& e) {
       throw ChimeraTK::logic_error(e.what());
     }
   }
@@ -233,7 +210,7 @@ namespace Cache {
 
   /********************************************************************************************************************/
 
-  void addRegInfoXmlNode(DoocsBackendRegisterInfo& r, xmlpp::Node* rootNode) {
+  void addRegInfoXmlNode(const DoocsBackendRegisterInfo& r, xmlpp::Node* rootNode) {
     auto registerTag = rootNode->add_child("register");
 
     auto nameTag = registerTag->add_child("name");

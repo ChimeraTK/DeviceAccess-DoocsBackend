@@ -202,7 +202,7 @@ namespace ChimeraTK {
      *  Note: must *only* throw ChimeraTK::logic_error. Just do not proceed with the initialisation if a runtime_error
      *  is to be thrown - this will then be done in the transfer.
      */
-    void initialise(const boost::shared_ptr<DoocsBackendRegisterInfo>& info);
+    void initialise(const DoocsBackendRegisterInfo& info);
 
     bool _isReadable;
     bool _isWriteable;
@@ -215,7 +215,7 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   template<typename UserType>
-  void DoocsBackendRegisterAccessor<UserType>::initialise(const boost::shared_ptr<DoocsBackendRegisterInfo>& info) {
+  void DoocsBackendRegisterAccessor<UserType>::initialise(const DoocsBackendRegisterInfo& info) {
     size_t actualLength = 0;
     int typeId = 0;
 
@@ -233,8 +233,8 @@ namespace ChimeraTK {
       }
 
       // we cannot reach the server, so try to obtain information from the catalogue
-      actualLength = info->getNumberOfElements();
-      typeId = info->doocsTypeId;
+      actualLength = info.getNumberOfElements();
+      typeId = info.doocsTypeId;
     }
     else {
       // obtain number of elements from server reply
@@ -311,13 +311,11 @@ namespace ChimeraTK {
       ea.adr(path);
 
       // obtain catalogue entry
-      auto info = backend->getRegisterCatalogue().getRegister(registerPathName);
-      auto info_casted = boost::dynamic_pointer_cast<DoocsBackendRegisterInfo>(info);
-      assert(info_casted.get() != nullptr);
+      auto info = backend->getBackendRegisterCatalogue().getBackendRegister(registerPathName);
 
       // use zero mq subscriptiopn?
       if(flags.has(AccessMode::wait_for_new_data)) {
-        if(!info_casted->getSupportedAccessModes().has(AccessMode::wait_for_new_data)) {
+        if(!info.getSupportedAccessModes().has(AccessMode::wait_for_new_data)) {
           throw ChimeraTK::logic_error("invalid access mode for this register");
         }
         useZMQ = true;
@@ -327,7 +325,7 @@ namespace ChimeraTK {
         _readQueue = notifications.then<void>([this](EqData& data) { this->dst = data; }, std::launch::deferred);
       }
 
-      initialise(info_casted);
+      initialise(info);
     }
     catch(...) {
       this->shutdown();

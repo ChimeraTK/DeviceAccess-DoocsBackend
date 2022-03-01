@@ -10,18 +10,14 @@ const std::vector<std::string> IGNORE_PATTERNS = {".HIST", ".FILT", "._FILT", ".
 
 /********************************************************************************************************************/
 
-using Catalogue = std::unique_ptr<ChimeraTK::RegisterCatalogue>;
-std::pair<Catalogue, bool> CatalogueFetcher::fetch() {
-  catalogue_ = std::make_unique<ChimeraTK::RegisterCatalogue>();
-
+std::pair<DoocsBackendRegisterCatalogue, bool> CatalogueFetcher::fetch() {
   auto nSlashes = detail::slashes(serverAddress_);
+
   fillCatalogue(serverAddress_, nSlashes);
 
-  bool isCatalogueComplete = not(isCancelled() || locationLookupError_ ||
-                                 catalogue_->getNumberOfRegisters() == 0);
+  bool isCatalogueComplete = not(isCancelled() || locationLookupError_ || catalogue_.getNumberOfRegisters() == 0);
 
-  return std::pair<Catalogue, bool>{ std::move(catalogue_),
-                                     isCatalogueComplete };
+  return {std::move(catalogue_), isCatalogueComplete};
 }
 
 /********************************************************************************************************************/
@@ -88,22 +84,24 @@ void CatalogueFetcher::fillCatalogue(std::string fixedComponents, long level) {
       auto length = dst.array_length();
       auto doocsTypeId = dst.type();
 
-      auto regInfolist = DoocsBackendRegisterInfo::create(regPath, length, doocsTypeId);
-      for(auto &r: regInfolist){
-        if(checkZmqAvailability(fixedComponents, name)) {r->accessModeFlags.add(ChimeraTK::AccessMode::wait_for_new_data);}
-        catalogue_->addRegister(r);
+      ChimeraTK::AccessModeFlags flags{};
+      if(checkZmqAvailability(fqn)) {
+        flags.add(ChimeraTK::AccessMode::wait_for_new_data);
       }
+
+      catalogue_.addProperty(regPath, length, doocsTypeId, flags);
     }
   }
 }
 
 /********************************************************************************************************************/
 
+bool CatalogueFetcher::checkZmqAvailability(const std::string& fullQualifiedName) const {
+  auto lastSlash = fullQualifiedName.find_last_of('/');
+  assert(lastSlash != std::string::npos && lastSlash > 0);
+  auto fullLocationPath = fullQualifiedName.substr(0, lastSlash);
+  auto propertyName = fullQualifiedName.substr(lastSlash + 1);
 
-/********************************************************************************************************************/
-
-bool CatalogueFetcher::checkZmqAvailability(
-    const std::string& fullLocationPath, const std::string& propertyName) const {
   int rc;
   float f1;
   float f2;
@@ -147,3 +145,4 @@ bool CatalogueFetcher::checkZmqAvailability(
   return portp != 0;
 }
 
+/********************************************************************************************************************/

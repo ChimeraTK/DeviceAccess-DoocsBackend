@@ -1,46 +1,50 @@
 #pragma once
 
-#include <ChimeraTK/RegisterInfo.h>
+#include <ChimeraTK/BackendRegisterInfoBase.h>
+#include <ChimeraTK/BackendRegisterCatalogue.h>
 
-/**
- *  RegisterInfo-derived class to be put into the RegisterCatalogue
- */
-  class DoocsBackendRegisterInfo;
+/**********************************************************************************************************************/
 
-  using RegisterInfoList = std::vector<boost::shared_ptr<DoocsBackendRegisterInfo>>;
+class DoocsBackendRegisterInfo;
 
-  class DoocsBackendRegisterInfo : public ChimeraTK::RegisterInfo {
-   private:
-    DoocsBackendRegisterInfo() = default;
+/**********************************************************************************************************************/
 
-   public:
-    DoocsBackendRegisterInfo(const DoocsBackendRegisterInfo& other) = default;
+class DoocsBackendRegisterCatalogue : public ChimeraTK::BackendRegisterCatalogue<DoocsBackendRegisterInfo> {
+ public:
+  // Add all registers for the given property. Registers which exist already in the catalogue (with the same name) are
+  // skipped.
+  void addProperty(const std::string& name, unsigned int length, int doocsType, ChimeraTK::AccessModeFlags flags);
+};
 
-    ~DoocsBackendRegisterInfo() override {}
+/**********************************************************************************************************************/
 
-    ChimeraTK::RegisterPath getRegisterName() const override { return _name; }
+class DoocsBackendRegisterInfo : public ChimeraTK::BackendRegisterInfoBase {
+ public:
+  DoocsBackendRegisterInfo() = default;
 
-    unsigned int getNumberOfElements() const override { return _length; }
+  DoocsBackendRegisterInfo(const DoocsBackendRegisterInfo& other) = default;
 
-    unsigned int getNumberOfChannels() const override { return 1; }
+  ChimeraTK::RegisterPath getRegisterName() const override { return _name; }
 
-    unsigned int getNumberOfDimensions() const override { return _length > 1 ? 1 : 0; }
+  unsigned int getNumberOfElements() const override { return _length; }
 
-    bool isReadable() const override { return _readable; }
+  unsigned int getNumberOfChannels() const override { return 1; }
 
-    bool isWriteable() const override { return _writable; }
+  bool isReadable() const override { return _readable; }
 
-    ChimeraTK::AccessModeFlags getSupportedAccessModes() const override { return accessModeFlags; }
+  bool isWriteable() const override { return _writable; }
 
-    const ChimeraTK::RegisterInfo::DataDescriptor& getDataDescriptor() const override { return dataDescriptor; }
+  ChimeraTK::AccessModeFlags getSupportedAccessModes() const override { return accessModeFlags; }
 
-    static RegisterInfoList create(const std::string& name, unsigned int length, int doocsType);
+  const ChimeraTK::DataDescriptor& getDataDescriptor() const override { return dataDescriptor; }
 
-    ChimeraTK::RegisterPath _name;
-    unsigned int _length;
-    ChimeraTK::RegisterInfo::DataDescriptor dataDescriptor;
-    ChimeraTK::AccessModeFlags accessModeFlags{};
-    int doocsTypeId;
-    bool _readable{true};
-    bool _writable{true};
-  };
+  std::unique_ptr<BackendRegisterInfoBase> clone() const override;
+
+  ChimeraTK::RegisterPath _name;
+  unsigned int _length;
+  ChimeraTK::DataDescriptor dataDescriptor;
+  ChimeraTK::AccessModeFlags accessModeFlags{};
+  int doocsTypeId;
+  bool _readable{true};
+  bool _writable{true};
+};
