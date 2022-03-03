@@ -45,12 +45,12 @@ static std::string ChimeraTK_DeviceAccess_version{CHIMERATK_DEVICEACCESS_VERSION
 static std::string backend_name = "doocs";
 }
 
-static std::unique_ptr<ctk::RegisterCatalogue> fetchCatalogue(
+static DoocsBackendRegisterCatalogue fetchCatalogue(
     std::string serverAddress, std::string cacheFile, std::future<void> cancelFlag);
 
 /********************************************************************************************************************/
 
-static std::unique_ptr<ctk::RegisterCatalogue> fetchCatalogue(
+static DoocsBackendRegisterCatalogue fetchCatalogue(
     std::string serverAddress, std::string cacheFile, std::future<void> cancelFlag) {
   auto result = CatalogueFetcher(serverAddress, std::move(cancelFlag)).fetch();
   auto catalogue = std::move(result.first);
@@ -58,7 +58,7 @@ static std::unique_ptr<ctk::RegisterCatalogue> fetchCatalogue(
   bool isCacheFileNameSpecified = not cacheFile.empty();
 
   if(isCatalogueComplete && isCacheFileNameSpecified) {
-    Cache::saveCatalogue(*catalogue, cacheFile);
+    Cache::saveCatalogue(catalogue, cacheFile);
   }
   return catalogue;
 }
@@ -80,11 +80,16 @@ namespace ChimeraTK {
   DoocsBackend::DoocsBackend(const std::string& serverAddress, const std::string& cacheFile, const std::string& updateCache)
   : _serverAddress(serverAddress), _cacheFile(cacheFile) {
     if(cacheFileExists() && isCachingEnabled()) {
-      _catalogue_mutable = Cache::readCatalogue(_cacheFile);
+      // provide catalogue immediately from cache
+      catalogue = Cache::readCatalogue(_cacheFile);
+
+      // update cache file in the background
+      if(updateCache == "1") {
+        std::thread(fetchCatalogue, serverAddress, cacheFile, _cancelFlag.get_future()).detach();
+      }
     }
-    //if _catalogue_mutable is now set, fetchCatalogue only if updateCache is set to 1.
-    if ( _catalogue_mutable == nullptr  ||
-       (_catalogue_mutable != nullptr  && updateCache == "1")  )  {
+    else {
+      // fill catalogue in the background (and save to cache if enabled)
       _catalogueFuture =
         std::async(std::launch::async, fetchCatalogue, serverAddress, cacheFile, _cancelFlag.get_future());
     }
@@ -172,11 +177,17 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  const RegisterCatalogue& DoocsBackend::getRegisterCatalogue() const {
-    if(_catalogue_mutable == nullptr) {
-      _catalogue_mutable = _catalogueFuture.get();
+  RegisterCatalogue DoocsBackend::getRegisterCatalogue() const {
+    return RegisterCatalogue(getBackendRegisterCatalogue().clone());
+  }
+
+  /********************************************************************************************************************/
+
+  const DoocsBackendRegisterCatalogue& DoocsBackend::getBackendRegisterCatalogue() const {
+    if(_catalogueFuture.valid()) {
+      catalogue = _catalogueFuture.get();
     }
-    return *_catalogue_mutable;
+    return catalogue;
   }
 
   /********************************************************************************************************************/
@@ -286,9 +297,8 @@ namespace ChimeraTK {
 
     // if backend is closed, or if property could not be read, use the (potentially cached) catalogue
     if(doocsTypeId == DATA_NULL) {
-      auto reg =
-          boost::dynamic_pointer_cast<DoocsBackendRegisterInfo>(getRegisterCatalogue().getRegister(registerPathName));
-      doocsTypeId = reg->doocsTypeId;
+      auto reg = getBackendRegisterCatalogue().getBackendRegister(registerPathName);
+      doocsTypeId = reg.doocsTypeId;
     }
 
     // check type and create matching accessor

@@ -47,7 +47,7 @@ class DoocsLauncher : public ThreadedDoocsServer {
 
     // set CDDs for the two doocs addresses used in the test
     DoocsServer1 = "(doocs:doocs://localhost:" + rpcNo() + "/F/D)";
-    DoocsServer1_cached = "(doocs:doocs://localhost:" + rpcNo() + "/F/D?cacheFile=" + cacheFile1 + ")";
+    DoocsServer1_cached = "(doocs:doocs://localhost:" + rpcNo() + "/F/D?cacheFile=" + cacheFile1 + "&updateCache=1)";
     DoocsServer2 = "(doocs:doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY)";
     DoocsServer2_cached =
         "(doocs:doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY?cacheFile=" + cacheFile2 + "&updateCache=1)";
@@ -60,7 +60,7 @@ class DoocsLauncher : public ThreadedDoocsServer {
     while(eq.get(&ea, &src, &dst)) usleep(100000);
   }
 
-  ~DoocsLauncher() {
+  ~DoocsLauncher() override {
     boost::filesystem::remove(cacheFile1);
     boost::filesystem::remove(cacheFile2);
   }
@@ -677,15 +677,15 @@ BOOST_AUTO_TEST_CASE(testIFFF) {
   auto regF1 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F1");
   auto regF2 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F2");
   auto regF3 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F3");
-  BOOST_CHECK(regI->getDataDescriptor().isIntegral());
-  BOOST_CHECK(regI->getDataDescriptor().isSigned());
-  BOOST_CHECK(regI->getDataDescriptor().nDigits() == 11);
-  BOOST_CHECK(!regF1->getDataDescriptor().isIntegral());
-  BOOST_CHECK(regF1->getDataDescriptor().isSigned());
-  BOOST_CHECK(!regF2->getDataDescriptor().isIntegral());
-  BOOST_CHECK(regF2->getDataDescriptor().isSigned());
-  BOOST_CHECK(!regF3->getDataDescriptor().isIntegral());
-  BOOST_CHECK(regF3->getDataDescriptor().isSigned());
+  BOOST_CHECK(regI.getDataDescriptor().isIntegral());
+  BOOST_CHECK(regI.getDataDescriptor().isSigned());
+  BOOST_CHECK(regI.getDataDescriptor().nDigits() == 11);
+  BOOST_CHECK(!regF1.getDataDescriptor().isIntegral());
+  BOOST_CHECK(regF1.getDataDescriptor().isSigned());
+  BOOST_CHECK(!regF2.getDataDescriptor().isIntegral());
+  BOOST_CHECK(regF2.getDataDescriptor().isSigned());
+  BOOST_CHECK(!regF3.getDataDescriptor().isIntegral());
+  BOOST_CHECK(regF3.getDataDescriptor().isSigned());
 
   // read access via int/float
   {
@@ -985,9 +985,8 @@ BOOST_AUTO_TEST_CASE(testCatalogue) {
     catalogueList2.push_back(device.getRegisterCatalogue());
     catalogueList2.push_back(device_cached.getRegisterCatalogue());
 
-    for(auto catalogue : catalogueList2) {
-      // check number of registers, but not with the exact number, since DOOCS adds
-      // some registers!
+    for(auto& catalogue : catalogueList2) {
+      // check number of registers, but not with the exact number, since DOOCS adds some registers!
       BOOST_CHECK(catalogue.getNumberOfRegisters() > 13);
 
       // check for the presence of known registers
@@ -1010,73 +1009,72 @@ BOOST_AUTO_TEST_CASE(testCatalogue) {
 
       // check the properties of some registers
       auto r1 = catalogue.getRegister("SOME_INT");
-      BOOST_CHECK(r1->getRegisterName() == "SOME_INT");
-      BOOST_CHECK(r1->getNumberOfElements() == 1);
-      BOOST_CHECK(r1->getNumberOfChannels() == 1);
-      BOOST_CHECK(r1->getNumberOfDimensions() == 0);
-      BOOST_CHECK(not r1->getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_CHECK(r1.getRegisterName() == "SOME_INT");
+      BOOST_CHECK(r1.getNumberOfElements() == 1);
+      BOOST_CHECK(r1.getNumberOfChannels() == 1);
+      BOOST_CHECK(r1.getNumberOfDimensions() == 0);
+      BOOST_CHECK(not r1.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r2 = catalogue.getRegister("SOME_STRING");
-      BOOST_CHECK(r2->getRegisterName() == "SOME_STRING");
-      BOOST_CHECK(r2->getNumberOfElements() == 1);
-      BOOST_CHECK(r2->getNumberOfChannels() == 1);
-      BOOST_CHECK(r2->getNumberOfDimensions() == 0);
-      BOOST_CHECK(not r2->getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_CHECK(r2.getRegisterName() == "SOME_STRING");
+      BOOST_CHECK(r2.getNumberOfElements() == 1);
+      BOOST_CHECK(r2.getNumberOfChannels() == 1);
+      BOOST_CHECK(r2.getNumberOfDimensions() == 0);
+      BOOST_CHECK(not r2.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r3 = catalogue.getRegister("SOME_INT_ARRAY");
-      BOOST_CHECK(r3->getRegisterName() == "SOME_INT_ARRAY");
-      BOOST_CHECK(r3->getNumberOfElements() == 42);
-      BOOST_CHECK(r3->getNumberOfChannels() == 1);
-      BOOST_CHECK(r3->getNumberOfDimensions() == 1);
-      BOOST_CHECK(not r3->getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_CHECK(r3.getRegisterName() == "SOME_INT_ARRAY");
+      BOOST_CHECK(r3.getNumberOfElements() == 42);
+      BOOST_CHECK(r3.getNumberOfChannels() == 1);
+      BOOST_CHECK(r3.getNumberOfDimensions() == 1);
+      BOOST_CHECK(not r3.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r4 = catalogue.getRegister("SOME_FLOAT_ARRAY");
-      BOOST_CHECK(r4->getRegisterName() == "SOME_FLOAT_ARRAY");
-      BOOST_CHECK(r4->getNumberOfElements() == 5);
-      BOOST_CHECK(r4->getNumberOfChannels() == 1);
-      BOOST_CHECK(r4->getNumberOfDimensions() == 1);
-      BOOST_CHECK(not r4->getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_CHECK(r4.getRegisterName() == "SOME_FLOAT_ARRAY");
+      BOOST_CHECK(r4.getNumberOfElements() == 5);
+      BOOST_CHECK(r4.getNumberOfChannels() == 1);
+      BOOST_CHECK(r4.getNumberOfDimensions() == 1);
+      BOOST_CHECK(not r4.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r5 = catalogue.getRegister("SOME_SPECTRUM");
-      BOOST_CHECK(r5->getRegisterName() == "SOME_SPECTRUM");
-      BOOST_CHECK(r5->getNumberOfElements() == 100);
-      BOOST_CHECK(r5->getNumberOfChannels() == 1);
-      BOOST_CHECK(r5->getNumberOfDimensions() == 1);
-      BOOST_CHECK(not r5->getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_CHECK(r5.getRegisterName() == "SOME_SPECTRUM");
+      BOOST_CHECK(r5.getNumberOfElements() == 100);
+      BOOST_CHECK(r5.getNumberOfChannels() == 1);
+      BOOST_CHECK(r5.getNumberOfDimensions() == 1);
+      BOOST_CHECK(not r5.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r6 = catalogue.getRegister("SOME_ZMQINT");
-      BOOST_CHECK(r6->getRegisterName() == "SOME_ZMQINT");
-      BOOST_CHECK(r6->getNumberOfElements() == 1);
-      BOOST_CHECK(r6->getNumberOfChannels() == 1);
-      BOOST_CHECK(r6->getNumberOfDimensions() == 0);
-      BOOST_CHECK(r6->getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_CHECK(r6.getRegisterName() == "SOME_ZMQINT");
+      BOOST_CHECK(r6.getNumberOfElements() == 1);
+      BOOST_CHECK(r6.getNumberOfChannels() == 1);
+      BOOST_CHECK(r6.getNumberOfDimensions() == 0);
+      BOOST_CHECK(r6.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r7 = catalogue.getRegister("SOME_IIII");
-      BOOST_CHECK(r7->getRegisterName() == "SOME_IIII");
-      BOOST_CHECK(r7->getNumberOfElements() == 4);
-      BOOST_CHECK(r7->getNumberOfChannels() == 1);
-      BOOST_CHECK(r7->getNumberOfDimensions() == 1);
-      BOOST_CHECK(not r7->getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_CHECK(r7.getRegisterName() == "SOME_IIII");
+      BOOST_CHECK(r7.getNumberOfElements() == 4);
+      BOOST_CHECK(r7.getNumberOfChannels() == 1);
+      BOOST_CHECK(r7.getNumberOfDimensions() == 1);
+      BOOST_CHECK(not r7.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto regI = catalogue.getRegister("SOME_IFFF/I");
       auto regF1 = catalogue.getRegister("SOME_IFFF/F1");
       auto regF2 = catalogue.getRegister("SOME_IFFF/F2");
       auto regF3 = catalogue.getRegister("SOME_IFFF/F3");
-      BOOST_CHECK(regI->getDataDescriptor().isIntegral());
-      BOOST_CHECK(regI->getDataDescriptor().isSigned());
-      BOOST_CHECK(regI->getDataDescriptor().nDigits() == 11);
-      BOOST_CHECK(!regF1->getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF1->getDataDescriptor().isSigned());
-      BOOST_CHECK(!regF2->getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF2->getDataDescriptor().isSigned());
-      BOOST_CHECK(!regF3->getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF3->getDataDescriptor().isSigned());
+      BOOST_CHECK(regI.getDataDescriptor().isIntegral());
+      BOOST_CHECK(regI.getDataDescriptor().isSigned());
+      BOOST_CHECK(regI.getDataDescriptor().nDigits() == 11);
+      BOOST_CHECK(!regF1.getDataDescriptor().isIntegral());
+      BOOST_CHECK(regF1.getDataDescriptor().isSigned());
+      BOOST_CHECK(!regF2.getDataDescriptor().isIntegral());
+      BOOST_CHECK(regF2.getDataDescriptor().isSigned());
+      BOOST_CHECK(!regF3.getDataDescriptor().isIntegral());
+      BOOST_CHECK(regF3.getDataDescriptor().isSigned());
     }
     device.close();
     device_cached.close();
 
-    // quick check with the other level (location is included in the register
-    // name)
+    // quick check with the other level (location is included in the register name)
     device.open(DoocsLauncher::DoocsServer1);
     device_cached.open(DoocsLauncher::DoocsServer1_cached);
 
@@ -1084,9 +1082,8 @@ BOOST_AUTO_TEST_CASE(testCatalogue) {
     catalogueList1.push_back(device.getRegisterCatalogue());
     catalogueList1.push_back(device_cached.getRegisterCatalogue());
 
-    for(auto catalogue : catalogueList1) {
-      // check number of registers, but not with the exact number, since DOOCS adds
-      // some registers!
+    for(auto& catalogue : catalogueList1) {
+      // check number of registers, but not with the exact number, since DOOCS adds some registers!
       BOOST_CHECK(catalogue.getNumberOfRegisters() > 13);
 
       // check for the presence of known registers
@@ -1100,39 +1097,39 @@ BOOST_AUTO_TEST_CASE(testCatalogue) {
 
       // check the properties of some registers
       auto r8 = catalogue.getRegister("MYDUMMY/SOME_INT");
-      BOOST_CHECK(r8->getRegisterName() == "MYDUMMY/SOME_INT");
-      BOOST_CHECK(r8->getNumberOfElements() == 1);
-      BOOST_CHECK(r8->getNumberOfChannels() == 1);
-      BOOST_CHECK(r8->getNumberOfDimensions() == 0);
-      BOOST_CHECK(not r8->getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_CHECK(r8.getRegisterName() == "MYDUMMY/SOME_INT");
+      BOOST_CHECK(r8.getNumberOfElements() == 1);
+      BOOST_CHECK(r8.getNumberOfChannels() == 1);
+      BOOST_CHECK(r8.getNumberOfDimensions() == 0);
+      BOOST_CHECK(not r8.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r9 = catalogue.getRegister("DUMMY._SVR/SVR.BPN");
-      BOOST_CHECK(r9->getRegisterName() == "DUMMY._SVR/SVR.BPN");
-      BOOST_CHECK(r9->getNumberOfElements() == 1);
-      BOOST_CHECK(r9->getNumberOfChannels() == 1);
-      BOOST_CHECK(r9->getNumberOfDimensions() == 0);
-      BOOST_CHECK(not r9->getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_CHECK(r9.getRegisterName() == "DUMMY._SVR/SVR.BPN");
+      BOOST_CHECK(r9.getNumberOfElements() == 1);
+      BOOST_CHECK(r9.getNumberOfChannels() == 1);
+      BOOST_CHECK(r9.getNumberOfDimensions() == 0);
+      BOOST_CHECK(not r9.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r10 = catalogue.getRegister("MYDUMMY/SOME_ZMQINT");
-      BOOST_CHECK(r10->getRegisterName() == "MYDUMMY/SOME_ZMQINT");
-      BOOST_CHECK(r10->getNumberOfElements() == 1);
-      BOOST_CHECK(r10->getNumberOfChannels() == 1);
-      BOOST_CHECK(r10->getNumberOfDimensions() == 0);
-      BOOST_CHECK(r10->getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_CHECK(r10.getRegisterName() == "MYDUMMY/SOME_ZMQINT");
+      BOOST_CHECK(r10.getNumberOfElements() == 1);
+      BOOST_CHECK(r10.getNumberOfChannels() == 1);
+      BOOST_CHECK(r10.getNumberOfDimensions() == 0);
+      BOOST_CHECK(r10.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto regI = catalogue.getRegister("MYDUMMY/SOME_IFFF/I");
       auto regF1 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F1");
       auto regF2 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F2");
       auto regF3 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F3");
-      BOOST_CHECK(regI->getDataDescriptor().isIntegral());
-      BOOST_CHECK(regI->getDataDescriptor().isSigned());
-      BOOST_CHECK(regI->getDataDescriptor().nDigits() == 11);
-      BOOST_CHECK(!regF1->getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF1->getDataDescriptor().isSigned());
-      BOOST_CHECK(!regF2->getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF2->getDataDescriptor().isSigned());
-      BOOST_CHECK(!regF3->getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF3->getDataDescriptor().isSigned());
+      BOOST_CHECK(regI.getDataDescriptor().isIntegral());
+      BOOST_CHECK(regI.getDataDescriptor().isSigned());
+      BOOST_CHECK(regI.getDataDescriptor().nDigits() == 11);
+      BOOST_CHECK(!regF1.getDataDescriptor().isIntegral());
+      BOOST_CHECK(regF1.getDataDescriptor().isSigned());
+      BOOST_CHECK(!regF2.getDataDescriptor().isIntegral());
+      BOOST_CHECK(regF2.getDataDescriptor().isSigned());
+      BOOST_CHECK(!regF3.getDataDescriptor().isIntegral());
+      BOOST_CHECK(regF3.getDataDescriptor().isSigned());
     }
     device.close();
     device_cached.close();
@@ -1336,13 +1333,13 @@ BOOST_AUTO_TEST_CASE(testEventId) {
     BOOST_CHECK(catalogue.hasRegister(path));
 
     auto regInfo = catalogue.getRegister(path);
-    BOOST_CHECK(regInfo->isReadable());
-    BOOST_CHECK(!regInfo->isWriteable());
-    BOOST_CHECK_EQUAL(regInfo->getNumberOfElements(), 1);
-    BOOST_CHECK_EQUAL(regInfo->getNumberOfChannels(), 1);
-    BOOST_CHECK_EQUAL(regInfo->getNumberOfDimensions(), 0);
-    auto descriptor = regInfo->getDataDescriptor();
-    BOOST_CHECK(descriptor.fundamentalType() == ChimeraTK::RegisterInfo::FundamentalType::numeric);
+    BOOST_CHECK(regInfo.isReadable());
+    BOOST_CHECK(!regInfo.isWriteable());
+    BOOST_CHECK_EQUAL(regInfo.getNumberOfElements(), 1);
+    BOOST_CHECK_EQUAL(regInfo.getNumberOfChannels(), 1);
+    BOOST_CHECK_EQUAL(regInfo.getNumberOfDimensions(), 0);
+    auto descriptor = regInfo.getDataDescriptor();
+    BOOST_CHECK(descriptor.fundamentalType() == ChimeraTK::DataDescriptor::FundamentalType::numeric);
     BOOST_CHECK_EQUAL(descriptor.nDigits(), 20);
     BOOST_CHECK(descriptor.isSigned());
     BOOST_CHECK(descriptor.isIntegral());
@@ -1410,13 +1407,13 @@ BOOST_AUTO_TEST_CASE(testTimeStamp) {
     BOOST_CHECK(catalogue.hasRegister(path));
 
     auto regInfo = catalogue.getRegister(path);
-    BOOST_CHECK(regInfo->isReadable());
-    BOOST_CHECK(!regInfo->isWriteable());
-    BOOST_CHECK_EQUAL(regInfo->getNumberOfElements(), 1);
-    BOOST_CHECK_EQUAL(regInfo->getNumberOfChannels(), 1);
-    BOOST_CHECK_EQUAL(regInfo->getNumberOfDimensions(), 0);
-    auto descriptor = regInfo->getDataDescriptor();
-    BOOST_CHECK(descriptor.fundamentalType() == ChimeraTK::RegisterInfo::FundamentalType::numeric);
+    BOOST_CHECK(regInfo.isReadable());
+    BOOST_CHECK(!regInfo.isWriteable());
+    BOOST_CHECK_EQUAL(regInfo.getNumberOfElements(), 1);
+    BOOST_CHECK_EQUAL(regInfo.getNumberOfChannels(), 1);
+    BOOST_CHECK_EQUAL(regInfo.getNumberOfDimensions(), 0);
+    auto descriptor = regInfo.getDataDescriptor();
+    BOOST_CHECK(descriptor.fundamentalType() == ChimeraTK::DataDescriptor::FundamentalType::numeric);
     BOOST_CHECK_EQUAL(descriptor.nDigits(), 20);
     BOOST_CHECK(descriptor.isSigned());
     BOOST_CHECK(descriptor.isIntegral());
