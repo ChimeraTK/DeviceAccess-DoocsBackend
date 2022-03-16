@@ -10,6 +10,7 @@ include(cmake/set_version_numbers.cmake)
 
 include(cmake/set_default_build_to_release.cmake)
 include(cmake/set_default_flags.cmake)
+include(cmake/enable_code_coverage_report.cmake)
 
 # linker flags
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
@@ -62,17 +63,6 @@ if(BUILD_TESTS)
   FILE( COPY ${CMAKE_SOURCE_DIR}/tests/dummies.dmap DESTINATION ${PROJECT_BINARY_DIR})
 
 endif()
-
-#The make coverage command is only available in debug mode
-IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  configure_file(cmake/Makefile.coverage.in
-    ${PROJECT_BINARY_DIR}/Makefile.coverage @ONLY)
-  add_custom_target(coverage
-    make -f Makefile.coverage
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Generating test coverage documentation" VERBATIM
-    )
-ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 # C++ library
 add_library(${PROJECT_NAME} SHARED ${library_sources} )
