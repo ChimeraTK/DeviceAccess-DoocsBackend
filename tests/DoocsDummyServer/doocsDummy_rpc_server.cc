@@ -8,7 +8,6 @@ const char* object_name = "dummy_server";
 
 void eq_init_prolog() {
   std::ostringstream os;
-  set_arch_mode(1);
 
   printftostderr("eq_init_prolog", "DOOCS dummy server starting");
 }
