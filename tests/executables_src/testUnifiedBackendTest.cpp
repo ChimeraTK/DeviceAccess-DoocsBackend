@@ -53,7 +53,8 @@ class DoocsLauncher : public ThreadedDoocsServer {
     dmsg_start();
     dmsg_t tag;
     std::cout << "ZeroMQ Subscribe" << std::endl;
-    [[maybe_unused]] int err = dmsg_attach(&ea, &dst, nullptr,
+    [[maybe_unused]] int err = dmsg_attach(
+        &ea, &dst, nullptr,
         [](void*, EqData* data, dmsg_info_t*) {
           if(!data->error()) zmqStartup_gotData = true;
         },
@@ -220,6 +221,8 @@ struct RegSomeRoInt : ScalarDefaults<RegSomeInt> {
   D_int& prop{location->prop_someReadonlyInt};
   typedef int32_t minimumUserType;
   int32_t increment{7};
+  // the catalogue cannot be filled correctly because we don't know if the register is readable or not when filling the catalogue
+  static constexpr auto capabilities = ScalarDefaults<RegSomeInt>::capabilities.disableTestCatalogue();
 };
 
 /**********************************************************************************************************************/
