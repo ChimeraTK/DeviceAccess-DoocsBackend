@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
-set(${PROJECT_NAME}_MINOR_VERSION 03)
+set(${PROJECT_NAME}_MINOR_VERSION 04)
 set(${PROJECT_NAME}_PATCH_VERSION 00)
 include(cmake/set_version_numbers.cmake)
 
@@ -16,7 +16,7 @@ include(cmake/enable_code_coverage_report.cmake)
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
 
 include(cmake/add_dependency.cmake)
-add_dependency(ChimeraTK-DeviceAccess 02.04 REQUIRED)
+add_dependency(ChimeraTK-DeviceAccess 03.00 REQUIRED)
 add_dependency(DOOCS 21.4.0 COMPONENTS server REQUIRED)
 add_dependency(doocs-server-test-helper 01.05 REQUIRED)
 
