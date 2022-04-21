@@ -93,6 +93,12 @@ namespace ChimeraTK {
       _catalogueFuture =
         std::async(std::launch::async, fetchCatalogue, serverAddress, cacheFile, _cancelFlag.get_future());
     }
+
+    // Reduce ZeroMQ timeout so inconsistencies get corrected more quickly. The downside is that DOOCS will do more
+    // frequent RPC polls on rarely changing ZeroMQ variables (every 10 seconds instead of every 4 minutes), but this
+    // is acceptable as it is still slow enough.
+    doocs::zmq_set_subscription_timeout(10);
+
     FILL_VIRTUAL_FUNCTION_TEMPLATE_VTABLE(getRegisterAccessor_impl);
   }
 
