@@ -34,6 +34,7 @@ set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${DOOCS_DIR}")
 
+file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/${subdir}/include/*.h")
 aux_source_directory(${CMAKE_SOURCE_DIR}/src library_sources)
 
 option(BUILD_TESTS "Build test programs" ON)
@@ -65,7 +66,7 @@ if(BUILD_TESTS)
 endif()
 
 # C++ library
-add_library(${PROJECT_NAME} SHARED ${library_sources} )
+add_library(${PROJECT_NAME} SHARED ${library_sources} ${headers})
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${ChimeraTK-DeviceAccess_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_FLAGS "${DOOCS_LINKER_FLAGS} ${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
