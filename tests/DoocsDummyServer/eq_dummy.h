@@ -29,6 +29,7 @@ class eq_dummy : public EqFct {
   D_image prop_unsupportedDataType;
 
   D_int prop_someZMQInt;
+  D_xy prop_someXY;
 
   int64_t counter;
   int64_t startTime;

@@ -48,7 +48,7 @@ namespace ChimeraTK {
     /// flag if the accessor should affect only a part of the property (in case of an array)
     bool isPartial{false};
 
-    /// flag if a ZeroMQ subscribtion is used for reading data (c.f. AccessMode::wait_for_new_data)
+    /// flag if a ZeroMQ subscription is used for reading data (c.f. AccessMode::wait_for_new_data)
     bool useZMQ{false};
 
     /// flag whether it should receive updates from the ZeroMQ subscription. Is used by the ZMQSubscriptionManager and
@@ -133,7 +133,7 @@ namespace ChimeraTK {
       }
 
       // Only check for a new version number if the event ids no not match up.
-      // Otherwise it might be possible that the EventIDMapper allready removed the old event id from
+      // Otherwise it might be possible that the EventIDMapper already removed the old event id from
       // its cache and will generate a new versionnumber for the same event id.
       // This prevents not updating slow- if ever changing variables that are polled periodically
       //

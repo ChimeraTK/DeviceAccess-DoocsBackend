@@ -23,6 +23,7 @@
 #include "DoocsBackendStringRegisterAccessor.h"
 #include "DoocsBackendEventIdAccessor.h"
 #include "DoocsBackendTimeStampAccessor.h"
+#include "DoocsBackendXyRegisterAccessor.h"
 #include "RegisterInfo.h"
 #include "StringUtility.h"
 #include "ZMQSubscriptionManager.h"
@@ -346,6 +347,10 @@ namespace ChimeraTK {
       p.reset(new DoocsBackendIFFFRegisterAccessor<UserType>(
           sharedThis, path, field, registerPathName, numberOfWords, wordOffsetInRegister, flags));
     }
+    else if(doocsTypeId == DATA_XY || DATA_A_XY) {
+      p.reset(new DoocsBackendXyRegisterAccessor<UserType>(
+          sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags));
+    }
     else {
       throw ChimeraTK::logic_error("Unsupported DOOCS data type " + std::string(EqData().type_string(doocsTypeId)) +
           " of property '" + _serverAddress + registerPathName + "'");
@@ -353,7 +358,7 @@ namespace ChimeraTK {
 
     // if the field name has been specified but the data type does not use it, throw an exception
     if(hasExtraLevel && !extraLevelUsed) {
-      throw ChimeraTK::logic_error("Specifiaction of field name is not supported for the DOOCS data type " +
+      throw ChimeraTK::logic_error("Specification of field name is not supported for the DOOCS data type " +
           std::string(EqData().type_string(doocsTypeId)) + ": " + _serverAddress + registerPathName);
     }
 
