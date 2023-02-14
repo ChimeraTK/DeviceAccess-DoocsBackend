@@ -175,7 +175,9 @@ namespace ChimeraTK {
       }
       lastFailedAddress = "";
     }
-    DoocsBackendNamespace::ZMQSubscriptionManager::getInstance().activateAllListeners(this);
+    if (_asyncReadActivated){
+        DoocsBackendNamespace::ZMQSubscriptionManager::getInstance().activateAllListeners(this);
+    }
     _opened = true;
     _isFunctional = true;
     _startVersion = {};
