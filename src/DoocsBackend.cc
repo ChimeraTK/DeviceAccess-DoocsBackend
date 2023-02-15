@@ -175,7 +175,6 @@ namespace ChimeraTK {
       }
       lastFailedAddress = "";
     }
-    DoocsBackendNamespace::ZMQSubscriptionManager::getInstance().activateAllListeners(this);
     _opened = true;
     _isFunctional = true;
     _startVersion = {};
@@ -240,6 +239,9 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void DoocsBackend::activateAsyncRead() noexcept {
+    if(!isFunctional()) { // Spec TransferElement 8.5.4
+      return;
+    }
     _asyncReadActivated = true;
     DoocsBackendNamespace::ZMQSubscriptionManager::getInstance().activateAllListeners(this);
   }
