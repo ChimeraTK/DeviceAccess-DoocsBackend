@@ -1,5 +1,5 @@
 PROJECT(ChimeraTK-DeviceAccess-DoocsBackend)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.16)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
@@ -15,26 +15,30 @@ include(cmake/enable_code_coverage_report.cmake)
 # linker flags
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
 
-include(cmake/add_dependency.cmake)
-add_dependency(ChimeraTK-DeviceAccess 03.00 REQUIRED)
-add_dependency(DOOCS 21.4.0 COMPONENTS server REQUIRED)
-add_dependency(doocs-server-test-helper 01.05 REQUIRED)
-
+FIND_PACKAGE(ChimeraTK-DeviceAccess 03.00 REQUIRED)
+# we need the zmq client which is part of server component
+FIND_PACKAGE(DOOCS 21.4.0 COMPONENTS server REQUIRED)
+FIND_PACKAGE(doocs-server-test-helper 01.05 REQUIRED)
 FIND_PACKAGE(Boost COMPONENTS thread system filesystem unit_test_framework REQUIRED)
+
 include_directories(${CMAKE_SOURCE_DIR}/include)
 FIND_PACKAGE(PkgConfig REQUIRED)
 
 set(LIBXML++_VERSION "libxml++-2.6")
-PKG_CHECK_MODULES(LibXML++ REQUIRED ${LIBXML++_VERSION})
-PKG_CHECK_MODULES(glib REQUIRED glib-2.0)
-include_directories(SYSTEM "${LibXML++_INCLUDEDIR}/${LIBXML++_VERSION}" ${glib_INCLUDE_DIRS} ${LibXML++_INCLUDE_DIRS})
+PKG_CHECK_MODULES(LibXML++ REQUIRED IMPORTED_TARGET ${LIBXML++_VERSION})
+PKG_CHECK_MODULES(glib REQUIRED IMPORTED_TARGET glib-2.0)
 
 set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include/)
 
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${DOOCS_DIR}")
 
+# C++ library
 aux_source_directory(${CMAKE_SOURCE_DIR}/src library_sources)
+add_library(${PROJECT_NAME} SHARED ${library_sources} )
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC ChimeraTK::ChimeraTK-DeviceAccess DOOCS::server
+    PRIVATE PkgConfig::LibXML++ PkgConfig::glib)
 
 option(BUILD_TESTS "Build test programs" ON)
 if(BUILD_TESTS)
@@ -50,10 +54,9 @@ if(BUILD_TESTS)
     get_filename_component(excutableName ${testExecutableSrcFile} NAME_WE)
     # each test includes a DOOCS server
     add_executable(${excutableName} ${testExecutableSrcFile} ${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer/doocsDummy_rpc_server.cc ${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer/eq_dummy.cc)
-    set_target_properties(${excutableName} PROPERTIES COMPILE_FLAGS "${ChimeraTK-DeviceAccess_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-    set_target_properties(${excutableName} PROPERTIES LINK_FLAGS "${DOOCS_LINKER_FLAGS} ${doocs-server-test-helper_LINKER_FLAGS} ${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
     target_include_directories(${excutableName} PRIVATE "${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer")
-    target_link_libraries(${excutableName} ${doocs-server-test-helper_LIBRARIES} ${ChimeraTK-DeviceAccess_LIBRARIES} ${DOOCS_LIBRARIES} ${PROJECT_NAME})
+    target_link_libraries(${excutableName} 
+        PRIVATE  ChimeraTK::doocs-server-test-helper ChimeraTK::ChimeraTK-DeviceAccess DOOCS::server ${PROJECT_NAME})
     add_test(${excutableName} ${excutableName})
     # copy config file
     FILE( COPY ${CMAKE_SOURCE_DIR}/tests/doocsDummy_rpc_server.conf DESTINATION ${PROJECT_BINARY_DIR})
@@ -64,34 +67,30 @@ if(BUILD_TESTS)
 
 endif()
 
-# C++ library
-add_library(${PROJECT_NAME} SHARED ${library_sources} )
-set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_LIBRARY_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${ChimeraTK-DeviceAccess_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_FLAGS "${DOOCS_LINKER_FLAGS} ${ChimeraTK-DeviceAccess_LINKER_FLAGS}")
-target_link_libraries(${PROJECT_NAME}
-                      PUBLIC
-                        ${ChimeraTK-DeviceAccess_LIBRARIES}
-                        ${DOOCS_LIBRARIES}
-                        ${LibXML++_LIBRARIES}
-                        ${glib_LIBRARIES})
-
 # Enable documentation
 include(cmake/enable_doxygen_documentation.cmake)
 
 #Install the library and the executables
 install(TARGETS ${PROJECT_NAME}
-            RUNTIME DESTINATION bin
-            LIBRARY DESTINATION lib
+    EXPORT ${PROJECT_NAME}Targets
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
   )
 
 #Create the config files by filling the correct variables into the template (*.cmake.in).
 #All variables @VARIABLE@ are replaced with the current values, but they have to be set first....
 #Only the reference header is needed. The other variables are for dependencies of this library,
 #but there are none.
+# (this section is for compatibility only, no longer required when consuming project uses imported target)
 set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include ${Boost_INCLUDE_DIRS}")
 set(${PROJECT_NAME}_LIBRARIES "${PROJECT_NAME} ${ChimeraTK-DeviceAccess_LIBRARIES} ${DOOCS_LIBRARIES}")
 set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib ${ChimeraTK-DeviceAccess_LIBRARY_DIRS} ${DOOCS_LIBRARY_DIRS}")
 set(${PROJECT_NAME}_CPPFLAGS "${ChimeraTK-DeviceAccess_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
 set(${PROJECT_NAME}_LINKER_FLAGS "-Wl,-rpath=${CMAKE_INSTALL_PREFIX}/lib,-rpath=${DOOCS_DIR},--enable-new-dtags ${DOOCS_LINKER_FLAGS}")
+# (end of compatibility section)
+
+# we support our cmake EXPORTS as imported targets
+set(PROVIDES_EXPORTED_TARGETS 1)
+# we need the public dependencies so create_cmake_config_files can find them as implicit dependencies
+list(APPEND ${PROJECT_NAME}_PUBLIC_DEPENDENCIES "ChimeraTK-DeviceAccess;DOOCS COMPONENTS server")
 include(${CMAKE_SOURCE_DIR}/cmake/create_cmake_config_files.cmake)
