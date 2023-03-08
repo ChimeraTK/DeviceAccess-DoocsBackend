@@ -17,9 +17,9 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic
 
 FIND_PACKAGE(ChimeraTK-DeviceAccess 03.00 REQUIRED)
 # we need the zmq client which is part of server component
-FIND_PACKAGE(DOOCS 21.4.0 COMPONENTS server REQUIRED)
+FIND_PACKAGE(DOOCS 21.4.0 REQUIRED COMPONENTS server)
 FIND_PACKAGE(doocs-server-test-helper 01.05 REQUIRED)
-FIND_PACKAGE(Boost COMPONENTS thread system filesystem unit_test_framework REQUIRED)
+FIND_PACKAGE(Boost REQUIRED COMPONENTS thread system filesystem unit_test_framework)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 FIND_PACKAGE(PkgConfig REQUIRED)
