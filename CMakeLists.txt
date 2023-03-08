@@ -39,6 +39,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_
 target_link_libraries(${PROJECT_NAME}
     PUBLIC ChimeraTK::ChimeraTK-DeviceAccess DOOCS::server
     PRIVATE PkgConfig::LibXML++ PkgConfig::glib)
+# --no-as-needed: force linking against this library. This is required for proper registering.
+target_link_options(${PROJECT_NAME} PUBLIC "-Wl,--no-as-needed")
 
 option(BUILD_TESTS "Build test programs" ON)
 if(BUILD_TESTS)
