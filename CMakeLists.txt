@@ -79,18 +79,6 @@ install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION lib
   )
 
-#Create the config files by filling the correct variables into the template (*.cmake.in).
-#All variables @VARIABLE@ are replaced with the current values, but they have to be set first....
-#Only the reference header is needed. The other variables are for dependencies of this library,
-#but there are none.
-# (this section is for compatibility only, no longer required when consuming project uses imported target)
-set(${PROJECT_NAME}_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include ${Boost_INCLUDE_DIRS}")
-set(${PROJECT_NAME}_LIBRARIES "${PROJECT_NAME} ${ChimeraTK-DeviceAccess_LIBRARIES} ${DOOCS_LIBRARIES}")
-set(${PROJECT_NAME}_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib ${ChimeraTK-DeviceAccess_LIBRARY_DIRS} ${DOOCS_LIBRARY_DIRS}")
-set(${PROJECT_NAME}_CPPFLAGS "${ChimeraTK-DeviceAccess_CXX_FLAGS} ${DOOCS_CXX_FLAGS}")
-set(${PROJECT_NAME}_LINKER_FLAGS "-Wl,-rpath=${CMAKE_INSTALL_PREFIX}/lib,-rpath=${DOOCS_DIR},--enable-new-dtags ${DOOCS_LINKER_FLAGS}")
-# (end of compatibility section)
-
 # we support our cmake EXPORTS as imported targets
 set(PROVIDES_EXPORTED_TARGETS 1)
 # we need the public dependencies so create_cmake_config_files can find them as implicit dependencies
