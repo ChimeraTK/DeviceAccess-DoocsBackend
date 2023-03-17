@@ -12,9 +12,6 @@ include(cmake/set_default_build_to_release.cmake)
 include(cmake/set_default_flags.cmake)
 include(cmake/enable_code_coverage_report.cmake)
 
-# linker flags
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-dynamic")
-
 FIND_PACKAGE(ChimeraTK-DeviceAccess 03.08 REQUIRED)
 # we need the zmq client which is part of server component
 FIND_PACKAGE(DOOCS 22.11 REQUIRED COMPONENTS server)
