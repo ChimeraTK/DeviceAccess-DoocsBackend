@@ -26,7 +26,6 @@ FIND_PACKAGE(PkgConfig REQUIRED)
 
 set(LIBXML++_VERSION "libxml++-2.6")
 PKG_CHECK_MODULES(LibXML++ REQUIRED IMPORTED_TARGET ${LIBXML++_VERSION})
-PKG_CHECK_MODULES(glib REQUIRED IMPORTED_TARGET glib-2.0)
 
 set(${PROJECT_NAME}_INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include/)
 
@@ -39,7 +38,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_FULL_
 target_link_libraries(${PROJECT_NAME}
     PUBLIC ChimeraTK::ChimeraTK-DeviceAccess 
     PRIVATE DOOCS::server
-    PRIVATE PkgConfig::LibXML++ PkgConfig::glib)
+    PRIVATE PkgConfig::LibXML++)
 # --no-as-needed: force linking against this library. This is required for proper registering.
 target_link_options(${PROJECT_NAME} PUBLIC "-Wl,--no-as-needed")
 
