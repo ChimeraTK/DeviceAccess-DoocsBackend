@@ -12,7 +12,7 @@ include(cmake/set_default_build_to_release.cmake)
 include(cmake/set_default_flags.cmake)
 include(cmake/enable_code_coverage_report.cmake)
 
-FIND_PACKAGE(ChimeraTK-DeviceAccess 03.08 REQUIRED)
+FIND_PACKAGE(ChimeraTK-DeviceAccess 03.09 REQUIRED)
 # we need the zmq client which is part of server component
 FIND_PACKAGE(DOOCS 22.11 REQUIRED COMPONENTS server)
 FIND_PACKAGE(doocs-server-test-helper 01.06 REQUIRED)
