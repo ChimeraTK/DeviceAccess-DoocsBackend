@@ -4,26 +4,25 @@
  *  Created on: Apr 27, 2016
  *      Author: Martin Hierholzer
  */
-
-#include <cstdlib>
-#include <unistd.h>
-#include <random>
-#include <thread>
-#include <iostream>
-
 #define BOOST_TEST_MODULE testDoocsBackend
-#include <boost/test/included/unit_test.hpp>
-#include <boost/filesystem.hpp>
+
+#include "eq_dummy.h"
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
+#include <eq_client.h>
 
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/TransferGroup.h>
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+
+#include <boost/filesystem.hpp>
+#include <boost/test/included/unit_test.hpp>
+
+#include <cstdlib>
 #include <fstream>
-
-#include <eq_client.h>
-
-#include "eq_dummy.h"
+#include <iostream>
+#include <random>
+#include <thread>
+#include <unistd.h>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
@@ -105,10 +104,11 @@ BOOST_AUTO_TEST_CASE(testScalarInt) {
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT", 120);
 
   BOOST_CHECK(acc_someInt_as_int[0][0] == 42);
-  //auto oldVersion = acc_someInt_as_int.getVersionNumber();
+  // auto oldVersion = acc_someInt_as_int.getVersionNumber();
   acc_someInt_as_int.read();
   BOOST_CHECK(acc_someInt_as_int[0][0] == 120);
-  //BOOST_CHECK(acc_someInt_as_int.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for properties set through RPC call
+  // BOOST_CHECK(acc_someInt_as_int.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
+  // properties set through RPC call
 
   acc_someInt_as_int[0][0] = 1234;
   BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 120);
@@ -194,10 +194,11 @@ BOOST_AUTO_TEST_CASE(testScalarFloat) {
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_FLOAT", 123.456);
 
   BOOST_CHECK_CLOSE(acc_someFloat_as_float[0][0], 3.1415, 0.00001);
-  //auto oldVersion = acc_someFloat_as_float.getVersionNumber();
+  // auto oldVersion = acc_someFloat_as_float.getVersionNumber();
   acc_someFloat_as_float.read();
   BOOST_CHECK_CLOSE(acc_someFloat_as_float[0][0], 123.456, 0.00001);
-  //BOOST_CHECK(acc_someFloat_as_float.getVersionNumber() == oldVersion);// DOOCS behaves differently, eventId == 0 for properties set through RPC call
+  // BOOST_CHECK(acc_someFloat_as_float.getVersionNumber() == oldVersion);// DOOCS behaves differently, eventId == 0 for
+  // properties set through RPC call
 
   acc_someFloat_as_float[0][0] = 666.333;
   BOOST_CHECK_CLOSE(DoocsServerTestHelper::doocsGet<float>("//MYDUMMY/SOME_FLOAT"), 123.456, 0.00001);
@@ -282,10 +283,11 @@ BOOST_AUTO_TEST_CASE(testScalarDouble) {
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_DOUBLE", 123.456);
 
   BOOST_CHECK_CLOSE(acc_someDouble_as_float[0][0], 2.8, 0.00001);
-  //auto oldVersion = acc_someDouble_as_float.getVersionNumber();
+  // auto oldVersion = acc_someDouble_as_float.getVersionNumber();
   acc_someDouble_as_float.read();
   BOOST_CHECK_CLOSE(acc_someDouble_as_float[0][0], 123.456, 0.00001);
-  //BOOST_CHECK(acc_someDouble_as_float.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for properties set through RPC call
+  // BOOST_CHECK(acc_someDouble_as_float.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0
+  // for properties set through RPC call
 
   acc_someDouble_as_float[0][0] = 666.333;
   BOOST_CHECK_CLOSE(DoocsServerTestHelper::doocsGet<float>("//MYDUMMY/SOME_DOUBLE"), 123.456, 0.00001);
@@ -402,10 +404,11 @@ BOOST_AUTO_TEST_CASE(testArrayInt) {
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT_ARRAY", vals);
 
   for(int i = 0; i < 42; i++) BOOST_CHECK(acc_someArray[0][i] == 3 * i + 120);
-  //auto oldVersion = acc_someArray.getVersionNumber();
+  // auto oldVersion = acc_someArray.getVersionNumber();
   acc_someArray.read();
   for(int i = 0; i < 42; i++) BOOST_CHECK(acc_someArray[0][i] == -55 * i);
-  //BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for properties set through RPC call
+  // BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
+  // properties set through RPC call
 
   for(int i = 0; i < 42; i++) acc_someArray[0][i] = i - 21;
   vals = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_INT_ARRAY");
@@ -455,10 +458,11 @@ BOOST_AUTO_TEST_CASE(testArrayShort) {
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_SHORT_ARRAY", vals);
 
   for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArray[0][i] == 10 + i);
-  //auto oldVersion = acc_someArray.getVersionNumber();
+  // auto oldVersion = acc_someArray.getVersionNumber();
   acc_someArray.read();
   for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArray[0][i] == -55 * i);
-  //BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for properties set through RPC call
+  // BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
+  // properties set through RPC call
 
   std::vector<int> vals2(5);
   for(int i = 0; i < 5; i++) acc_someArray[0][i] = i - 21;
@@ -490,10 +494,11 @@ BOOST_AUTO_TEST_CASE(testArrayLong) {
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_LONG_ARRAY", vals);
 
   for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArray[0][i] == 10 + i);
-  //auto oldVersion = acc_someArray.getVersionNumber();
+  // auto oldVersion = acc_someArray.getVersionNumber();
   acc_someArray.read();
   for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArray[0][i] == -55 * i);
-  //BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for properties set through RPC call
+  // BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
+  // properties set through RPC call
 
   std::vector<int> vals2(5);
   for(int i = 0; i < 5; i++) acc_someArray[0][i] = i - 21;
@@ -629,10 +634,11 @@ BOOST_AUTO_TEST_CASE(testIIII) {
   DoocsServerTestHelper::doocsSetIIII("//MYDUMMY/SOME_IIII", vals);
 
   for(int i = 0; i < 4; i++) BOOST_CHECK(acc_someArray[0][i] == 10 + i);
-  //auto oldVersion = acc_someArray.getVersionNumber();
+  // auto oldVersion = acc_someArray.getVersionNumber();
   acc_someArray.read();
   for(int i = 0; i < 4; i++) BOOST_CHECK(acc_someArray[0][i] == -55 * i);
-  //BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for properties set through RPC call
+  // BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
+  // properties set through RPC call
 
   for(int i = 0; i < 4; i++) acc_someArray[0][i] = i - 21;
   vals = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_IIII");
@@ -1360,8 +1366,8 @@ BOOST_AUTO_TEST_CASE(testEventId) {
     BOOST_CHECK_EQUAL(acc2.isReadable(), true);
     BOOST_CHECK_THROW(acc2.write(), ChimeraTK::logic_error);
 
-    //auto acc3 = device.getScalarRegisterAccessor<uint8_t>(path);
-    //BOOST_CHECK_THROW(acc3.read(), boost::numeric::positive_overflow);
+    // auto acc3 = device.getScalarRegisterAccessor<uint8_t>(path);
+    // BOOST_CHECK_THROW(acc3.read(), boost::numeric::positive_overflow);
   }
 
   // Check that we get the accessor for some unsupported type as well
@@ -1434,8 +1440,8 @@ BOOST_AUTO_TEST_CASE(testTimeStamp) {
     BOOST_CHECK_EQUAL(acc2.isReadable(), true);
     BOOST_CHECK_THROW(acc2.write(), ChimeraTK::logic_error);
 
-    //auto acc3 = device.getScalarRegisterAccessor<uint8_t>(path);
-    //BOOST_CHECK_THROW(acc3.read(), boost::numeric::positive_overflow);
+    // auto acc3 = device.getScalarRegisterAccessor<uint8_t>(path);
+    // BOOST_CHECK_THROW(acc3.read(), boost::numeric::positive_overflow);
   }
 
   // Check that we get the accessor for some unsupported type as well
@@ -1651,8 +1657,8 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
   BOOST_CHECK(acc1_id.getVersionNumber() > lastRegularAcc1Version);
   BOOST_CHECK_EQUAL(acc1_id, 0);
 
-  // Now send the same eventID again as we had it before the 0 (a new version has already been tested in the start sequence,
-  // where id 0 was the first one to be received)
+  // Now send the same eventID again as we had it before the 0 (a new version has already been tested in the start
+  // sequence, where id 0 was the first one to be received)
   eqfct->counter = lastRegularEventId;
   DoocsServerTestHelper::runUpdate();
 
