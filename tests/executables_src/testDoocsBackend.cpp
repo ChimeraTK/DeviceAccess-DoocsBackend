@@ -485,7 +485,7 @@ BOOST_AUTO_TEST_CASE(testArrayLong) {
   acc_someArray.read();
   for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArray[0][i] == 10 + i);
 
-  std::vector<long long int> vals(5);
+  std::vector<int64_t> vals(5);
   for(int i = 0; i < 5; i++) vals[i] = -55 * i;
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_LONG_ARRAY", vals);
 
