@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
-set(${PROJECT_NAME}_MINOR_VERSION 06)
+set(${PROJECT_NAME}_MINOR_VERSION 07)
 set(${PROJECT_NAME}_PATCH_VERSION 00)
 include(cmake/set_version_numbers.cmake)
 
@@ -12,10 +12,10 @@ include(cmake/set_default_build_to_release.cmake)
 include(cmake/set_default_flags.cmake)
 include(cmake/enable_code_coverage_report.cmake)
 
-FIND_PACKAGE(ChimeraTK-DeviceAccess 03.09 REQUIRED)
+FIND_PACKAGE(ChimeraTK-DeviceAccess 03.11 REQUIRED)
 
 # we need the zmq client which is part of server component
-FIND_PACKAGE(DOOCS 22.11 REQUIRED COMPONENTS server)
+FIND_PACKAGE(DOOCS 23.06 REQUIRED COMPONENTS server)
 FIND_PACKAGE(doocs-server-test-helper 01.06 REQUIRED)
 FIND_PACKAGE(Boost REQUIRED COMPONENTS thread system filesystem unit_test_framework)
 
