@@ -109,6 +109,7 @@ namespace ChimeraTK {
           // LCOV_EXCL_START
           std::cout << "Major logic error in DoocsBackendIntRegisterAccessor<int32_t>: source pointer is 0 "
                     << std::endl;
+          assert(false);
           // LCOV_EXCL_STOP
         }
       }

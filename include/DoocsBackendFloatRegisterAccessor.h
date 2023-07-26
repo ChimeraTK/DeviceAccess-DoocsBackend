@@ -94,6 +94,7 @@ namespace ChimeraTK {
 
       // LCOV_EXCL_START
       std::cout << "Major logic error in DoocsBackendFloatRegisterAccessor<float>: source pointer is 0 " << std::endl;
+      assert(false);
       // LCOV_EXCL_STOP
     }
   }
@@ -132,6 +133,7 @@ namespace ChimeraTK {
 
       // LCOV_EXCL_START
       std::cout << "Major logic error in DoocsBackendFloatRegisterAccessor<double>: source pointer is 0 " << std::endl;
+      assert(false);
       // LCOV_EXCL_STOP
     }
   }
@@ -205,6 +207,7 @@ namespace ChimeraTK {
       // LCOV_EXCL_START
       std::cout << "Major logic error in DoocsBackendFloatRegisterAccessor<USERTYPE>: source pointer is 0 "
                 << std::endl;
+      assert(false);
       // LCOV_EXCL_STOP
     }
   }
