@@ -21,7 +21,7 @@ namespace ChimeraTK {
   template<typename UserType>
   class DoocsBackendIntRegisterAccessor : public DoocsBackendRegisterAccessor<UserType> {
    public:
-    virtual ~DoocsBackendIntRegisterAccessor();
+    ~DoocsBackendIntRegisterAccessor() override;
 
    protected:
     DoocsBackendIntRegisterAccessor(boost::shared_ptr<DoocsBackend> backend, const std::string& path,
@@ -80,6 +80,43 @@ namespace ChimeraTK {
         int idx = i + DoocsBackendRegisterAccessor<UserType>::elementOffset;
         UserType val = numericToUserType<UserType>(DoocsBackendRegisterAccessor<UserType>::dst.get_int(idx));
         NDRegisterAccessor<UserType>::buffer_2D[0][i] = val;
+      }
+    }
+  }
+
+  /**********************************************************************************************************************/
+
+  template<>
+  inline void DoocsBackendIntRegisterAccessor<int32_t>::doPostRead(TransferType type, bool hasNewData) {
+    DoocsBackendRegisterAccessor<int32_t>::doPostRead(type, hasNewData);
+    if(!hasNewData) return;
+
+    // copy data into our buffer
+    if(!DoocsBackendRegisterAccessor<int32_t>::isArray) {
+      NDRegisterAccessor<int32_t>::buffer_2D[0][0] = dst.get_int();
+    }
+    else {
+      if(src.type() == DATA_A_INT) {
+        auto intSourcePointer = dst.get_int_array();
+        if(intSourcePointer) {
+          memcpy(buffer_2D[0].data(), intSourcePointer + elementOffset, nElements * sizeof(int32_t));
+        }
+        else {
+          // We should never end up here. According to DOOCS docu get_int_array()
+          // return a valid pointer for DATA_A_INT.
+          // Throwing a logic error here is out of spec. We can just print and hope it's annoying enough so people notice.
+
+          // LCOV_EXCL_START
+          std::cout << "Major logic error in DoocsBackendIntRegisterAccessor<int32_t>: source pointer is 0 "
+                    << std::endl;
+          // LCOV_EXCL_STOP
+        }
+      }
+      else {
+        // if the internal data layout is not 32 bit integer use get_int and copy element by element
+        for(size_t i = 0; i < DoocsBackendRegisterAccessor<int32_t>::nElements; i++) {
+          buffer_2D[0][i] = dst.get_int(i + elementOffset);
+        }
       }
     }
   }

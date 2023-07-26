@@ -21,7 +21,7 @@ namespace ChimeraTK {
   template<typename UserType>
   class DoocsBackendLongRegisterAccessor : public DoocsBackendRegisterAccessor<UserType> {
    public:
-    virtual ~DoocsBackendLongRegisterAccessor();
+    ~DoocsBackendLongRegisterAccessor() override;
 
    protected:
     DoocsBackendLongRegisterAccessor(boost::shared_ptr<DoocsBackend> backend, const std::string& path,
@@ -71,6 +71,18 @@ namespace ChimeraTK {
       UserType val = numericToUserType<UserType>(DoocsBackendRegisterAccessor<UserType>::dst.get_long(idx));
       NDRegisterAccessor<UserType>::buffer_2D[0][i] = val;
     }
+  }
+
+  /**********************************************************************************************************************/
+
+  template<>
+  inline void DoocsBackendLongRegisterAccessor<int64_t>::doPostRead(TransferType type, bool hasNewData) {
+    DoocsBackendRegisterAccessor<int64_t>::doPostRead(type, hasNewData);
+    if(!hasNewData) return;
+
+    // copy data into our buffer
+    auto int64SourcePointer = dst.get_long_array();
+    memcpy(buffer_2D[0].data(), int64SourcePointer + elementOffset, nElements * sizeof(int64_t));
   }
 
   /**********************************************************************************************************************/
