@@ -21,7 +21,7 @@ namespace ChimeraTK {
   template<typename UserType>
   class DoocsBackendLongRegisterAccessor : public DoocsBackendRegisterAccessor<UserType> {
    public:
-    virtual ~DoocsBackendLongRegisterAccessor();
+    ~DoocsBackendLongRegisterAccessor() override;
 
    protected:
     DoocsBackendLongRegisterAccessor(boost::shared_ptr<DoocsBackend> backend, const std::string& path,
@@ -70,6 +70,30 @@ namespace ChimeraTK {
       int idx = i + DoocsBackendRegisterAccessor<UserType>::elementOffset;
       UserType val = numericToUserType<UserType>(DoocsBackendRegisterAccessor<UserType>::dst.get_long(idx));
       NDRegisterAccessor<UserType>::buffer_2D[0][i] = val;
+    }
+  }
+
+  /**********************************************************************************************************************/
+
+  template<>
+  inline void DoocsBackendLongRegisterAccessor<int64_t>::doPostRead(TransferType type, bool hasNewData) {
+    DoocsBackendRegisterAccessor<int64_t>::doPostRead(type, hasNewData);
+    if(!hasNewData) return;
+
+    // copy data into our buffer
+    auto int64SourcePointer = dst.get_long_array();
+    if(int64SourcePointer) {
+      memcpy(buffer_2D[0].data(), int64SourcePointer + elementOffset, nElements * sizeof(int64_t));
+    }
+    else {
+      // We should never end up here. According to DOOCS docu get_int_array()
+      // return a valid pointer for DATA_A_INT.
+      // Throwing a logic error here is out of spec. We can just print and hope it's annoying enough so people notice.
+
+      // LCOV_EXCL_START
+      std::cout << "Major logic error in DoocsBackendLongRegisterAccessor<int64_t>: source pointer is 0 " << std::endl;
+      assert(false);
+      // LCOV_EXCL_STOP
     }
   }
 

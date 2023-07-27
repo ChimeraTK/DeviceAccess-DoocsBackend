@@ -63,7 +63,7 @@ namespace ChimeraTK {
   /**********************************************************************************************************************/
 
   template<>
-  void DoocsBackendFloatRegisterAccessor<float>::doPostRead(TransferType type, bool hasNewData) {
+  inline void DoocsBackendFloatRegisterAccessor<float>::doPostRead(TransferType type, bool hasNewData) {
     DoocsBackendRegisterAccessor<float>::doPostRead(type, hasNewData);
     if(!hasNewData) return;
 
@@ -72,17 +72,37 @@ namespace ChimeraTK {
       NDRegisterAccessor<float>::buffer_2D[0][0] = dst.get_float();
     }
     else {
-      for(size_t i = 0; i < DoocsBackendRegisterAccessor<float>::nElements; i++) {
-        int idx = i + DoocsBackendRegisterAccessor<float>::elementOffset;
-        NDRegisterAccessor<float>::buffer_2D[0][i] = dst.get_float(idx);
+      auto floatSourcePointer = dst.get_float_array();
+      if(floatSourcePointer) {
+        // raw and target data type match, do a memcopy
+        memcpy(NDRegisterAccessor<float>::buffer_2D[0].data(), floatSourcePointer + elementOffset,
+            nElements * sizeof(float));
+        return;
       }
+      auto doubleSourcePointer = dst.get_double_array();
+      if(doubleSourcePointer) {
+        doubleSourcePointer += elementOffset;
+        for(auto& target : NDRegisterAccessor<float>::buffer_2D[0]) {
+          target = static_cast<float>(*doubleSourcePointer);
+          ++doubleSourcePointer;
+        }
+        return;
+      }
+      // We should never end up here. According to DOOCS docu either get_float_array() or get_double_array() should
+      // return a valid pointer for the data types checked in the constructor.
+      // Throwing a logic error here is out of spec. We can just print and hope it's annoying enough so people notice.
+
+      // LCOV_EXCL_START
+      std::cout << "Major logic error in DoocsBackendFloatRegisterAccessor<float>: source pointer is 0 " << std::endl;
+      assert(false);
+      // LCOV_EXCL_STOP
     }
   }
 
   /**********************************************************************************************************************/
 
   template<>
-  void DoocsBackendFloatRegisterAccessor<double>::doPostRead(TransferType type, bool hasNewData) {
+  inline void DoocsBackendFloatRegisterAccessor<double>::doPostRead(TransferType type, bool hasNewData) {
     DoocsBackendRegisterAccessor<double>::doPostRead(type, hasNewData);
     if(!hasNewData) return;
 
@@ -91,17 +111,37 @@ namespace ChimeraTK {
       NDRegisterAccessor<double>::buffer_2D[0][0] = dst.get_double();
     }
     else {
-      for(size_t i = 0; i < DoocsBackendRegisterAccessor<double>::nElements; i++) {
-        int idx = i + DoocsBackendRegisterAccessor<double>::elementOffset;
-        NDRegisterAccessor<double>::buffer_2D[0][i] = dst.get_double(idx);
+      auto doubleSourcePointer = dst.get_double_array();
+      if(doubleSourcePointer) {
+        // raw and target data type match, do a memcopy
+        memcpy(NDRegisterAccessor<double>::buffer_2D[0].data(), doubleSourcePointer + elementOffset,
+            nElements * sizeof(double));
+        return;
       }
+      auto floatSourcePointer = dst.get_float_array();
+      if(floatSourcePointer) {
+        floatSourcePointer += elementOffset;
+        for(auto& target : NDRegisterAccessor<double>::buffer_2D[0]) {
+          target = static_cast<double>(*floatSourcePointer);
+          ++floatSourcePointer;
+        }
+        return;
+      }
+      // We should never end up here. According to DOOCS docu either get_float_array() or get_double_array() should
+      // return a valid pointer for the data types checked in the constructor.
+      // Throwing a logic error here is out of spec. We can just print and hope it's annoying enough so people notice.
+
+      // LCOV_EXCL_START
+      std::cout << "Major logic error in DoocsBackendFloatRegisterAccessor<double>: source pointer is 0 " << std::endl;
+      assert(false);
+      // LCOV_EXCL_STOP
     }
   }
 
   /**********************************************************************************************************************/
 
   template<>
-  void DoocsBackendFloatRegisterAccessor<std::string>::doPostRead(TransferType type, bool hasNewData) {
+  inline void DoocsBackendFloatRegisterAccessor<std::string>::doPostRead(TransferType type, bool hasNewData) {
     DoocsBackendRegisterAccessor<std::string>::doPostRead(type, hasNewData);
     if(!hasNewData) return;
 
@@ -110,6 +150,7 @@ namespace ChimeraTK {
       NDRegisterAccessor<std::string>::buffer_2D[0][0] = dst.get_string();
     }
     else {
+      // This is inefficient anyway. We don't replace the inefficient get_double here
       for(size_t i = 0; i < DoocsBackendRegisterAccessor<std::string>::nElements; i++) {
         int idx = i + DoocsBackendRegisterAccessor<std::string>::elementOffset;
         NDRegisterAccessor<std::string>::buffer_2D[0][i] =
@@ -121,7 +162,7 @@ namespace ChimeraTK {
   /**********************************************************************************************************************/
 
   template<>
-  void DoocsBackendFloatRegisterAccessor<ChimeraTK::Void>::doPostRead(TransferType type, bool hasNewData) {
+  inline void DoocsBackendFloatRegisterAccessor<ChimeraTK::Void>::doPostRead(TransferType type, bool hasNewData) {
     DoocsBackendRegisterAccessor<ChimeraTK::Void>::doPostRead(type, hasNewData);
   }
 
@@ -141,18 +182,40 @@ namespace ChimeraTK {
           std::round(DoocsBackendRegisterAccessor<UserType>::dst.get_double());
     }
     else {
-      for(size_t i = 0; i < DoocsBackendRegisterAccessor<UserType>::nElements; i++) {
-        int idx = i + DoocsBackendRegisterAccessor<UserType>::elementOffset;
-        NDRegisterAccessor<UserType>::buffer_2D[0][i] =
-            std::round(DoocsBackendRegisterAccessor<UserType>::dst.get_double(idx));
+      auto floatSourcePointer = DoocsBackendRegisterAccessor<UserType>::dst.get_float_array();
+      if(floatSourcePointer) {
+        floatSourcePointer += DoocsBackendRegisterAccessor<UserType>::elementOffset;
+        for(auto& target : NDRegisterAccessor<UserType>::buffer_2D[0]) {
+          target = std::round(*floatSourcePointer);
+          ++floatSourcePointer;
+        }
+        return;
       }
+      auto doubleSourcePointer = DoocsBackendRegisterAccessor<UserType>::dst.get_double_array();
+      if(doubleSourcePointer) {
+        doubleSourcePointer += DoocsBackendRegisterAccessor<UserType>::elementOffset;
+        for(auto& target : NDRegisterAccessor<UserType>::buffer_2D[0]) {
+          target = std::round(*doubleSourcePointer);
+          ++doubleSourcePointer;
+        }
+        return;
+      }
+      // We should never end up here. According to DOOCS docu either get_float_array() or get_double_array() should
+      // return a valid pointer for the data types checked in the constructor.
+      // Throwing a logic error here is out of spec. We can just print and hope it's annoying enough so people notice.
+
+      // LCOV_EXCL_START
+      std::cout << "Major logic error in DoocsBackendFloatRegisterAccessor<USERTYPE>: source pointer is 0 "
+                << std::endl;
+      assert(false);
+      // LCOV_EXCL_STOP
     }
   }
 
   /**********************************************************************************************************************/
 
   template<>
-  void DoocsBackendFloatRegisterAccessor<std::string>::doPreWrite(TransferType type, VersionNumber version) {
+  inline void DoocsBackendFloatRegisterAccessor<std::string>::doPreWrite(TransferType type, VersionNumber version) {
     DoocsBackendRegisterAccessor<std::string>::doPreWrite(type, version);
 
     // copy data into our buffer
@@ -177,7 +240,7 @@ namespace ChimeraTK {
   /**********************************************************************************************************************/
 
   template<>
-  void DoocsBackendFloatRegisterAccessor<ChimeraTK::Void>::doPreWrite(TransferType type, VersionNumber version) {
+  inline void DoocsBackendFloatRegisterAccessor<ChimeraTK::Void>::doPreWrite(TransferType type, VersionNumber version) {
     DoocsBackendRegisterAccessor<ChimeraTK::Void>::doPreWrite(type, version);
 
     src.set(0);
