@@ -7,6 +7,7 @@
 
 class DoocsBackendRegisterInfo;
 
+
 /**********************************************************************************************************************/
 
 class DoocsBackendRegisterCatalogue : public ChimeraTK::BackendRegisterCatalogue<DoocsBackendRegisterInfo> {

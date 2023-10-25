@@ -7,11 +7,12 @@
 #define BOOST_TEST_MODULE testDoocsBackend
 
 #include "eq_dummy.h"
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <eq_client.h>
 
 #include <ChimeraTK/Device.h>
+#include <ChimeraTK/MappedImage.h>
 #include <ChimeraTK/TransferGroup.h>
 
 #include <boost/filesystem.hpp>
@@ -761,6 +762,45 @@ BOOST_AUTO_TEST_CASE(testIFFF) {
     acc_F3.read();
     BOOST_CHECK_CLOSE(float(acc_F3), -666.666, 0.00001);
   }
+
+  device.close();
+}
+
+/**********************************************************************************************************************/
+
+BOOST_AUTO_TEST_CASE(testImage) {
+  ChimeraTK::Device device;
+  device.open(DoocsLauncher::DoocsServer1);
+
+  // obtain default array length, just fitting image on DOOCS server
+  OneDRegisterAccessor<std::uint8_t> acc_someImage(device.getOneDRegisterAccessor<std::uint8_t>("MYDUMMY/SOME_IMAGE"));
+  BOOST_TEST(acc_someImage.getNElements() == 640 * 460 + sizeof(ChimeraTK::ImgHeader));
+
+  acc_someImage.read();
+  ChimeraTK::MappedImage im(acc_someImage);
+  BOOST_TEST(im.header()->width == 200);
+  BOOST_TEST(im.header()->height == 100);
+  BOOST_CHECK(im.header()->image_format == ChimeraTK::ImgFormat::Gray16);
+  auto imv = im.interpretedView<std::uint16_t>();
+  BOOST_TEST(imv(0, 0) == 0x101);
+
+  // obtain accessor with larger than default array length
+  OneDRegisterAccessor<std::uint8_t> acc_someImage_padded(
+      device.getOneDRegisterAccessor<std::uint8_t>("MYDUMMY/SOME_IMAGE", 200 * 1000));
+  BOOST_CHECK(acc_someImage_padded.getNElements() == 200 * 1000);
+  acc_someImage_padded.read();
+  // verify that image content is same
+  for(unsigned i = 0; i < im.header()->totalLength; i++) {
+    BOOST_TEST(acc_someImage[i] == acc_someImage_padded[i]);
+  }
+  // obtain accessor with smaller array length, so image must be truncated
+  OneDRegisterAccessor<std::uint8_t> acc_someImage_truncated(
+      device.getOneDRegisterAccessor<std::uint8_t>("MYDUMMY/SOME_IMAGE", 200 * 51 * 2));
+  acc_someImage_truncated.read();
+  ChimeraTK::MappedImage im1(acc_someImage_truncated);
+  BOOST_TEST(im1.header()->width == 200);
+  BOOST_TEST(im1.header()->height == 50); // one line less than 51 because of header
+  BOOST_CHECK(im1.header()->image_format == ChimeraTK::ImgFormat::Gray16);
 
   device.close();
 }

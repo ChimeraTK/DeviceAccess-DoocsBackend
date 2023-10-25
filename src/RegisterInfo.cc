@@ -63,6 +63,13 @@ void DoocsBackendRegisterCatalogue::addProperty(
     if(!hasRegister(infoF2.getRegisterName())) addRegister(infoF2);
     if(!hasRegister(infoF3.getRegisterName())) addRegister(infoF3);
   }
+  else if(doocsType == DATA_IMAGE) {
+    // data type for created accessor is uint8
+    info.dataDescriptor = ChimeraTK::DataDescriptor(
+        ChimeraTK::DataDescriptor::FundamentalType::numeric, true, false, 3, 0, ChimeraTK::DataType::uint8);
+    info._writable = false;
+    if(!hasRegister(info.getRegisterName())) addRegister(info);
+  }
   else { // floating point data types: always treat like double
     info.dataDescriptor =
         ChimeraTK::DataDescriptor(ChimeraTK::DataDescriptor::FundamentalType::numeric, false, true, 320, 300);
