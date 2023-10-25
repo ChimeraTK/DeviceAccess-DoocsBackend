@@ -1,23 +1,23 @@
 #ifndef CHIMERATK_DOOCS_BACKEND_REGISTER_ACCESSOR_H
 #define CHIMERATK_DOOCS_BACKEND_REGISTER_ACCESSOR_H
-#include <mutex>
-#include <queue>
+#include "DoocsBackend.h"
+#include "EventIdMapper.h"
+#include "RegisterInfo.h"
+#include "ZMQSubscriptionManager.h"
+#include <eq_client.h>
+#include <eq_errors.h>
+#include <eq_fct.h>
 #include <type_traits>
 
 #include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/Exception.h>
 #include <ChimeraTK/FixedPointConverter.h>
-#include <ChimeraTK/RegisterPath.h>
+#include <ChimeraTK/MappedImage.h>
 #include <ChimeraTK/NDRegisterAccessor.h>
+#include <ChimeraTK/RegisterPath.h>
 
-#include <eq_client.h>
-#include <eq_fct.h>
-#include <eq_errors.h>
-
-#include "DoocsBackend.h"
-#include "EventIdMapper.h"
-#include "ZMQSubscriptionManager.h"
-#include "RegisterInfo.h"
+#include <mutex>
+#include <queue>
 
 namespace ChimeraTK {
 
@@ -246,6 +246,10 @@ namespace ChimeraTK {
         if(actualLength == 0) actualLength = dst.length();
       }
       typeId = dst.type();
+      if(typeId == DATA_IMAGE) {
+        // RegisterAccessor byte array needs to store header and body
+        actualLength += sizeof(ChimeraTK::ImgHeader);
+      }
     }
 
     // strings report number of characters, not number of strings..
@@ -264,7 +268,10 @@ namespace ChimeraTK {
       nElements = actualLength;
     }
     if(nElements + elementOffset > actualLength) {
-      throw ChimeraTK::logic_error("Requested number of words exceeds the length of the DOOCS property!");
+      // for image type, we allow having a byte array larger than required
+      if(typeId != DATA_IMAGE) {
+        throw ChimeraTK::logic_error("Requested number of words exceeds the length of the DOOCS property!");
+      }
     }
     if(nElements == actualLength && elementOffset == 0) {
       isPartial = false;
@@ -279,7 +286,11 @@ namespace ChimeraTK {
 
     // set proper type information in the source EqData
     src.set_type(typeId);
-    if(typeId != DATA_IIII) {
+    if(typeId == DATA_IMAGE) {
+      // DOOCS data structure has its own image header format and length() is only used for body length
+      src.length(actualLength - sizeof(ChimeraTK::ImgHeader));
+    }
+    else if(typeId != DATA_IIII) {
       src.length(actualLength);
     }
 

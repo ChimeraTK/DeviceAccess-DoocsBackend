@@ -23,28 +23,28 @@ namespace ChimeraTK {
    * Backend to access DOOCS control system servers.
    *
    * The CDD should look like this:
-   * 
+   *
    * (doocs:FACILITY/DEVICE)
-   * 
+   *
    * or:
-   * 
+   *
    * (doocs:FACILITY/DEVICE/LOCATION)
    *
    * The given path components are prefixed to the register names, hence if the LOCATION is not specified in the CDD,
    * the register names will be of the form LOCATION/PROPERTY, while otherwise the register names will be just the
    * property names.
-   * 
+   *
    * If the parameter "cacheFile" in the CDD is specified, e.g.:
-   * 
+   *
    * (doocs:FACILITY/DEVICE/LOCATION?cacheFile=myDooceDevice.cache)
-   * 
+   *
    * the register catalogue will be cached in the given file and reused next time. This allows to speed up the filling
    * of the catalogue (which may take a very long time for large number of properties).
-   * 
+   *
    * Please note that the cache file is only updated when the "updateCache" parameter is set to 1, e.g.:
-   * 
+   *
    * (doocs:FACILITY/DEVICE/LOCATION?cacheFile=myDooceDevice.cache&updateCache=1)
-   * 
+   *
    * Otherwise no catalogue updating will be initiated if the cache file is already present.
    *
    * If AccessMode::wait_for_new_data is specified when obtaining accessors, ZeroMQ is used to subscribe to the variable

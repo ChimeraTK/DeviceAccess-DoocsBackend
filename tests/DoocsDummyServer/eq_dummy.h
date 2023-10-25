@@ -26,7 +26,8 @@ class eq_dummy : public EqFct {
   D_spectrum prop_someSpectrum;
   D_iiii prop_someIIII;
   D_ifff prop_someIFFF;
-  D_image prop_unsupportedDataType;
+  D_image prop_someImage;
+  D_ttii prop_unsupportedDataType;
 
   D_int prop_someZMQInt;
 

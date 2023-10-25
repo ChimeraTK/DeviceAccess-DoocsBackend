@@ -1,8 +1,9 @@
 #include "CatalogueFetcher.h"
-#include "StringUtility.h"
-#include "RegisterInfo.h"
-#include "DoocsBackend.h"
 
+#include "ChimeraTK/MappedImage.h"
+#include "DoocsBackend.h"
+#include "RegisterInfo.h"
+#include "StringUtility.h"
 #include <eq_client.h>
 
 const std::vector<std::string> IGNORE_PATTERNS = {".HIST", ".FILT", "._FILT", ".EGU", ".DESC", ".HSTAT", "._HSTAT", "._HIST",
@@ -88,7 +89,11 @@ void CatalogueFetcher::fillCatalogue(std::string fixedComponents, long level) {
       if(checkZmqAvailability(fqn)) {
         flags.add(ChimeraTK::AccessMode::wait_for_new_data);
       }
-
+      if(doocsTypeId == DATA_IMAGE) {
+        // length of the byte string (body part, no header) is reported by DOOCS.
+        // We must add our header length.
+        length += sizeof(ChimeraTK::ImgHeader);
+      }
       catalogue_.addProperty(regPath, length, doocsTypeId, flags);
     }
   }

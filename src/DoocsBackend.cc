@@ -5,27 +5,31 @@
  *      Author: Martin Hierholzer
  */
 
-#include <algorithm>
-#include <boost/algorithm/string.hpp>
-#include <ChimeraTK/BackendFactory.h>
-#include <ChimeraTK/DeviceAccessVersion.h>
-#include <libxml++/libxml++.h>
-#include <fstream>
+#include "DoocsBackend.h"
 
 #include "CatalogueCache.h"
 #include "CatalogueFetcher.h"
-#include "DoocsBackend.h"
+#include "DoocsBackendEventIdAccessor.h"
 #include "DoocsBackendFloatRegisterAccessor.h"
-#include "DoocsBackendIIIIRegisterAccessor.h"
 #include "DoocsBackendIFFFRegisterAccessor.h"
+#include "DoocsBackendIIIIRegisterAccessor.h"
+#include "DoocsBackendImageRegisterAccessor.h"
 #include "DoocsBackendIntRegisterAccessor.h"
 #include "DoocsBackendLongRegisterAccessor.h"
 #include "DoocsBackendStringRegisterAccessor.h"
-#include "DoocsBackendEventIdAccessor.h"
 #include "DoocsBackendTimeStampAccessor.h"
 #include "RegisterInfo.h"
 #include "StringUtility.h"
 #include "ZMQSubscriptionManager.h"
+
+#include <ChimeraTK/BackendFactory.h>
+#include <ChimeraTK/DeviceAccessVersion.h>
+#include <ChimeraTK/TypeChangingDecorator.h>
+
+#include <boost/algorithm/string.hpp>
+
+#include <algorithm>
+#include <fstream>
 
 // this is required since we link against the DOOCS libEqServer.so
 const char* object_name = "DoocsBackend";
@@ -77,7 +81,8 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  DoocsBackend::DoocsBackend(const std::string& serverAddress, const std::string& cacheFile, const std::string& updateCache)
+  DoocsBackend::DoocsBackend(
+      const std::string& serverAddress, const std::string& cacheFile, const std::string& updateCache)
   : _serverAddress(serverAddress), _cacheFile(cacheFile) {
     if(cacheFileExists() && isCachingEnabled()) {
       // provide catalogue immediately from cache
@@ -91,7 +96,7 @@ namespace ChimeraTK {
     else {
       // fill catalogue in the background (and save to cache if enabled)
       _catalogueFuture =
-        std::async(std::launch::async, fetchCatalogue, serverAddress, cacheFile, _cancelFlag.get_future());
+          std::async(std::launch::async, fetchCatalogue, serverAddress, cacheFile, _cancelFlag.get_future());
     }
 
     // Reduce ZeroMQ timeout so inconsistencies get corrected more quickly. The downside is that DOOCS will do more
@@ -152,6 +157,7 @@ namespace ChimeraTK {
       // empty cacheFile string => no caching
       // empty updateCache string => no cache update
     }
+
     // create and return the backend
     return boost::shared_ptr<DeviceBackend>(new DoocsBackend(address, cacheFile, updateCache));
   }
@@ -347,6 +353,21 @@ namespace ChimeraTK {
       extraLevelUsed = true;
       p.reset(new DoocsBackendIFFFRegisterAccessor<UserType>(
           sharedThis, path, field, registerPathName, numberOfWords, wordOffsetInRegister, flags));
+    }
+    else if(doocsTypeId == DATA_IMAGE) {
+      auto accImpl = new DoocsBackendImageRegisterAccessor(
+          sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags);
+      if constexpr(std::is_same_v<UserType, std::uint8_t>) {
+        p.reset(accImpl);
+      }
+      else {
+        boost::shared_ptr<NDRegisterAccessor<std::uint8_t>> pImpl(accImpl);
+        // any UserType can hold uint8
+        boost::shared_ptr<NDRegisterAccessor<UserType>> accDecorated(
+            new TypeChangingRangeCheckingDecorator<UserType, std::uint8_t>(
+                boost::dynamic_pointer_cast<ChimeraTK::NDRegisterAccessor<std::uint8_t>>(pImpl)));
+        p = accDecorated;
+      }
     }
     else {
       throw ChimeraTK::logic_error("Unsupported DOOCS data type " + std::string(EqData().type_string(doocsTypeId)) +

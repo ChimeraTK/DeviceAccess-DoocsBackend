@@ -11,7 +11,8 @@ eq_dummy::eq_dummy()
   prop_someShortArray("SOME_SHORT_ARRAY", 5, this), prop_someLongArray("SOME_LONG_ARRAY", 5, this),
   prop_someFloatArray("SOME_FLOAT_ARRAY", 5, this), prop_someDoubleArray("SOME_DOUBLE_ARRAY", 5, this),
   prop_someSpectrum("SOME_SPECTRUM", 100, this), prop_someIIII("SOME_IIII", this), prop_someIFFF("SOME_IFFF", this),
-  prop_unsupportedDataType("UNSUPPORTED_DATA_TYPE", 640 * 460, this), prop_someZMQInt("SOME_ZMQINT", this),
+  prop_someImage("SOME_IMAGE", 640 * 460, this), prop_unsupportedDataType("UNSUPPORTED_DATA_TYPE", this),
+  prop_someZMQInt("SOME_ZMQINT", this),
   // counter well below the 10000 used by testUnifiesBackendTest
   counter(1234), startTime(1584020594) {
   prop_someReadonlyInt.set_ro_access();
@@ -75,6 +76,18 @@ void eq_dummy::init() {
   prop_someIFFF.set_mpnum(counter);
   prop_someIFFF.set_tmstmp(startTime, 0);
 
+  IMH imh{};
+  imh.image_format = TTF2_IMAGE_FORMAT_GRAY;
+  imh.bpp = 2;
+  imh.width = 200;
+  imh.height = 100;
+  imh.event = counter;
+  imh.frame = counter;
+  prop_someImage.set_img_header(&imh); // copies header
+  prop_someImage.fill_image(1);
+  prop_someImage.set_event_id(doocs::EventId{counter});
+  prop_someImage.set_tmstmp(startTime, 0);
+
   prop_someZMQInt.set_value(0);
 }
 
@@ -137,6 +150,9 @@ void eq_dummy::update() {
 
   prop_someIFFF.set_mpnum(counter);
   prop_someIFFF.set_tmstmp(startTime, 0);
+
+  prop_someImage.set_mpnum(counter);
+  prop_someImage.set_tmstmp(startTime, 0);
 
   // publish new value via ZeroMQ
   dmsg_info_t db;
