@@ -8,11 +8,9 @@
 #ifndef MTCA4U_DOOCS_BACKEND_FLOAT_REGISTER_ACCESSOR_H
 #define MTCA4U_DOOCS_BACKEND_FLOAT_REGISTER_ACCESSOR_H
 
-#include <type_traits>
-
-#include <eq_client.h>
-
 #include "DoocsBackendRegisterAccessor.h"
+#include <eq_client.h>
+#include <type_traits>
 
 namespace ChimeraTK {
 

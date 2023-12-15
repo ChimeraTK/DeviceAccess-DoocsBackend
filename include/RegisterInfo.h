@@ -1,12 +1,11 @@
 #pragma once
 
-#include <ChimeraTK/BackendRegisterInfoBase.h>
 #include <ChimeraTK/BackendRegisterCatalogue.h>
+#include <ChimeraTK/BackendRegisterInfoBase.h>
 
 /**********************************************************************************************************************/
 
 class DoocsBackendRegisterInfo;
-
 
 /**********************************************************************************************************************/
 

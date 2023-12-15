@@ -1,17 +1,18 @@
 #include "CatalogueCache.h"
+
 #include "RegisterInfo.h"
 #include "StringUtility.h"
+#include <eq_data.h>
+#include <eq_types.h>
+#include <libxml++/libxml++.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
-#include <fstream>
-#include <libxml++/libxml++.h>
-#include <eq_types.h>
-#include <eq_data.h>
 
-#include <cstdlib>
 #include <cerrno>
+#include <cstdlib>
 #include <cstring>
+#include <fstream>
 
 /********************************************************************************************************************/
 
@@ -45,9 +46,13 @@ namespace Cache {
   }
 
   /********************************************************************************************************************/
-  bool is_empty(std::ifstream& f) { return f.peek() == std::ifstream::traits_type::eof(); }
+  bool is_empty(std::ifstream& f) {
+    return f.peek() == std::ifstream::traits_type::eof();
+  }
 
-  bool is_empty(std::ifstream&& f) { return is_empty(f); }
+  bool is_empty(std::ifstream&& f) {
+    return is_empty(f);
+  }
 
   /********************************************************************************************************************/
 
@@ -142,7 +147,9 @@ namespace Cache {
 
   /********************************************************************************************************************/
 
-  int parseTypeId(xmlpp::Element const* c) { return convertToInt(c->get_child_text()->get_content(), c->get_line()); }
+  int parseTypeId(xmlpp::Element const* c) {
+    return convertToInt(c->get_child_text()->get_content(), c->get_line());
+  }
 
   /********************************************************************************************************************/
 

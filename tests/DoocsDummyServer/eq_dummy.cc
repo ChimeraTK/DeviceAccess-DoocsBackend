@@ -1,7 +1,7 @@
-#include <unistd.h>
-#include <iostream>
-
 #include "eq_dummy.h"
+
+#include <iostream>
+#include <unistd.h>
 
 eq_dummy::eq_dummy()
 : EqFct("NAME = location"), prop_someInt("SOME_INT Some integer property", this),

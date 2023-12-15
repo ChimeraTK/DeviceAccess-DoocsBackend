@@ -133,7 +133,9 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  bool DoocsBackend::isCachingEnabled() const { return !_cacheFile.empty(); }
+  bool DoocsBackend::isCachingEnabled() const {
+    return !_cacheFile.empty();
+  }
 
   /********************************************************************************************************************/
 
@@ -176,14 +178,14 @@ namespace ChimeraTK {
       // if again error received, throw exception
       if(rc && isCommunicationError(dst.error())) {
         lk.unlock();
-        setException();
-        throw ChimeraTK::runtime_error(std::string("Cannot read from DOOCS property: ") + dst.get_string());
+        auto message = std::string("Cannot read from DOOCS property: ") + dst.get_string();
+        setException(message);
+        throw ChimeraTK::runtime_error(message);
       }
       lastFailedAddress = "";
     }
-    _opened = true;
-    _isFunctional = true;
     _startVersion = {};
+    setOpenedAndClearException();
   }
 
   /********************************************************************************************************************/
@@ -211,15 +213,7 @@ namespace ChimeraTK {
       std::unique_lock<std::mutex> lk(_mxRecovery);
 
       lastFailedAddress = "";
-      _isFunctional = false;
     }
-  }
-
-  /********************************************************************************************************************/
-
-  bool DoocsBackend::isFunctional() const {
-    std::lock_guard<std::mutex> lk(_mxRecovery);
-    return _isFunctional;
   }
 
   /********************************************************************************************************************/
@@ -233,11 +227,7 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  void DoocsBackend::setException() {
-    {
-      std::lock_guard<std::mutex> lk(_mxRecovery);
-      _isFunctional = false;
-    }
+  void DoocsBackend::setExceptionImpl() noexcept {
     _asyncReadActivated = false;
     DoocsBackendNamespace::ZMQSubscriptionManager::getInstance().deactivateAllListenersAndPushException(this);
   }

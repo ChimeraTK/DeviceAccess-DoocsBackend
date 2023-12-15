@@ -1,7 +1,8 @@
 #include "RegisterInfo.h"
 
-#include <boost/shared_ptr.hpp>
 #include <eq_types.h>
+
+#include <boost/shared_ptr.hpp>
 
 /*******************************************************************************************************************/
 
@@ -27,13 +28,16 @@ void DoocsBackendRegisterCatalogue::addProperty(
   else if(doocsType == DATA_INT || doocsType == DATA_A_INT || doocsType == DATA_A_SHORT || doocsType == DATA_A_LONG ||
       doocsType == DATA_A_BYTE || doocsType == DATA_IIII) { // integral data types
     size_t digits;
-    if (doocsType == DATA_A_SHORT) { // 16 bit signed
+    if(doocsType == DATA_A_SHORT) { // 16 bit signed
       digits = 6;
-    } else if (doocsType == DATA_A_BYTE) { // 8 bit signed
+    }
+    else if(doocsType == DATA_A_BYTE) { // 8 bit signed
       digits = 4;
-    } else if (doocsType == DATA_A_LONG) { // 64 bit signed
+    }
+    else if(doocsType == DATA_A_LONG) { // 64 bit signed
       digits = 20;
-    } else { // 32 bit signed
+    }
+    else { // 32 bit signed
       digits = 11;
     }
     if(doocsType == DATA_IIII) info._length = 4;

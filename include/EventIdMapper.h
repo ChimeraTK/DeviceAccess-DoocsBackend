@@ -1,12 +1,11 @@
 #pragma once
 
-#include <map>
-#include <mutex>
-
 #include <eq_fct.h>
 
 #include <ChimeraTK/VersionNumber.h>
 
+#include <map>
+#include <mutex>
 
 class EventIdMapper {
  public:

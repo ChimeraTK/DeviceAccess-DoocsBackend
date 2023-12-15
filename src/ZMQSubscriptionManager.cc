@@ -1,4 +1,5 @@
 #include "ZMQSubscriptionManager.h"
+
 #include "DoocsBackendRegisterAccessor.h"
 
 namespace ChimeraTK { namespace DoocsBackendNamespace {
@@ -9,7 +10,9 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
 
   /******************************************************************************************************************/
 
-  ZMQSubscriptionManager::ZMQSubscriptionManager() { pthread_t_invalid = pthread_self(); }
+  ZMQSubscriptionManager::ZMQSubscriptionManager() {
+    pthread_t_invalid = pthread_self();
+  }
 
   /******************************************************************************************************************/
 
@@ -66,8 +69,8 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
 
   /******************************************************************************************************************/
 
-  void ZMQSubscriptionManager::pollInitialValue(const std::string& path,
-                                                const std::list<DoocsBackendRegisterAccessorBase*> &accessors) {
+  void ZMQSubscriptionManager::pollInitialValue(
+      const std::string& path, const std::list<DoocsBackendRegisterAccessorBase*>& accessors) {
     // Poll initial value vie RPC
     EqData src, dst;
     EqAdr adr;
@@ -77,7 +80,7 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
     if(rc && DoocsBackend::isCommunicationError(dst.error())) {
       // communication error: push to queues
       for(auto accessor : accessors) {
-        pushError(accessor, "ZeroMQ connection for "+path+" interrupted: " + dst.get_string());
+        pushError(accessor, "ZeroMQ connection for " + path + " interrupted: " + dst.get_string());
       }
     }
     else {
@@ -225,7 +228,7 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
 
   /******************************************************************************************************************/
 
-  void ZMQSubscriptionManager::pushError(DoocsBackendRegisterAccessorBase* listener,  const std::string &message) {
+  void ZMQSubscriptionManager::pushError(DoocsBackendRegisterAccessorBase* listener, const std::string& message) {
     // Don't push exceptions into deactivated listeners.
     // The check in subscription.second.hasException is not sufficient because it is reset in open(),
     // but activateAsyncRead() might not have been called when the next setException comes in.
@@ -238,8 +241,8 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
     // Now finally put the exception to the queue
     try {
       throw ChimeraTK::runtime_error(message);
-     }
-     catch(...) {
+    }
+    catch(...) {
       listener->notifications.push_overwrite_exception(std::current_exception());
     }
   }

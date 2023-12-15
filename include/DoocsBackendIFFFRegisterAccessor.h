@@ -8,11 +8,9 @@
 #ifndef CHIMERATK_DOOCS_BACKEND_IFFF_REGISTER_ACCESSOR_H
 #define CHIMERATK_DOOCS_BACKEND_IFFF_REGISTER_ACCESSOR_H
 
-#include <type_traits>
-
-#include <eq_client.h>
-
 #include "DoocsBackendRegisterAccessor.h"
+#include <eq_client.h>
+#include <type_traits>
 
 namespace ChimeraTK {
 

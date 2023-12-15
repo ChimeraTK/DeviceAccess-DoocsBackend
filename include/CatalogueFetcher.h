@@ -1,11 +1,11 @@
 #pragma once
 
-#include <string>
-#include <future>
-#include <utility>
-#include <memory>
-
 #include "RegisterInfo.h"
+
+#include <future>
+#include <memory>
+#include <string>
+#include <utility>
 
 class CatalogueFetcher {
  public:
@@ -24,4 +24,3 @@ class CatalogueFetcher {
   bool isCancelled() const { return (cancelFlag_.wait_for(std::chrono::microseconds(0)) == std::future_status::ready); }
   bool checkZmqAvailability(const std::string& fullQualifiedName) const;
 };
-

@@ -117,10 +117,9 @@ namespace ChimeraTK {
       // See spec. B.1.3.4.2
       TransferElement::setDataValidity(dst.error() == 0 ? DataValidity::ok : DataValidity::faulty);
 
-      // If the eventid is valid (!= 0) but older than the last one, we have backward running eventids but VersionNumber must not run backwards.
-      // Keep VersionNumber unchanged and return.
-      // See spec B.1.3.2.
-      // (Note: after a re-connection to a slow variable the version number might be the same)
+      // If the eventid is valid (!= 0) but older than the last one, we have backward running eventids but VersionNumber
+      // must not run backwards. Keep VersionNumber unchanged and return. See spec B.1.3.2. (Note: after a re-connection
+      // to a slow variable the version number might be the same)
       if(dst.get_event_id() != doocs::EventId(0) && dst.get_event_id() < _lastEventId) {
         return;
       }
@@ -139,7 +138,7 @@ namespace ChimeraTK {
       //
       // During startup, we can receive multiple receives with event_id == 0. The first check ensures that
       // we do not hand out the VersionNumber{nullptr} then
-      //if(_lastEventId == doocs::EventId() || _lastEventId != dst.get_event_id()) {
+      // if(_lastEventId == doocs::EventId() || _lastEventId != dst.get_event_id()) {
       // Get VersionNumber from the EventIdMapper. See spec B.1.3.3.
       auto newVersionNumber = EventIdMapper::getInstance().getVersionForEventId(dst.get_event_id());
 

@@ -28,12 +28,12 @@ namespace ChimeraTK {
     bool isReadable() const override { return true; }
 
     bool isWriteable() const override { return false; }
-    
+
     bool doWriteTransfer(VersionNumber /*versionNumber = {}*/) override {
       // do not throw again, already done in doPreWrite...
       return false;
     }
-    
+
     void doPostRead(TransferType type, bool hasNewData) override;
 
     friend class DoocsBackend;

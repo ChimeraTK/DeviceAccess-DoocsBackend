@@ -8,13 +8,11 @@
 #ifndef MTCA4U_DOOCS_BACKEND_INT_REGISTER_ACCESSOR_H
 #define MTCA4U_DOOCS_BACKEND_INT_REGISTER_ACCESSOR_H
 
+#include "DoocsBackendRegisterAccessor.h"
+#include <eq_client.h>
 #include <type_traits>
 
-#include <eq_client.h>
-
 #include <ChimeraTK/SupportedUserTypes.h>
-
-#include "DoocsBackendRegisterAccessor.h"
 
 namespace ChimeraTK {
 

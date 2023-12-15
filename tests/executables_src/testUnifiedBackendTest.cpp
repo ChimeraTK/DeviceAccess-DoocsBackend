@@ -6,25 +6,25 @@
  */
 
 #include <cstdlib>
-#include <unistd.h>
+#include <iostream>
 #include <random>
 #include <thread>
-#include <iostream>
+#include <unistd.h>
 
 #define BOOST_TEST_MODULE testUnifiedBackendTest
-#include <boost/test/included/unit_test.hpp>
-#include <boost/filesystem.hpp>
+#include "eq_dummy.h"
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+#include <eq_client.h>
 
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/TransferGroup.h>
 #include <ChimeraTK/UnifiedBackendTest.h>
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+
+#include <boost/filesystem.hpp>
+#include <boost/test/included/unit_test.hpp>
+
 #include <fstream>
-
-#include <eq_client.h>
-
-#include "eq_dummy.h"
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;

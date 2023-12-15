@@ -1006,7 +1006,7 @@ void createCacheFileFromCdd(const std::string& cdd) {
   namespace ctk = ChimeraTK;
   auto d = ctk::Device(cdd);
   d.open();
-  d.getRegisterCatalogue();
+  auto discardedCatalogue = d.getRegisterCatalogue();
 }
 
 void deleteFile(const std::string& filename) {
@@ -1241,8 +1241,8 @@ BOOST_AUTO_TEST_CASE(testCacheFileCreation) {
     auto d1 = ChimeraTK::Device(DoocsLauncher::DoocsServer1_cached);
     auto d2 = ChimeraTK::Device(DoocsLauncher::DoocsServer2_cached);
 
-    d1.getRegisterCatalogue();
-    d2.getRegisterCatalogue();
+    auto discardedCatalogue = d1.getRegisterCatalogue();
+    discardedCatalogue = d2.getRegisterCatalogue();
 
     BOOST_CHECK(file_exists(DoocsLauncher::cacheFile1) == true);
     BOOST_CHECK(file_exists(DoocsLauncher::cacheFile2) == true);
@@ -1605,7 +1605,7 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
   }
 
   // Putting one device into an exception state and recovering it will break consistency for exactly one read again.
-  device2.setException();
+  device2.setException("Test Exception");
 
   // device being in exception state should not affect the first device
   DoocsServerTestHelper::runUpdate();
