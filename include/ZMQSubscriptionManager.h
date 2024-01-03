@@ -1,18 +1,17 @@
 #ifndef CHIMERATK_DOOCS_BACKEND_ZMQSUBSCRIPTIONMANAGER_H
 #define CHIMERATK_DOOCS_BACKEND_ZMQSUBSCRIPTIONMANAGER_H
 
-#include <pthread.h>
-
-#include <string>
-#include <mutex>
-#include <map>
-#include <vector>
-
-#include <boost/shared_ptr.hpp>
-
 #include <eq_fct.h>
 
 #include <ChimeraTK/Exception.h>
+
+#include <boost/shared_ptr.hpp>
+
+#include <map>
+#include <mutex>
+#include <pthread.h>
+#include <string>
+#include <vector>
 
 namespace ChimeraTK {
 
@@ -56,10 +55,10 @@ namespace ChimeraTK {
       void deactivateSubscription(const std::string& path);
 
       // Poll initial value via RPC call and push it into the queues
-      void pollInitialValue(const std::string& path, const std::list<DoocsBackendRegisterAccessorBase*> &accessors);
+      void pollInitialValue(const std::string& path, const std::list<DoocsBackendRegisterAccessorBase*>& accessors);
 
       // Push error to listener
-      static void pushError(DoocsBackendRegisterAccessorBase* listener, const std::string &message);
+      static void pushError(DoocsBackendRegisterAccessorBase* listener, const std::string& message);
 
       /** static flag if dmsg_start() has been called already, with mutex for thread safety */
       bool dmsgStartCalled{false};

@@ -1,5 +1,6 @@
-#include <iostream>
 #include "EventIdMapper.h"
+
+#include <iostream>
 
 constexpr size_t EventIdMapper::maxSizeEventIdMap;
 
@@ -35,7 +36,7 @@ ChimeraTK::VersionNumber EventIdMapper::getVersionForEventId(const doocs::EventI
   // delete old entries to keep map size below maximum (cf. B.1.1.4.1)
   size_t nElementsToKeep = maxSizeEventIdMap - nElementsToInsert;
   while(_eventIdToVersionMap.size() > nElementsToKeep) {
-    _eventIdToVersionMap.erase( _eventIdToVersionMap.begin() );
+    _eventIdToVersionMap.erase(_eventIdToVersionMap.begin());
   }
 
   // insert new entries

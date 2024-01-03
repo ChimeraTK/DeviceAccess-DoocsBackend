@@ -9,11 +9,11 @@
 
 #include "RegisterInfo.h"
 
-#include <mutex>
-#include <future>
-
 #include <ChimeraTK/DeviceBackendImpl.h>
 #include <ChimeraTK/VersionNumber.h>
+
+#include <future>
+#include <mutex>
 
 namespace ChimeraTK {
 
@@ -68,11 +68,9 @@ namespace ChimeraTK {
 
     void close() override;
 
-    bool isFunctional() const override;
-
     std::string readDeviceInfo() override { return std::string("DOOCS server address: ") + _serverAddress; }
 
-    void setException() override;
+    void setExceptionImpl() noexcept override;
 
     static boost::shared_ptr<DeviceBackend> createInstance(
         std::string address, std::map<std::string, std::string> parameters);
@@ -122,15 +120,13 @@ namespace ChimeraTK {
     bool cacheFileExists();
     bool isCachingEnabled() const;
 
-    /// Mutex for accessing _isFunctional, lastFailedAddress and _startVersion;
+    /// Mutex for accessing  lastFailedAddress and _startVersion;
     mutable std::mutex _mxRecovery;
-
-    bool _isFunctional{false};
 
     /// VersionNumber generated in open() to make sure we do not violate TransferElement spec B.9.3.3.1/B.9.4.1
     VersionNumber _startVersion{nullptr};
 
-    /// contains DOOCS address which triggered runtime_error, when _isFunctional == false and _opend == true
+    /// contains DOOCS address which triggered runtime_error, when _hasActiveException == true and _opend == true
     std::string lastFailedAddress;
   };
 

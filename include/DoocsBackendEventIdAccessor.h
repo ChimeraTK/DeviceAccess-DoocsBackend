@@ -1,12 +1,10 @@
 #pragma once
 
+#include "DoocsBackendRegisterAccessor.h"
+#include <eq_client.h>
 #include <type_traits>
 
-#include <eq_client.h>
-
 #include <ChimeraTK/SupportedUserTypes.h>
-
-#include "DoocsBackendRegisterAccessor.h"
 
 namespace ChimeraTK {
 
@@ -41,8 +39,7 @@ namespace ChimeraTK {
   DoocsBackendEventIdRegisterAccessor<UserType>::DoocsBackendEventIdRegisterAccessor(
       boost::shared_ptr<DoocsBackend> backend, const std::string& path, const std::string& registerPathName,
       AccessModeFlags flags)
-  : DoocsBackendRegisterAccessor<UserType>(backend, path, registerPathName, 1, 0, flags) {
-  }
+  : DoocsBackendRegisterAccessor<UserType>(backend, path, registerPathName, 1, 0, flags) {}
 
   /**********************************************************************************************************************/
 

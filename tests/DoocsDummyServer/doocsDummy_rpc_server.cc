@@ -1,8 +1,7 @@
+#include "eq_dummy.h"
 #include <d_fct.h>
 #include <eq_client.h>
 #include <eq_fct.h>
-
-#include "eq_dummy.h"
 
 const char* object_name = "dummy_server";
 

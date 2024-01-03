@@ -1,9 +1,10 @@
 #define BOOST_TEST_MODULE testDoocsBackend
-#include <boost/test/included/unit_test.hpp>
+#include <ChimeraTK/Device.h>
+
 #include <boost/filesystem.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <fstream>
-#include <ChimeraTK/Device.h>
 
 /**********************************************************************************************************************/
 
@@ -11,7 +12,7 @@ static std::string cacheFile = "cache-" + boost::filesystem::unique_path().strin
 
 static void deleteFile(const std::string& filename) {
   std::string command = "rm " + filename;
-  if(std::system(command.c_str()) != 0){
+  if(std::system(command.c_str()) != 0) {
     throw std::runtime_error(command + "failed");
   }
 }

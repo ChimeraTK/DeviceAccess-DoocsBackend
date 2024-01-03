@@ -1,5 +1,6 @@
-#include <cassert>
 #include <eq_fct.h>
+
+#include <cassert>
 
 __attribute__((weak)) void interrupt_usr1_prolog(int) {
   // Code should not be reached
