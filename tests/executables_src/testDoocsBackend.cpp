@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE(testScalarFloat) {
 
   BOOST_CHECK_CLOSE(std::stod(acc_someFloat_as_string[0][0]), 3.1415, 0.00001);
   acc_someFloat_as_string.read();
-  BOOST_CHECK(acc_someFloat_as_string[0][0] == "120");
+  BOOST_TEST(acc_someFloat_as_string[0][0] == "120.000000");
 
   acc_someFloat_as_string[0][0] = "1234.5678";
   BOOST_CHECK_CLOSE(DoocsServerTestHelper::doocsGet<float>("//MYDUMMY/SOME_FLOAT"), 120, 0.00001);
@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE(testScalarDouble) {
 
   BOOST_CHECK_CLOSE(std::stod(acc_someDouble_as_string[0][0]), 3.1415, 0.00001);
   acc_someDouble_as_string.read();
-  BOOST_CHECK(acc_someDouble_as_string[0][0] == "120");
+  BOOST_TEST(acc_someDouble_as_string[0][0] == "120.000000");
 
   acc_someDouble_as_string[0][0] = "1234.5678";
   BOOST_CHECK_CLOSE(DoocsServerTestHelper::doocsGet<float>("//MYDUMMY/SOME_FLOAT"), 120, 0.00001);
