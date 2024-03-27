@@ -8,13 +8,13 @@
 #ifndef MTCA4U_DOOCS_BACKEND_IIII_REGISTER_ACCESSOR_H
 #define MTCA4U_DOOCS_BACKEND_IIII_REGISTER_ACCESSOR_H
 
-#include "DoocsBackendIntRegisterAccessor.h"
+#include "DoocsBackendNumericRegisterAccessor.h"
 
 namespace ChimeraTK {
   template<typename UserType>
-  class DoocsBackendIIIIRegisterAccessor : public DoocsBackendIntRegisterAccessor<UserType> {
+  class DoocsBackendIIIIRegisterAccessor : public DoocsBackendNumericRegisterAccessor<UserType> {
    protected:
-    using DoocsBackendIntRegisterAccessor<UserType>::DoocsBackendIntRegisterAccessor;
+    using DoocsBackendNumericRegisterAccessor<UserType>::DoocsBackendNumericRegisterAccessor;
 
     void doPreWrite(TransferType type, VersionNumber version) override;
 
