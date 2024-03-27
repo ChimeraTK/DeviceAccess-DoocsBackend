@@ -90,39 +90,39 @@ BOOST_GLOBAL_FIXTURE(DoocsLauncher);
 BOOST_AUTO_TEST_CASE(testScalarInt) {
   ChimeraTK::Device device;
 
-  BOOST_CHECK(device.isOpened() == false);
+  BOOST_TEST(device.isOpened() == false);
   device.open(DoocsLauncher::DoocsServer1);
-  BOOST_CHECK(device.isOpened() == true);
+  BOOST_TEST(device.isOpened() == true);
 
   TwoDRegisterAccessor<int32_t> acc_someInt_as_int(device.getTwoDRegisterAccessor<int32_t>("MYDUMMY/SOME_INT"));
-  BOOST_CHECK(acc_someInt_as_int.getVersionNumber() == VersionNumber{nullptr});
+  BOOST_TEST(acc_someInt_as_int.getVersionNumber() == VersionNumber{nullptr});
 
-  BOOST_CHECK(acc_someInt_as_int.getNChannels() == 1);
-  BOOST_CHECK(acc_someInt_as_int.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someInt_as_int.getNChannels() == 1);
+  BOOST_TEST(acc_someInt_as_int.getNElementsPerChannel() == 1);
   acc_someInt_as_int.read();
-  BOOST_CHECK(acc_someInt_as_int[0][0] == 42);
+  BOOST_TEST(acc_someInt_as_int[0][0] == 42);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT", 120);
 
-  BOOST_CHECK(acc_someInt_as_int[0][0] == 42);
+  BOOST_TEST(acc_someInt_as_int[0][0] == 42);
   // auto oldVersion = acc_someInt_as_int.getVersionNumber();
   acc_someInt_as_int.read();
-  BOOST_CHECK(acc_someInt_as_int[0][0] == 120);
-  // BOOST_CHECK(acc_someInt_as_int.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
+  BOOST_TEST(acc_someInt_as_int[0][0] == 120);
+  // BOOST_TEST(acc_someInt_as_int.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
   // properties set through RPC call
 
   acc_someInt_as_int[0][0] = 1234;
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 120);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 120);
   VersionNumber nextVersion;
   acc_someInt_as_int.write(nextVersion);
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 1234);
-  BOOST_CHECK(acc_someInt_as_int.getVersionNumber() == nextVersion);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 1234);
+  BOOST_TEST(acc_someInt_as_int.getVersionNumber() == nextVersion);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT", 42);
 
   TwoDRegisterAccessor<double> acc_someInt_as_double(device.getTwoDRegisterAccessor<double>("MYDUMMY/SOME_INT"));
-  BOOST_CHECK(acc_someInt_as_double.getNChannels() == 1);
-  BOOST_CHECK(acc_someInt_as_double.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someInt_as_double.getNChannels() == 1);
+  BOOST_TEST(acc_someInt_as_double.getNElementsPerChannel() == 1);
   acc_someInt_as_double.read();
   BOOST_CHECK_CLOSE(acc_someInt_as_double[0][0], 42, 0.001);
 
@@ -133,15 +133,15 @@ BOOST_AUTO_TEST_CASE(testScalarInt) {
   BOOST_CHECK_CLOSE(acc_someInt_as_double[0][0], 120, 0.001);
 
   acc_someInt_as_double[0][0] = 1234.3;
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 120);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 120);
   acc_someInt_as_double.write();
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 1234);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 1234);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT", 42);
 
   TwoDRegisterAccessor<float> acc_someInt_as_float(device.getTwoDRegisterAccessor<float>("MYDUMMY/SOME_INT"));
-  BOOST_CHECK(acc_someInt_as_float.getNChannels() == 1);
-  BOOST_CHECK(acc_someInt_as_float.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someInt_as_float.getNChannels() == 1);
+  BOOST_TEST(acc_someInt_as_float.getNElementsPerChannel() == 1);
   acc_someInt_as_float.read();
   BOOST_CHECK_CLOSE(acc_someInt_as_float[0][0], 42, 0.001);
 
@@ -152,32 +152,32 @@ BOOST_AUTO_TEST_CASE(testScalarInt) {
   BOOST_CHECK_CLOSE(acc_someInt_as_float[0][0], 120, 0.001);
 
   acc_someInt_as_float[0][0] = 1233.9;
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 120);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 120);
   acc_someInt_as_float.write();
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 1234);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 1234);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT", 42);
 
   TwoDRegisterAccessor<std::string> acc_someInt_as_string(
       device.getTwoDRegisterAccessor<std::string>("MYDUMMY/SOME_INT"));
-  BOOST_CHECK(acc_someInt_as_string.getNChannels() == 1);
-  BOOST_CHECK(acc_someInt_as_string.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someInt_as_string.getNChannels() == 1);
+  BOOST_TEST(acc_someInt_as_string.getNElementsPerChannel() == 1);
   acc_someInt_as_string.read();
-  BOOST_CHECK(acc_someInt_as_string[0][0] == "42");
+  BOOST_TEST(acc_someInt_as_string[0][0] == "42");
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT", 120);
 
-  BOOST_CHECK(acc_someInt_as_string[0][0] == "42");
+  BOOST_TEST(acc_someInt_as_string[0][0] == "42");
   acc_someInt_as_string.read();
-  BOOST_CHECK(acc_someInt_as_string[0][0] == "120");
+  BOOST_TEST(acc_someInt_as_string[0][0] == "120");
 
   acc_someInt_as_string[0][0] = "1234";
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 120);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 120);
   acc_someInt_as_string.write();
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 1234);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 1234);
 
   device.close();
-  BOOST_CHECK(device.isOpened() == false);
+  BOOST_TEST(device.isOpened() == false);
 }
 
 /**********************************************************************************************************************/
@@ -187,8 +187,8 @@ BOOST_AUTO_TEST_CASE(testScalarFloat) {
   device.open(DoocsLauncher::DoocsServer1);
 
   TwoDRegisterAccessor<float> acc_someFloat_as_float(device.getTwoDRegisterAccessor<float>("MYDUMMY/SOME_FLOAT"));
-  BOOST_CHECK(acc_someFloat_as_float.getNChannels() == 1);
-  BOOST_CHECK(acc_someFloat_as_float.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someFloat_as_float.getNChannels() == 1);
+  BOOST_TEST(acc_someFloat_as_float.getNElementsPerChannel() == 1);
   acc_someFloat_as_float.read();
   BOOST_CHECK_CLOSE(acc_someFloat_as_float[0][0], 3.1415, 0.00001);
 
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(testScalarFloat) {
   // auto oldVersion = acc_someFloat_as_float.getVersionNumber();
   acc_someFloat_as_float.read();
   BOOST_CHECK_CLOSE(acc_someFloat_as_float[0][0], 123.456, 0.00001);
-  // BOOST_CHECK(acc_someFloat_as_float.getVersionNumber() == oldVersion);// DOOCS behaves differently, eventId == 0 for
+  // BOOST_TEST(acc_someFloat_as_float.getVersionNumber() == oldVersion);// DOOCS behaves differently, eventId == 0 for
   // properties set through RPC call
 
   acc_someFloat_as_float[0][0] = 666.333;
@@ -206,13 +206,13 @@ BOOST_AUTO_TEST_CASE(testScalarFloat) {
   VersionNumber nextVersion;
   acc_someFloat_as_float.write(nextVersion);
   BOOST_CHECK_CLOSE(DoocsServerTestHelper::doocsGet<float>("//MYDUMMY/SOME_FLOAT"), 666.333, 0.00001);
-  BOOST_CHECK(acc_someFloat_as_float.getVersionNumber() == nextVersion);
+  BOOST_TEST(acc_someFloat_as_float.getVersionNumber() == nextVersion);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_FLOAT", 3.1415);
 
   TwoDRegisterAccessor<double> acc_someFloat_as_double(device.getTwoDRegisterAccessor<double>("MYDUMMY/SOME_FLOAT"));
-  BOOST_CHECK(acc_someFloat_as_double.getNChannels() == 1);
-  BOOST_CHECK(acc_someFloat_as_double.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someFloat_as_double.getNChannels() == 1);
+  BOOST_TEST(acc_someFloat_as_double.getNElementsPerChannel() == 1);
   acc_someFloat_as_double.read();
   BOOST_CHECK_CLOSE(acc_someFloat_as_double[0][0], 3.1415, 0.00001);
 
@@ -230,16 +230,16 @@ BOOST_AUTO_TEST_CASE(testScalarFloat) {
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_FLOAT", 3.1415);
 
   TwoDRegisterAccessor<int> acc_someFloat_as_int(device.getTwoDRegisterAccessor<int>("MYDUMMY/SOME_FLOAT"));
-  BOOST_CHECK(acc_someFloat_as_int.getNChannels() == 1);
-  BOOST_CHECK(acc_someFloat_as_int.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someFloat_as_int.getNChannels() == 1);
+  BOOST_TEST(acc_someFloat_as_int.getNElementsPerChannel() == 1);
   acc_someFloat_as_int.read();
-  BOOST_CHECK(acc_someFloat_as_int[0][0] == 3);
+  BOOST_TEST(acc_someFloat_as_int[0][0] == 3);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_FLOAT", 119.9);
 
-  BOOST_CHECK(acc_someFloat_as_int[0][0] == 3);
+  BOOST_TEST(acc_someFloat_as_int[0][0] == 3);
   acc_someFloat_as_int.read();
-  BOOST_CHECK(acc_someFloat_as_int[0][0] == 120);
+  BOOST_TEST(acc_someFloat_as_int[0][0] == 120);
 
   acc_someFloat_as_int[0][0] = 1234;
   BOOST_CHECK_CLOSE(DoocsServerTestHelper::doocsGet<float>("//MYDUMMY/SOME_FLOAT"), 119.9, 0.00001);
@@ -250,8 +250,8 @@ BOOST_AUTO_TEST_CASE(testScalarFloat) {
 
   TwoDRegisterAccessor<std::string> acc_someFloat_as_string(
       device.getTwoDRegisterAccessor<std::string>("MYDUMMY/SOME_FLOAT"));
-  BOOST_CHECK(acc_someFloat_as_string.getNChannels() == 1);
-  BOOST_CHECK(acc_someFloat_as_string.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someFloat_as_string.getNChannels() == 1);
+  BOOST_TEST(acc_someFloat_as_string.getNElementsPerChannel() == 1);
   acc_someFloat_as_string.read();
   BOOST_CHECK_CLOSE(std::stod(acc_someFloat_as_string[0][0]), 3.1415, 0.00001);
 
@@ -276,8 +276,8 @@ BOOST_AUTO_TEST_CASE(testScalarDouble) {
   device.open(DoocsLauncher::DoocsServer1);
 
   TwoDRegisterAccessor<float> acc_someDouble_as_float(device.getTwoDRegisterAccessor<float>("MYDUMMY/SOME_DOUBLE"));
-  BOOST_CHECK(acc_someDouble_as_float.getNChannels() == 1);
-  BOOST_CHECK(acc_someDouble_as_float.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someDouble_as_float.getNChannels() == 1);
+  BOOST_TEST(acc_someDouble_as_float.getNElementsPerChannel() == 1);
   acc_someDouble_as_float.read();
   BOOST_CHECK_CLOSE(acc_someDouble_as_float[0][0], 2.8, 0.00001);
 
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE(testScalarDouble) {
   // auto oldVersion = acc_someDouble_as_float.getVersionNumber();
   acc_someDouble_as_float.read();
   BOOST_CHECK_CLOSE(acc_someDouble_as_float[0][0], 123.456, 0.00001);
-  // BOOST_CHECK(acc_someDouble_as_float.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0
+  // BOOST_TEST(acc_someDouble_as_float.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0
   // for properties set through RPC call
 
   acc_someDouble_as_float[0][0] = 666.333;
@@ -295,13 +295,13 @@ BOOST_AUTO_TEST_CASE(testScalarDouble) {
   VersionNumber nextVersion;
   acc_someDouble_as_float.write(nextVersion);
   BOOST_CHECK_CLOSE(DoocsServerTestHelper::doocsGet<float>("//MYDUMMY/SOME_DOUBLE"), 666.333, 0.00001);
-  BOOST_CHECK(acc_someDouble_as_float.getVersionNumber() == nextVersion);
+  BOOST_TEST(acc_someDouble_as_float.getVersionNumber() == nextVersion);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_DOUBLE", 3.1415);
 
   TwoDRegisterAccessor<double> acc_someDouble_as_double(device.getTwoDRegisterAccessor<double>("MYDUMMY/SOME_DOUBLE"));
-  BOOST_CHECK(acc_someDouble_as_double.getNChannels() == 1);
-  BOOST_CHECK(acc_someDouble_as_double.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someDouble_as_double.getNChannels() == 1);
+  BOOST_TEST(acc_someDouble_as_double.getNElementsPerChannel() == 1);
   acc_someDouble_as_double.read();
   BOOST_CHECK_CLOSE(acc_someDouble_as_double[0][0], 3.1415, 0.00001);
 
@@ -319,16 +319,16 @@ BOOST_AUTO_TEST_CASE(testScalarDouble) {
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_FLOAT", 3.1415);
 
   TwoDRegisterAccessor<int> acc_someDouble_as_int(device.getTwoDRegisterAccessor<int>("MYDUMMY/SOME_FLOAT"));
-  BOOST_CHECK(acc_someDouble_as_int.getNChannels() == 1);
-  BOOST_CHECK(acc_someDouble_as_int.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someDouble_as_int.getNChannels() == 1);
+  BOOST_TEST(acc_someDouble_as_int.getNElementsPerChannel() == 1);
   acc_someDouble_as_int.read();
-  BOOST_CHECK(acc_someDouble_as_int[0][0] == 3);
+  BOOST_TEST(acc_someDouble_as_int[0][0] == 3);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_FLOAT", 119.9);
 
-  BOOST_CHECK(acc_someDouble_as_int[0][0] == 3);
+  BOOST_TEST(acc_someDouble_as_int[0][0] == 3);
   acc_someDouble_as_int.read();
-  BOOST_CHECK(acc_someDouble_as_int[0][0] == 120);
+  BOOST_TEST(acc_someDouble_as_int[0][0] == 120);
 
   acc_someDouble_as_int[0][0] = 1234;
   BOOST_CHECK_CLOSE(DoocsServerTestHelper::doocsGet<float>("//MYDUMMY/SOME_FLOAT"), 119.9, 0.00001);
@@ -339,8 +339,8 @@ BOOST_AUTO_TEST_CASE(testScalarDouble) {
 
   TwoDRegisterAccessor<std::string> acc_someDouble_as_string(
       device.getTwoDRegisterAccessor<std::string>("MYDUMMY/SOME_FLOAT"));
-  BOOST_CHECK(acc_someDouble_as_string.getNChannels() == 1);
-  BOOST_CHECK(acc_someDouble_as_string.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someDouble_as_string.getNChannels() == 1);
+  BOOST_TEST(acc_someDouble_as_string.getNElementsPerChannel() == 1);
   acc_someDouble_as_string.read();
   BOOST_CHECK_CLOSE(std::stod(acc_someDouble_as_string[0][0]), 3.1415, 0.00001);
 
@@ -365,25 +365,25 @@ BOOST_AUTO_TEST_CASE(testString) {
   device.open(DoocsLauncher::DoocsServer1);
 
   TwoDRegisterAccessor<std::string> acc_someString(device.getTwoDRegisterAccessor<std::string>("MYDUMMY/SOME_STRING"));
-  BOOST_CHECK(acc_someString.getNChannels() == 1);
-  BOOST_CHECK(acc_someString.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someString.getNChannels() == 1);
+  BOOST_TEST(acc_someString.getNElementsPerChannel() == 1);
   auto oldVersion = acc_someString.getVersionNumber();
   acc_someString.read();
-  BOOST_CHECK(acc_someString[0][0] == "The quick brown fox jumps over the lazy dog.");
-  BOOST_CHECK(acc_someString.getVersionNumber() != oldVersion);
+  BOOST_TEST(acc_someString[0][0] == "The quick brown fox jumps over the lazy dog.");
+  BOOST_TEST(acc_someString.getVersionNumber() != oldVersion);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_STRING", "Something else.");
 
-  BOOST_CHECK(acc_someString[0][0] == "The quick brown fox jumps over the lazy dog.");
+  BOOST_TEST(acc_someString[0][0] == "The quick brown fox jumps over the lazy dog.");
   acc_someString.read();
-  BOOST_CHECK(acc_someString[0][0] == "Something else.");
+  BOOST_TEST(acc_someString[0][0] == "Something else.");
 
   acc_someString[0][0] = "Even different!";
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<std::string>("//MYDUMMY/SOME_STRING") == "Something else.");
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<std::string>("//MYDUMMY/SOME_STRING") == "Something else.");
   VersionNumber nextVersion;
   acc_someString.write(nextVersion);
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<std::string>("//MYDUMMY/SOME_STRING") == "Even different!");
-  BOOST_CHECK(acc_someString.getVersionNumber() == nextVersion);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<std::string>("//MYDUMMY/SOME_STRING") == "Even different!");
+  BOOST_TEST(acc_someString.getVersionNumber() == nextVersion);
 
   device.close();
 }
@@ -395,30 +395,30 @@ BOOST_AUTO_TEST_CASE(testArrayInt) {
   device.open(DoocsLauncher::DoocsServer1);
 
   TwoDRegisterAccessor<int> acc_someArray(device.getTwoDRegisterAccessor<int>("MYDUMMY/SOME_INT_ARRAY"));
-  BOOST_CHECK(acc_someArray.getNChannels() == 1);
-  BOOST_CHECK(acc_someArray.getNElementsPerChannel() == 42);
+  BOOST_TEST(acc_someArray.getNChannels() == 1);
+  BOOST_TEST(acc_someArray.getNElementsPerChannel() == 42);
   acc_someArray.read();
-  for(int i = 0; i < 42; i++) BOOST_CHECK(acc_someArray[0][i] == 3 * i + 120);
+  for(int i = 0; i < 42; i++) BOOST_TEST(acc_someArray[0][i] == 3 * i + 120);
 
   std::vector<int> vals(42);
   for(int i = 0; i < 42; i++) vals[i] = -55 * i;
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT_ARRAY", vals);
 
-  for(int i = 0; i < 42; i++) BOOST_CHECK(acc_someArray[0][i] == 3 * i + 120);
+  for(int i = 0; i < 42; i++) BOOST_TEST(acc_someArray[0][i] == 3 * i + 120);
   // auto oldVersion = acc_someArray.getVersionNumber();
   acc_someArray.read();
-  for(int i = 0; i < 42; i++) BOOST_CHECK(acc_someArray[0][i] == -55 * i);
-  // BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
+  for(int i = 0; i < 42; i++) BOOST_TEST(acc_someArray[0][i] == -55 * i);
+  // BOOST_TEST(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
   // properties set through RPC call
 
   for(int i = 0; i < 42; i++) acc_someArray[0][i] = i - 21;
   vals = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_INT_ARRAY");
-  for(int i = 0; i < 42; i++) BOOST_CHECK(vals[i] == -55 * i);
+  for(int i = 0; i < 42; i++) BOOST_TEST(vals[i] == -55 * i);
   VersionNumber nextVersion;
   acc_someArray.write(nextVersion);
   vals = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_INT_ARRAY");
-  for(int i = 0; i < 42; i++) BOOST_CHECK(vals[i] == i - 21);
-  BOOST_CHECK(acc_someArray.getVersionNumber() == nextVersion);
+  for(int i = 0; i < 42; i++) BOOST_TEST(vals[i] == i - 21);
+  BOOST_TEST(acc_someArray.getVersionNumber() == nextVersion);
 
   // access via double
   TwoDRegisterAccessor<double> acc_someArrayAsDouble(device.getTwoDRegisterAccessor<double>("MYDUMMY/SOME_INT_ARRAY"));
@@ -437,7 +437,7 @@ BOOST_AUTO_TEST_CASE(testArrayInt) {
   for(int i = 0; i < 5; i++) acc_someArrayAsString[0][i] = std::to_string(3 * i);
   acc_someArrayAsString.write();
   vals = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_INT_ARRAY");
-  for(int i = 0; i < 5; i++) BOOST_CHECK(vals[i] == 3 * i);
+  for(int i = 0; i < 5; i++) BOOST_TEST(vals[i] == 3 * i);
 
   device.close();
 }
@@ -449,31 +449,31 @@ BOOST_AUTO_TEST_CASE(testArrayShort) {
   device.open(DoocsLauncher::DoocsServer1);
 
   TwoDRegisterAccessor<int> acc_someArray(device.getTwoDRegisterAccessor<int>("MYDUMMY/SOME_SHORT_ARRAY"));
-  BOOST_CHECK(acc_someArray.getNChannels() == 1);
-  BOOST_CHECK(acc_someArray.getNElementsPerChannel() == 5);
+  BOOST_TEST(acc_someArray.getNChannels() == 1);
+  BOOST_TEST(acc_someArray.getNElementsPerChannel() == 5);
   acc_someArray.read();
-  for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArray[0][i] == 10 + i);
+  for(int i = 0; i < 5; i++) BOOST_TEST(acc_someArray[0][i] == 10 + i);
 
   std::vector<short> vals(5);
   for(int i = 0; i < 5; i++) vals[i] = -55 * i;
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_SHORT_ARRAY", vals);
 
-  for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArray[0][i] == 10 + i);
+  for(int i = 0; i < 5; i++) BOOST_TEST(acc_someArray[0][i] == 10 + i);
   // auto oldVersion = acc_someArray.getVersionNumber();
   acc_someArray.read();
-  for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArray[0][i] == -55 * i);
-  // BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
+  for(int i = 0; i < 5; i++) BOOST_TEST(acc_someArray[0][i] == -55 * i);
+  // BOOST_TEST(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
   // properties set through RPC call
 
   std::vector<int> vals2(5);
   for(int i = 0; i < 5; i++) acc_someArray[0][i] = i - 21;
   vals2 = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_SHORT_ARRAY");
-  for(int i = 0; i < 5; i++) BOOST_CHECK(vals2[i] == -55 * i);
+  for(int i = 0; i < 5; i++) BOOST_TEST(vals2[i] == -55 * i);
   VersionNumber nextVersion;
   acc_someArray.write(nextVersion);
   vals2 = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_SHORT_ARRAY");
-  for(int i = 0; i < 5; i++) BOOST_CHECK(vals2[i] == i - 21);
-  BOOST_CHECK(acc_someArray.getVersionNumber() == nextVersion);
+  for(int i = 0; i < 5; i++) BOOST_TEST(vals2[i] == i - 21);
+  BOOST_TEST(acc_someArray.getVersionNumber() == nextVersion);
 
   device.close();
 }
@@ -485,31 +485,31 @@ BOOST_AUTO_TEST_CASE(testArrayLong) {
   device.open(DoocsLauncher::DoocsServer1);
 
   TwoDRegisterAccessor<int> acc_someArray(device.getTwoDRegisterAccessor<int>("MYDUMMY/SOME_LONG_ARRAY"));
-  BOOST_CHECK(acc_someArray.getNChannels() == 1);
-  BOOST_CHECK(acc_someArray.getNElementsPerChannel() == 5);
+  BOOST_TEST(acc_someArray.getNChannels() == 1);
+  BOOST_TEST(acc_someArray.getNElementsPerChannel() == 5);
   acc_someArray.read();
-  for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArray[0][i] == 10 + i);
+  for(int i = 0; i < 5; i++) BOOST_TEST(acc_someArray[0][i] == 10 + i);
 
   std::vector<int64_t> vals(5);
   for(int i = 0; i < 5; i++) vals[i] = -55 * i;
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_LONG_ARRAY", vals);
 
-  for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArray[0][i] == 10 + i);
+  for(int i = 0; i < 5; i++) BOOST_TEST(acc_someArray[0][i] == 10 + i);
   // auto oldVersion = acc_someArray.getVersionNumber();
   acc_someArray.read();
-  for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArray[0][i] == -55 * i);
-  // BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
+  for(int i = 0; i < 5; i++) BOOST_TEST(acc_someArray[0][i] == -55 * i);
+  // BOOST_TEST(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
   // properties set through RPC call
 
   std::vector<int> vals2(5);
   for(int i = 0; i < 5; i++) acc_someArray[0][i] = i - 21;
   vals2 = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_LONG_ARRAY");
-  for(int i = 0; i < 5; i++) BOOST_CHECK(vals2[i] == -55 * i);
+  for(int i = 0; i < 5; i++) BOOST_TEST(vals2[i] == -55 * i);
   VersionNumber nextVersion;
   acc_someArray.write(nextVersion);
   vals2 = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_LONG_ARRAY");
-  for(int i = 0; i < 5; i++) BOOST_CHECK(vals2[i] == i - 21);
-  BOOST_CHECK(acc_someArray.getVersionNumber() == nextVersion);
+  for(int i = 0; i < 5; i++) BOOST_TEST(vals2[i] == i - 21);
+  BOOST_TEST(acc_someArray.getVersionNumber() == nextVersion);
 
   device.close();
 }
@@ -521,12 +521,12 @@ BOOST_AUTO_TEST_CASE(testArrayFloat) {
   device.open(DoocsLauncher::DoocsServer1);
 
   TwoDRegisterAccessor<float> acc_someArray(device.getTwoDRegisterAccessor<float>("MYDUMMY/SOME_FLOAT_ARRAY"));
-  BOOST_CHECK(acc_someArray.getNChannels() == 1);
-  BOOST_CHECK(acc_someArray.getNElementsPerChannel() == 5);
+  BOOST_TEST(acc_someArray.getNChannels() == 1);
+  BOOST_TEST(acc_someArray.getNElementsPerChannel() == 5);
   auto oldVersion = acc_someArray.getVersionNumber();
   acc_someArray.read();
   for(int i = 0; i < 5; i++) BOOST_CHECK_CLOSE(acc_someArray[0][i], i / 1000., 0.00001);
-  BOOST_CHECK(acc_someArray.getVersionNumber() != oldVersion);
+  BOOST_TEST(acc_someArray.getVersionNumber() != oldVersion);
 
   std::vector<float> vals(5);
   for(int i = 0; i < 5; i++) vals[i] = -3.14159265 * i;
@@ -543,7 +543,7 @@ BOOST_AUTO_TEST_CASE(testArrayFloat) {
   acc_someArray.write(nextVersion);
   vals = DoocsServerTestHelper::doocsGetArray<float>("//MYDUMMY/SOME_FLOAT_ARRAY");
   for(int i = 0; i < 5; i++) BOOST_CHECK_CLOSE(vals[i], 2. / (i + 0.01), 0.00001);
-  BOOST_CHECK(acc_someArray.getVersionNumber() == nextVersion);
+  BOOST_TEST(acc_someArray.getVersionNumber() == nextVersion);
 
   device.close();
 }
@@ -555,12 +555,12 @@ BOOST_AUTO_TEST_CASE(testArrayDouble) {
   device.open(DoocsLauncher::DoocsServer1);
 
   TwoDRegisterAccessor<double> acc_someArray(device.getTwoDRegisterAccessor<double>("MYDUMMY/SOME_DOUBLE_ARRAY"));
-  BOOST_CHECK(acc_someArray.getNChannels() == 1);
-  BOOST_CHECK(acc_someArray.getNElementsPerChannel() == 5);
+  BOOST_TEST(acc_someArray.getNChannels() == 1);
+  BOOST_TEST(acc_someArray.getNElementsPerChannel() == 5);
   auto oldVersion = acc_someArray.getVersionNumber();
   acc_someArray.read();
   for(int i = 0; i < 5; i++) BOOST_CHECK_CLOSE(acc_someArray[0][i], i / 333., 0.00001);
-  BOOST_CHECK(acc_someArray.getVersionNumber() != oldVersion);
+  BOOST_TEST(acc_someArray.getVersionNumber() != oldVersion);
 
   std::vector<double> vals(5);
   for(int i = 0; i < 5; i++) vals[i] = -3.14159265 * i;
@@ -577,12 +577,12 @@ BOOST_AUTO_TEST_CASE(testArrayDouble) {
   acc_someArray.write(nextVersion);
   vals = DoocsServerTestHelper::doocsGetArray<double>("//MYDUMMY/SOME_DOUBLE_ARRAY");
   for(int i = 0; i < 5; i++) BOOST_CHECK_CLOSE(vals[i], 2. / (i + 0.01), 0.00001);
-  BOOST_CHECK(acc_someArray.getVersionNumber() == nextVersion);
+  BOOST_TEST(acc_someArray.getVersionNumber() == nextVersion);
 
   // access via int
   TwoDRegisterAccessor<int> acc_someArrayAsInt(device.getTwoDRegisterAccessor<int>("MYDUMMY/SOME_DOUBLE_ARRAY"));
   acc_someArrayAsInt.read();
-  for(int i = 0; i < 5; i++) BOOST_CHECK(acc_someArrayAsInt[0][i] == round(2. / (i + 0.01)));
+  for(int i = 0; i < 5; i++) BOOST_TEST(acc_someArrayAsInt[0][i] == round(2. / (i + 0.01)));
   for(int i = 0; i < 5; i++) acc_someArrayAsInt[0][i] = 2 * i;
   acc_someArrayAsInt.write();
   vals = DoocsServerTestHelper::doocsGetArray<double>("//MYDUMMY/SOME_DOUBLE_ARRAY");
@@ -608,12 +608,12 @@ BOOST_AUTO_TEST_CASE(testSpectrum) {
   device.open(DoocsLauncher::DoocsServer1);
 
   TwoDRegisterAccessor<float> acc_someArray(device.getTwoDRegisterAccessor<float>("MYDUMMY/SOME_SPECTRUM"));
-  BOOST_CHECK(acc_someArray.getNChannels() == 1);
-  BOOST_CHECK(acc_someArray.getNElementsPerChannel() == 100);
+  BOOST_TEST(acc_someArray.getNChannels() == 1);
+  BOOST_TEST(acc_someArray.getNElementsPerChannel() == 100);
   auto oldVersion = acc_someArray.getVersionNumber();
   acc_someArray.read();
   for(int i = 0; i < 100; i++) BOOST_CHECK_CLOSE(acc_someArray[0][i], i / 42., 0.00001);
-  BOOST_CHECK(acc_someArray.getVersionNumber() != oldVersion);
+  BOOST_TEST(acc_someArray.getVersionNumber() != oldVersion);
 
   device.close();
 }
@@ -625,30 +625,30 @@ BOOST_AUTO_TEST_CASE(testIIII) {
   device.open(DoocsLauncher::DoocsServer1);
 
   TwoDRegisterAccessor<int> acc_someArray(device.getTwoDRegisterAccessor<int>("MYDUMMY/SOME_IIII"));
-  BOOST_CHECK(acc_someArray.getNChannels() == 1);
-  BOOST_CHECK(acc_someArray.getNElementsPerChannel() == 4);
+  BOOST_TEST(acc_someArray.getNChannels() == 1);
+  BOOST_TEST(acc_someArray.getNElementsPerChannel() == 4);
   acc_someArray.read();
-  for(int i = 0; i < 4; i++) BOOST_CHECK(acc_someArray[0][i] == 10 + i);
+  for(int i = 0; i < 4; i++) BOOST_TEST(acc_someArray[0][i] == 10 + i);
 
   std::vector<int> vals(4);
   for(int i = 0; i < 4; i++) vals[i] = -55 * i;
   DoocsServerTestHelper::doocsSetIIII("//MYDUMMY/SOME_IIII", vals);
 
-  for(int i = 0; i < 4; i++) BOOST_CHECK(acc_someArray[0][i] == 10 + i);
+  for(int i = 0; i < 4; i++) BOOST_TEST(acc_someArray[0][i] == 10 + i);
   // auto oldVersion = acc_someArray.getVersionNumber();
   acc_someArray.read();
-  for(int i = 0; i < 4; i++) BOOST_CHECK(acc_someArray[0][i] == -55 * i);
-  // BOOST_CHECK(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
+  for(int i = 0; i < 4; i++) BOOST_TEST(acc_someArray[0][i] == -55 * i);
+  // BOOST_TEST(acc_someArray.getVersionNumber() == oldVersion); // DOOCS behaves differently, eventId == 0 for
   // properties set through RPC call
 
   for(int i = 0; i < 4; i++) acc_someArray[0][i] = i - 21;
   vals = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_IIII");
-  for(int i = 0; i < 4; i++) BOOST_CHECK(vals[i] == -55 * i);
+  for(int i = 0; i < 4; i++) BOOST_TEST(vals[i] == -55 * i);
   VersionNumber nextVersion;
   acc_someArray.write(nextVersion);
   vals = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_IIII");
-  for(int i = 0; i < 4; i++) BOOST_CHECK(vals[i] == i - 21);
-  BOOST_CHECK(acc_someArray.getVersionNumber() == nextVersion);
+  for(int i = 0; i < 4; i++) BOOST_TEST(vals[i] == i - 21);
+  BOOST_TEST(acc_someArray.getVersionNumber() == nextVersion);
 
   // access via double
   TwoDRegisterAccessor<double> acc_someArrayAsDouble(device.getTwoDRegisterAccessor<double>("MYDUMMY/SOME_IIII"));
@@ -667,7 +667,7 @@ BOOST_AUTO_TEST_CASE(testIIII) {
   for(int i = 0; i < 4; i++) acc_someArrayAsString[0][i] = std::to_string(3 * i);
   acc_someArrayAsString.write();
   vals = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_IIII");
-  for(int i = 0; i < 4; i++) BOOST_CHECK(vals[i] == 3 * i);
+  for(int i = 0; i < 4; i++) BOOST_TEST(vals[i] == 3 * i);
 
   device.close();
 }
@@ -684,15 +684,15 @@ BOOST_AUTO_TEST_CASE(testIFFF) {
   auto regF1 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F1");
   auto regF2 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F2");
   auto regF3 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F3");
-  BOOST_CHECK(regI.getDataDescriptor().isIntegral());
-  BOOST_CHECK(regI.getDataDescriptor().isSigned());
-  BOOST_CHECK(regI.getDataDescriptor().nDigits() == 11);
-  BOOST_CHECK(!regF1.getDataDescriptor().isIntegral());
-  BOOST_CHECK(regF1.getDataDescriptor().isSigned());
-  BOOST_CHECK(!regF2.getDataDescriptor().isIntegral());
-  BOOST_CHECK(regF2.getDataDescriptor().isSigned());
-  BOOST_CHECK(!regF3.getDataDescriptor().isIntegral());
-  BOOST_CHECK(regF3.getDataDescriptor().isSigned());
+  BOOST_TEST(regI.getDataDescriptor().isIntegral());
+  BOOST_TEST(regI.getDataDescriptor().isSigned());
+  BOOST_TEST(regI.getDataDescriptor().nDigits() == 11);
+  BOOST_TEST(!regF1.getDataDescriptor().isIntegral());
+  BOOST_TEST(regF1.getDataDescriptor().isSigned());
+  BOOST_TEST(!regF2.getDataDescriptor().isIntegral());
+  BOOST_TEST(regF2.getDataDescriptor().isSigned());
+  BOOST_TEST(!regF3.getDataDescriptor().isIntegral());
+  BOOST_TEST(regF3.getDataDescriptor().isSigned());
 
   // read access via int/float
   {
@@ -787,7 +787,7 @@ BOOST_AUTO_TEST_CASE(testImage) {
   // obtain accessor with larger than default array length
   OneDRegisterAccessor<std::uint8_t> acc_someImage_padded(
       device.getOneDRegisterAccessor<std::uint8_t>("MYDUMMY/SOME_IMAGE", 200 * 1000));
-  BOOST_CHECK(acc_someImage_padded.getNElements() == 200 * 1000);
+  BOOST_TEST(acc_someImage_padded.getNElements() == 200 * 1000);
   acc_someImage_padded.read();
   // verify that image content is same
   for(unsigned i = 0; i < im.header()->totalLength; i++) {
@@ -815,54 +815,54 @@ BOOST_AUTO_TEST_CASE(testBitAndStatus) {
   TwoDRegisterAccessor<int> acc_someStatus(device.getTwoDRegisterAccessor<int>("MYDUMMY/SOME_STATUS"));
   TwoDRegisterAccessor<uint16_t> acc_someStatusU16(device.getTwoDRegisterAccessor<uint16_t>("MYDUMMY/SOME_STATUS"));
 
-  BOOST_CHECK(acc_someBit.getNChannels() == 1);
-  BOOST_CHECK(acc_someStatus.getNChannels() == 1);
-  BOOST_CHECK(acc_someBit.getNElementsPerChannel() == 1);
-  BOOST_CHECK(acc_someStatus.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someBit.getNChannels() == 1);
+  BOOST_TEST(acc_someStatus.getNChannels() == 1);
+  BOOST_TEST(acc_someBit.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someStatus.getNElementsPerChannel() == 1);
 
   auto oldVersion = acc_someBit.getVersionNumber();
   acc_someBit.read();
-  BOOST_CHECK(acc_someBit[0][0] == 1);
-  BOOST_CHECK(acc_someBit.getVersionNumber() != oldVersion);
+  BOOST_TEST(acc_someBit[0][0] == 1);
+  BOOST_TEST(acc_someBit.getVersionNumber() != oldVersion);
   oldVersion = acc_someStatus.getVersionNumber();
   acc_someStatus.read();
-  BOOST_CHECK(acc_someStatus[0][0] == 3);
-  BOOST_CHECK(acc_someStatus.getVersionNumber() != oldVersion);
+  BOOST_TEST(acc_someStatus[0][0] == 3);
+  BOOST_TEST(acc_someStatus.getVersionNumber() != oldVersion);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_BIT", 0);
 
-  BOOST_CHECK(acc_someBit[0][0] == 1);
+  BOOST_TEST(acc_someBit[0][0] == 1);
   acc_someBit.read();
-  BOOST_CHECK(acc_someBit[0][0] == 0);
-  BOOST_CHECK(acc_someStatus[0][0] == 3);
+  BOOST_TEST(acc_someBit[0][0] == 0);
+  BOOST_TEST(acc_someStatus[0][0] == 3);
   acc_someStatus.read();
-  BOOST_CHECK(acc_someStatus[0][0] == 2);
+  BOOST_TEST(acc_someStatus[0][0] == 2);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_STATUS", 0xFFFF);
 
-  BOOST_CHECK(acc_someBit[0][0] == 0);
+  BOOST_TEST(acc_someBit[0][0] == 0);
   acc_someBit.read();
-  BOOST_CHECK(acc_someBit[0][0] == 1);
-  BOOST_CHECK(acc_someStatus[0][0] == 2);
+  BOOST_TEST(acc_someBit[0][0] == 1);
+  BOOST_TEST(acc_someStatus[0][0] == 2);
   acc_someStatus.read();
-  BOOST_CHECK(acc_someStatus[0][0] == 0xFFFF);
+  BOOST_TEST(acc_someStatus[0][0] == 0xFFFF);
 
   acc_someStatusU16.read();
-  BOOST_CHECK(acc_someStatusU16[0][0] == 0xFFFF);
+  BOOST_TEST(acc_someStatusU16[0][0] == 0xFFFF);
 
   acc_someBit[0][0] = 0;
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 0xFFFF);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 0xFFFF);
   VersionNumber nextVersion;
   acc_someBit.write(nextVersion);
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 0xFFFE);
-  BOOST_CHECK(acc_someBit.getVersionNumber() == nextVersion);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 0xFFFE);
+  BOOST_TEST(acc_someBit.getVersionNumber() == nextVersion);
 
   acc_someStatus[0][0] = 123;
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 0xFFFE);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 0xFFFE);
   nextVersion = {};
   acc_someStatus.write(nextVersion);
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 123);
-  BOOST_CHECK(acc_someStatus.getVersionNumber() == nextVersion);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 123);
+  BOOST_TEST(acc_someStatus.getVersionNumber() == nextVersion);
 
   device.close();
 }
@@ -875,24 +875,24 @@ BOOST_AUTO_TEST_CASE(testPartialAccess) {
   // int array, 20 elements, offset of 1
   {
     OneDRegisterAccessor<int> acc_someArray(device.getOneDRegisterAccessor<int>("MYDUMMY/SOME_INT_ARRAY", 20, 1));
-    BOOST_CHECK(acc_someArray.getNElements() == 20);
+    BOOST_TEST(acc_someArray.getNElements() == 20);
 
     std::vector<int> vals(42);
     for(int i = 0; i < 42; i++) vals[i] = -55 * i;
     DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT_ARRAY", vals);
 
     acc_someArray.read();
-    for(int i = 0; i < 20; i++) BOOST_CHECK(acc_someArray[i] == -55 * (i + 1));
+    for(int i = 0; i < 20; i++) BOOST_TEST(acc_someArray[i] == -55 * (i + 1));
 
     for(int i = 0; i < 20; i++) acc_someArray[i] = i;
     acc_someArray.write();
     vals = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_INT_ARRAY");
     for(int i = 0; i < 42; i++) {
       if(i == 0 || i > 20) {
-        BOOST_CHECK(vals[i] == -55 * i);
+        BOOST_TEST(vals[i] == -55 * i);
       }
       else {
-        BOOST_CHECK(vals[i] == i - 1);
+        BOOST_TEST(vals[i] == i - 1);
       }
     }
   }
@@ -900,24 +900,24 @@ BOOST_AUTO_TEST_CASE(testPartialAccess) {
   // int array, 1 elements, offset of 10
   {
     OneDRegisterAccessor<int> acc_someArray(device.getOneDRegisterAccessor<int>("MYDUMMY/SOME_INT_ARRAY", 1, 10));
-    BOOST_CHECK(acc_someArray.getNElements() == 1);
+    BOOST_TEST(acc_someArray.getNElements() == 1);
 
     std::vector<int> vals(42);
     for(int i = 0; i < 42; i++) vals[i] = 33 * i;
     DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT_ARRAY", vals);
 
     acc_someArray.read();
-    BOOST_CHECK(acc_someArray[0] == 33 * 10);
+    BOOST_TEST(acc_someArray[0] == 33 * 10);
 
     acc_someArray[0] = 42;
     acc_someArray.write();
     vals = DoocsServerTestHelper::doocsGetArray<int>("//MYDUMMY/SOME_INT_ARRAY");
     for(int i = 0; i < 42; i++) {
       if(i == 10) {
-        BOOST_CHECK(vals[i] == 42);
+        BOOST_TEST(vals[i] == 42);
       }
       else {
-        BOOST_CHECK(vals[i] == 33 * i);
+        BOOST_TEST(vals[i] == 33 * i);
       }
     }
   }
@@ -925,7 +925,7 @@ BOOST_AUTO_TEST_CASE(testPartialAccess) {
   // double array with float user type, 3 elements, offset of 2
   {
     OneDRegisterAccessor<float> acc_someArray(device.getOneDRegisterAccessor<float>("MYDUMMY/SOME_DOUBLE_ARRAY", 3, 2));
-    BOOST_CHECK(acc_someArray.getNElements() == 3);
+    BOOST_TEST(acc_someArray.getNElements() == 3);
 
     std::vector<double> vals(5);
     for(int i = 0; i < 5; i++) vals[i] = 3.14 * i;
@@ -1033,89 +1033,89 @@ BOOST_AUTO_TEST_CASE(testCatalogue) {
 
     for(auto& catalogue : catalogueList2) {
       // check number of registers, but not with the exact number, since DOOCS adds some registers!
-      BOOST_CHECK(catalogue.getNumberOfRegisters() > 13);
+      BOOST_TEST(catalogue.getNumberOfRegisters() > 13);
 
       // check for the presence of known registers
-      BOOST_CHECK(catalogue.hasRegister("SOME_INT"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_FLOAT"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_DOUBLE"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_STRING"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_STATUS"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_BIT"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_INT_ARRAY"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_SHORT_ARRAY"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_LONG_ARRAY"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_FLOAT_ARRAY"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_DOUBLE_ARRAY"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_SPECTRUM"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_IFFF/I"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_IFFF/F1"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_IFFF/F2"));
-      BOOST_CHECK(catalogue.hasRegister("SOME_IFFF/F3"));
+      BOOST_TEST(catalogue.hasRegister("SOME_INT"));
+      BOOST_TEST(catalogue.hasRegister("SOME_FLOAT"));
+      BOOST_TEST(catalogue.hasRegister("SOME_DOUBLE"));
+      BOOST_TEST(catalogue.hasRegister("SOME_STRING"));
+      BOOST_TEST(catalogue.hasRegister("SOME_STATUS"));
+      BOOST_TEST(catalogue.hasRegister("SOME_BIT"));
+      BOOST_TEST(catalogue.hasRegister("SOME_INT_ARRAY"));
+      BOOST_TEST(catalogue.hasRegister("SOME_SHORT_ARRAY"));
+      BOOST_TEST(catalogue.hasRegister("SOME_LONG_ARRAY"));
+      BOOST_TEST(catalogue.hasRegister("SOME_FLOAT_ARRAY"));
+      BOOST_TEST(catalogue.hasRegister("SOME_DOUBLE_ARRAY"));
+      BOOST_TEST(catalogue.hasRegister("SOME_SPECTRUM"));
+      BOOST_TEST(catalogue.hasRegister("SOME_IFFF/I"));
+      BOOST_TEST(catalogue.hasRegister("SOME_IFFF/F1"));
+      BOOST_TEST(catalogue.hasRegister("SOME_IFFF/F2"));
+      BOOST_TEST(catalogue.hasRegister("SOME_IFFF/F3"));
 
       // check the properties of some registers
       auto r1 = catalogue.getRegister("SOME_INT");
-      BOOST_CHECK(r1.getRegisterName() == "SOME_INT");
-      BOOST_CHECK(r1.getNumberOfElements() == 1);
-      BOOST_CHECK(r1.getNumberOfChannels() == 1);
-      BOOST_CHECK(r1.getNumberOfDimensions() == 0);
-      BOOST_CHECK(not r1.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_TEST(r1.getRegisterName() == "SOME_INT");
+      BOOST_TEST(r1.getNumberOfElements() == 1);
+      BOOST_TEST(r1.getNumberOfChannels() == 1);
+      BOOST_TEST(r1.getNumberOfDimensions() == 0);
+      BOOST_TEST(not r1.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r2 = catalogue.getRegister("SOME_STRING");
-      BOOST_CHECK(r2.getRegisterName() == "SOME_STRING");
-      BOOST_CHECK(r2.getNumberOfElements() == 1);
-      BOOST_CHECK(r2.getNumberOfChannels() == 1);
-      BOOST_CHECK(r2.getNumberOfDimensions() == 0);
-      BOOST_CHECK(not r2.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_TEST(r2.getRegisterName() == "SOME_STRING");
+      BOOST_TEST(r2.getNumberOfElements() == 1);
+      BOOST_TEST(r2.getNumberOfChannels() == 1);
+      BOOST_TEST(r2.getNumberOfDimensions() == 0);
+      BOOST_TEST(not r2.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r3 = catalogue.getRegister("SOME_INT_ARRAY");
-      BOOST_CHECK(r3.getRegisterName() == "SOME_INT_ARRAY");
-      BOOST_CHECK(r3.getNumberOfElements() == 42);
-      BOOST_CHECK(r3.getNumberOfChannels() == 1);
-      BOOST_CHECK(r3.getNumberOfDimensions() == 1);
-      BOOST_CHECK(not r3.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_TEST(r3.getRegisterName() == "SOME_INT_ARRAY");
+      BOOST_TEST(r3.getNumberOfElements() == 42);
+      BOOST_TEST(r3.getNumberOfChannels() == 1);
+      BOOST_TEST(r3.getNumberOfDimensions() == 1);
+      BOOST_TEST(not r3.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r4 = catalogue.getRegister("SOME_FLOAT_ARRAY");
-      BOOST_CHECK(r4.getRegisterName() == "SOME_FLOAT_ARRAY");
-      BOOST_CHECK(r4.getNumberOfElements() == 5);
-      BOOST_CHECK(r4.getNumberOfChannels() == 1);
-      BOOST_CHECK(r4.getNumberOfDimensions() == 1);
-      BOOST_CHECK(not r4.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_TEST(r4.getRegisterName() == "SOME_FLOAT_ARRAY");
+      BOOST_TEST(r4.getNumberOfElements() == 5);
+      BOOST_TEST(r4.getNumberOfChannels() == 1);
+      BOOST_TEST(r4.getNumberOfDimensions() == 1);
+      BOOST_TEST(not r4.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r5 = catalogue.getRegister("SOME_SPECTRUM");
-      BOOST_CHECK(r5.getRegisterName() == "SOME_SPECTRUM");
-      BOOST_CHECK(r5.getNumberOfElements() == 100);
-      BOOST_CHECK(r5.getNumberOfChannels() == 1);
-      BOOST_CHECK(r5.getNumberOfDimensions() == 1);
-      BOOST_CHECK(not r5.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_TEST(r5.getRegisterName() == "SOME_SPECTRUM");
+      BOOST_TEST(r5.getNumberOfElements() == 100);
+      BOOST_TEST(r5.getNumberOfChannels() == 1);
+      BOOST_TEST(r5.getNumberOfDimensions() == 1);
+      BOOST_TEST(not r5.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r6 = catalogue.getRegister("SOME_ZMQINT");
-      BOOST_CHECK(r6.getRegisterName() == "SOME_ZMQINT");
-      BOOST_CHECK(r6.getNumberOfElements() == 1);
-      BOOST_CHECK(r6.getNumberOfChannels() == 1);
-      BOOST_CHECK(r6.getNumberOfDimensions() == 0);
-      BOOST_CHECK(r6.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_TEST(r6.getRegisterName() == "SOME_ZMQINT");
+      BOOST_TEST(r6.getNumberOfElements() == 1);
+      BOOST_TEST(r6.getNumberOfChannels() == 1);
+      BOOST_TEST(r6.getNumberOfDimensions() == 0);
+      BOOST_TEST(r6.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r7 = catalogue.getRegister("SOME_IIII");
-      BOOST_CHECK(r7.getRegisterName() == "SOME_IIII");
-      BOOST_CHECK(r7.getNumberOfElements() == 4);
-      BOOST_CHECK(r7.getNumberOfChannels() == 1);
-      BOOST_CHECK(r7.getNumberOfDimensions() == 1);
-      BOOST_CHECK(not r7.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_TEST(r7.getRegisterName() == "SOME_IIII");
+      BOOST_TEST(r7.getNumberOfElements() == 4);
+      BOOST_TEST(r7.getNumberOfChannels() == 1);
+      BOOST_TEST(r7.getNumberOfDimensions() == 1);
+      BOOST_TEST(not r7.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto regI = catalogue.getRegister("SOME_IFFF/I");
       auto regF1 = catalogue.getRegister("SOME_IFFF/F1");
       auto regF2 = catalogue.getRegister("SOME_IFFF/F2");
       auto regF3 = catalogue.getRegister("SOME_IFFF/F3");
-      BOOST_CHECK(regI.getDataDescriptor().isIntegral());
-      BOOST_CHECK(regI.getDataDescriptor().isSigned());
-      BOOST_CHECK(regI.getDataDescriptor().nDigits() == 11);
-      BOOST_CHECK(!regF1.getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF1.getDataDescriptor().isSigned());
-      BOOST_CHECK(!regF2.getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF2.getDataDescriptor().isSigned());
-      BOOST_CHECK(!regF3.getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF3.getDataDescriptor().isSigned());
+      BOOST_TEST(regI.getDataDescriptor().isIntegral());
+      BOOST_TEST(regI.getDataDescriptor().isSigned());
+      BOOST_TEST(regI.getDataDescriptor().nDigits() == 11);
+      BOOST_TEST(!regF1.getDataDescriptor().isIntegral());
+      BOOST_TEST(regF1.getDataDescriptor().isSigned());
+      BOOST_TEST(!regF2.getDataDescriptor().isIntegral());
+      BOOST_TEST(regF2.getDataDescriptor().isSigned());
+      BOOST_TEST(!regF3.getDataDescriptor().isIntegral());
+      BOOST_TEST(regF3.getDataDescriptor().isSigned());
     }
     device.close();
     device_cached.close();
@@ -1130,52 +1130,52 @@ BOOST_AUTO_TEST_CASE(testCatalogue) {
 
     for(auto& catalogue : catalogueList1) {
       // check number of registers, but not with the exact number, since DOOCS adds some registers!
-      BOOST_CHECK(catalogue.getNumberOfRegisters() > 13);
+      BOOST_TEST(catalogue.getNumberOfRegisters() > 13);
 
       // check for the presence of known registers
-      BOOST_CHECK(catalogue.hasRegister("MYDUMMY/SOME_INT"));
-      BOOST_CHECK(catalogue.hasRegister("MYDUMMY/SOME_ZMQINT"));
-      BOOST_CHECK(catalogue.hasRegister("DUMMY._SVR/SVR.BPN"));
-      BOOST_CHECK(catalogue.hasRegister("MYDUMMY/SOME_IFFF/I"));
-      BOOST_CHECK(catalogue.hasRegister("MYDUMMY/SOME_IFFF/F1"));
-      BOOST_CHECK(catalogue.hasRegister("MYDUMMY/SOME_IFFF/F2"));
-      BOOST_CHECK(catalogue.hasRegister("MYDUMMY/SOME_IFFF/F3"));
+      BOOST_TEST(catalogue.hasRegister("MYDUMMY/SOME_INT"));
+      BOOST_TEST(catalogue.hasRegister("MYDUMMY/SOME_ZMQINT"));
+      BOOST_TEST(catalogue.hasRegister("DUMMY._SVR/SVR.BPN"));
+      BOOST_TEST(catalogue.hasRegister("MYDUMMY/SOME_IFFF/I"));
+      BOOST_TEST(catalogue.hasRegister("MYDUMMY/SOME_IFFF/F1"));
+      BOOST_TEST(catalogue.hasRegister("MYDUMMY/SOME_IFFF/F2"));
+      BOOST_TEST(catalogue.hasRegister("MYDUMMY/SOME_IFFF/F3"));
 
       // check the properties of some registers
       auto r8 = catalogue.getRegister("MYDUMMY/SOME_INT");
-      BOOST_CHECK(r8.getRegisterName() == "MYDUMMY/SOME_INT");
-      BOOST_CHECK(r8.getNumberOfElements() == 1);
-      BOOST_CHECK(r8.getNumberOfChannels() == 1);
-      BOOST_CHECK(r8.getNumberOfDimensions() == 0);
-      BOOST_CHECK(not r8.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_TEST(r8.getRegisterName() == "MYDUMMY/SOME_INT");
+      BOOST_TEST(r8.getNumberOfElements() == 1);
+      BOOST_TEST(r8.getNumberOfChannels() == 1);
+      BOOST_TEST(r8.getNumberOfDimensions() == 0);
+      BOOST_TEST(not r8.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r9 = catalogue.getRegister("DUMMY._SVR/SVR.BPN");
-      BOOST_CHECK(r9.getRegisterName() == "DUMMY._SVR/SVR.BPN");
-      BOOST_CHECK(r9.getNumberOfElements() == 1);
-      BOOST_CHECK(r9.getNumberOfChannels() == 1);
-      BOOST_CHECK(r9.getNumberOfDimensions() == 0);
-      BOOST_CHECK(not r9.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_TEST(r9.getRegisterName() == "DUMMY._SVR/SVR.BPN");
+      BOOST_TEST(r9.getNumberOfElements() == 1);
+      BOOST_TEST(r9.getNumberOfChannels() == 1);
+      BOOST_TEST(r9.getNumberOfDimensions() == 0);
+      BOOST_TEST(not r9.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto r10 = catalogue.getRegister("MYDUMMY/SOME_ZMQINT");
-      BOOST_CHECK(r10.getRegisterName() == "MYDUMMY/SOME_ZMQINT");
-      BOOST_CHECK(r10.getNumberOfElements() == 1);
-      BOOST_CHECK(r10.getNumberOfChannels() == 1);
-      BOOST_CHECK(r10.getNumberOfDimensions() == 0);
-      BOOST_CHECK(r10.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
+      BOOST_TEST(r10.getRegisterName() == "MYDUMMY/SOME_ZMQINT");
+      BOOST_TEST(r10.getNumberOfElements() == 1);
+      BOOST_TEST(r10.getNumberOfChannels() == 1);
+      BOOST_TEST(r10.getNumberOfDimensions() == 0);
+      BOOST_TEST(r10.getSupportedAccessModes().has(ChimeraTK::AccessMode::wait_for_new_data));
 
       auto regI = catalogue.getRegister("MYDUMMY/SOME_IFFF/I");
       auto regF1 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F1");
       auto regF2 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F2");
       auto regF3 = catalogue.getRegister("MYDUMMY/SOME_IFFF/F3");
-      BOOST_CHECK(regI.getDataDescriptor().isIntegral());
-      BOOST_CHECK(regI.getDataDescriptor().isSigned());
-      BOOST_CHECK(regI.getDataDescriptor().nDigits() == 11);
-      BOOST_CHECK(!regF1.getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF1.getDataDescriptor().isSigned());
-      BOOST_CHECK(!regF2.getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF2.getDataDescriptor().isSigned());
-      BOOST_CHECK(!regF3.getDataDescriptor().isIntegral());
-      BOOST_CHECK(regF3.getDataDescriptor().isSigned());
+      BOOST_TEST(regI.getDataDescriptor().isIntegral());
+      BOOST_TEST(regI.getDataDescriptor().isSigned());
+      BOOST_TEST(regI.getDataDescriptor().nDigits() == 11);
+      BOOST_TEST(!regF1.getDataDescriptor().isIntegral());
+      BOOST_TEST(regF1.getDataDescriptor().isSigned());
+      BOOST_TEST(!regF2.getDataDescriptor().isIntegral());
+      BOOST_TEST(regF2.getDataDescriptor().isSigned());
+      BOOST_TEST(!regF3.getDataDescriptor().isIntegral());
+      BOOST_TEST(regF3.getDataDescriptor().isSigned());
     }
     device.close();
     device_cached.close();
@@ -1192,7 +1192,7 @@ BOOST_AUTO_TEST_CASE(testOther) {
   device.open(DoocsLauncher::DoocsServer1);
 
   // device info string
-  BOOST_CHECK(device.readDeviceInfo() == "DOOCS server address: doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D");
+  BOOST_TEST(device.readDeviceInfo() == "DOOCS server address: doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D");
 
   // test in TransferGroup
   TwoDRegisterAccessor<int32_t> acc1(device.getTwoDRegisterAccessor<int32_t>("MYDUMMY/SOME_INT"));
@@ -1211,7 +1211,7 @@ BOOST_AUTO_TEST_CASE(testOther) {
 
   // compatibility with SDM syntax
   device.open("sdm://./doocs=TEST.DOOCS,NOT_EXISTING,SOME_LOCATION");
-  BOOST_CHECK(device.readDeviceInfo() == "DOOCS server address: TEST.DOOCS/NOT_EXISTING/SOME_LOCATION");
+  BOOST_TEST(device.readDeviceInfo() == "DOOCS server address: TEST.DOOCS/NOT_EXISTING/SOME_LOCATION");
   device.close();
 }
 
@@ -1235,8 +1235,8 @@ bool file_exists(const std::string& name) {
 
 BOOST_AUTO_TEST_CASE(testCacheFileCreation) {
   {
-    BOOST_CHECK(file_exists(DoocsLauncher::cacheFile1) == false);
-    BOOST_CHECK(file_exists(DoocsLauncher::cacheFile2) == false);
+    BOOST_TEST(file_exists(DoocsLauncher::cacheFile1) == false);
+    BOOST_TEST(file_exists(DoocsLauncher::cacheFile2) == false);
 
     auto d1 = ChimeraTK::Device(DoocsLauncher::DoocsServer1_cached);
     auto d2 = ChimeraTK::Device(DoocsLauncher::DoocsServer2_cached);
@@ -1244,8 +1244,8 @@ BOOST_AUTO_TEST_CASE(testCacheFileCreation) {
     auto discardedCatalogue = d1.getRegisterCatalogue();
     discardedCatalogue = d2.getRegisterCatalogue();
 
-    BOOST_CHECK(file_exists(DoocsLauncher::cacheFile1) == true);
-    BOOST_CHECK(file_exists(DoocsLauncher::cacheFile2) == true);
+    BOOST_TEST(file_exists(DoocsLauncher::cacheFile1) == true);
+    BOOST_TEST(file_exists(DoocsLauncher::cacheFile2) == true);
   }
   deleteFile(DoocsLauncher::cacheFile1);
   deleteFile(DoocsLauncher::cacheFile2);
@@ -1302,9 +1302,9 @@ BOOST_AUTO_TEST_CASE(testCacheXmlReplacement) {
     }
     // cancel timeout task
     cancelTimeOutTask = true;
-    BOOST_CHECK(modification_time > creation_time); // given the percondition,
-                                                    // this should fail if loop
-                                                    // times out.
+    BOOST_TEST(modification_time > creation_time); // given the percondition,
+                                                   // this should fail if loop
+                                                   // times out.
     deleteFile(DoocsLauncher::cacheFile2);
   }
 }
@@ -1319,7 +1319,7 @@ BOOST_AUTO_TEST_CASE(testCacheXmlReplacementBehaviorOnFailure) {
   { auto d = ChimeraTK::Device(DoocsLauncher::DoocsServer2_cached); }
   server->unlock();
   auto modification_time = boost::filesystem::last_write_time(DoocsLauncher::cacheFile2);
-  BOOST_CHECK(creation_time == modification_time);
+  BOOST_TEST(creation_time == modification_time);
   deleteFile(DoocsLauncher::cacheFile2);
 }
 
@@ -1331,17 +1331,17 @@ BOOST_AUTO_TEST_CASE(testAccessorForCachedMode) {
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT", 120);
   TwoDRegisterAccessor<int32_t> acc_someInt_as_int(d.getTwoDRegisterAccessor<int32_t>("MYDUMMY/SOME_INT"));
-  BOOST_CHECK(acc_someInt_as_int.getNChannels() == 1);
-  BOOST_CHECK(acc_someInt_as_int.getNElementsPerChannel() == 1);
+  BOOST_TEST(acc_someInt_as_int.getNChannels() == 1);
+  BOOST_TEST(acc_someInt_as_int.getNElementsPerChannel() == 1);
 
   d.open();
 
   acc_someInt_as_int.read();
-  BOOST_CHECK(acc_someInt_as_int[0][0] == 120);
+  BOOST_TEST(acc_someInt_as_int[0][0] == 120);
 
   acc_someInt_as_int[0][0] = 50;
   acc_someInt_as_int.write();
-  BOOST_CHECK(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 50);
+  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_INT") == 50);
   deleteFile(DoocsLauncher::cacheFile1);
 }
 
@@ -1371,24 +1371,24 @@ BOOST_AUTO_TEST_CASE(testEventId) {
   auto eqfct = reinterpret_cast<eq_dummy*>(find_device("MYDUMMY"));
 
   // device info string
-  BOOST_CHECK(device.readDeviceInfo() == "DOOCS server address: doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D");
+  BOOST_TEST(device.readDeviceInfo() == "DOOCS server address: doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D");
 
   for(std::string param : {"SOME_INT", "SOME_FLOAT", "SOME_BIT", "SOME_INT_ARRAY", "SOME_SHORT_ARRAY",
           "SOME_LONG_ARRAY", "SOME_FLOAT_ARRAY", "SOME_DOUBLE_ARRAY", "SOME_SPECTRUM", "SOME_IIII", "SOME_IFFF"}) {
     auto path = RegisterPath("MYDUMMY/" + param + "/eventId");
-    BOOST_CHECK(catalogue.hasRegister(path));
+    BOOST_TEST(catalogue.hasRegister(path));
 
     auto regInfo = catalogue.getRegister(path);
-    BOOST_CHECK(regInfo.isReadable());
-    BOOST_CHECK(!regInfo.isWriteable());
+    BOOST_TEST(regInfo.isReadable());
+    BOOST_TEST(!regInfo.isWriteable());
     BOOST_CHECK_EQUAL(regInfo.getNumberOfElements(), 1);
     BOOST_CHECK_EQUAL(regInfo.getNumberOfChannels(), 1);
     BOOST_CHECK_EQUAL(regInfo.getNumberOfDimensions(), 0);
     auto descriptor = regInfo.getDataDescriptor();
-    BOOST_CHECK(descriptor.fundamentalType() == ChimeraTK::DataDescriptor::FundamentalType::numeric);
+    BOOST_TEST(descriptor.fundamentalType() == ChimeraTK::DataDescriptor::FundamentalType::numeric);
     BOOST_CHECK_EQUAL(descriptor.nDigits(), 20);
-    BOOST_CHECK(descriptor.isSigned());
-    BOOST_CHECK(descriptor.isIntegral());
+    BOOST_TEST(descriptor.isSigned());
+    BOOST_TEST(descriptor.isIntegral());
 
     auto acc1 = device.getScalarRegisterAccessor<int64_t>(path);
     acc1.read();
@@ -1413,13 +1413,13 @@ BOOST_AUTO_TEST_CASE(testEventId) {
   // Check that we get the accessor for some unsupported type as well
   // Whether or not eventId retuns something usefull here is completely undefined
   auto acc1 = device.getScalarRegisterAccessor<int64_t>("MYDUMMY/UNSUPPORTED_DATA_TYPE/eventId");
-  BOOST_CHECK(acc1.isInitialised());
+  BOOST_TEST(acc1.isInitialised());
 
   // Run update once to have the ZMQ variable's mp number updated
   DoocsServerTestHelper::runUpdate();
 
   auto path = RegisterPath("MYDUMMY/SOME_ZMQINT/eventId");
-  BOOST_CHECK(catalogue.hasRegister(path));
+  BOOST_TEST(catalogue.hasRegister(path));
   auto acc2 = device.getScalarRegisterAccessor<int64_t>(path);
   acc2.read();
   BOOST_CHECK_EQUAL(static_cast<int64_t>(acc2), eqfct->counter - 1);
@@ -1445,24 +1445,24 @@ BOOST_AUTO_TEST_CASE(testTimeStamp) {
   auto eqfct = reinterpret_cast<eq_dummy*>(find_device("MYDUMMY"));
 
   // device info string
-  BOOST_CHECK(device.readDeviceInfo() == "DOOCS server address: doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D");
+  BOOST_TEST(device.readDeviceInfo() == "DOOCS server address: doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D");
 
   for(std::string param : {"SOME_INT", "SOME_FLOAT", "SOME_BIT", "SOME_INT_ARRAY", "SOME_SHORT_ARRAY",
           "SOME_LONG_ARRAY", "SOME_FLOAT_ARRAY", "SOME_DOUBLE_ARRAY", "SOME_SPECTRUM", "SOME_IIII", "SOME_IFFF"}) {
     auto path = RegisterPath("MYDUMMY/" + param + "/timeStamp");
-    BOOST_CHECK(catalogue.hasRegister(path));
+    BOOST_TEST(catalogue.hasRegister(path));
 
     auto regInfo = catalogue.getRegister(path);
-    BOOST_CHECK(regInfo.isReadable());
-    BOOST_CHECK(!regInfo.isWriteable());
+    BOOST_TEST(regInfo.isReadable());
+    BOOST_TEST(!regInfo.isWriteable());
     BOOST_CHECK_EQUAL(regInfo.getNumberOfElements(), 1);
     BOOST_CHECK_EQUAL(regInfo.getNumberOfChannels(), 1);
     BOOST_CHECK_EQUAL(regInfo.getNumberOfDimensions(), 0);
     auto descriptor = regInfo.getDataDescriptor();
-    BOOST_CHECK(descriptor.fundamentalType() == ChimeraTK::DataDescriptor::FundamentalType::numeric);
+    BOOST_TEST(descriptor.fundamentalType() == ChimeraTK::DataDescriptor::FundamentalType::numeric);
     BOOST_CHECK_EQUAL(descriptor.nDigits(), 20);
-    BOOST_CHECK(descriptor.isSigned());
-    BOOST_CHECK(descriptor.isIntegral());
+    BOOST_TEST(descriptor.isSigned());
+    BOOST_TEST(descriptor.isIntegral());
 
     auto acc1 = device.getScalarRegisterAccessor<int64_t>(path);
     acc1.read();
@@ -1487,13 +1487,13 @@ BOOST_AUTO_TEST_CASE(testTimeStamp) {
   // Check that we get the accessor for some unsupported type as well
   // Whether or not eventId retuns something usefull here is completely undefined
   auto acc1 = device.getScalarRegisterAccessor<int64_t>("MYDUMMY/UNSUPPORTED_DATA_TYPE/timeStamp");
-  BOOST_CHECK(acc1.isInitialised());
+  BOOST_TEST(acc1.isInitialised());
 
   // Run update once to have the ZMQ variable's mp number updated
   DoocsServerTestHelper::runUpdate();
 
   auto path = RegisterPath("MYDUMMY/SOME_ZMQINT/timeStamp");
-  BOOST_CHECK(catalogue.hasRegister(path));
+  BOOST_TEST(catalogue.hasRegister(path));
   auto acc2 = device.getScalarRegisterAccessor<int64_t>(path);
   acc2.read();
   BOOST_CHECK_EQUAL(static_cast<int64_t>(acc2), eqfct->startTime - 1);
@@ -1531,12 +1531,12 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
   acc2.read();
   acc2_id.read();
 
-  BOOST_CHECK(acc1.getVersionNumber() != ChimeraTK::VersionNumber{nullptr});
-  BOOST_CHECK(acc2.getVersionNumber() != ChimeraTK::VersionNumber{nullptr});
+  BOOST_TEST(acc1.getVersionNumber() != ChimeraTK::VersionNumber{nullptr});
+  BOOST_TEST(acc2.getVersionNumber() != ChimeraTK::VersionNumber{nullptr});
   // notice: The version numbers for acc1 and acc2 are not the same, and also
   // those of acc1_id and acc2_id  do not match any of them. Data with eventId 0 cannot be correlated at all.
-  BOOST_CHECK(acc1_id == 0);
-  BOOST_CHECK(acc2_id == 0);
+  BOOST_TEST(acc1_id == 0);
+  BOOST_TEST(acc2_id == 0);
 
   eqfct->counter = id;
 
@@ -1651,7 +1651,7 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
   acc1.read();
   BOOST_CHECK_MESSAGE(acc1.getVersionNumber() == ver2,
       static_cast<std::string>(acc1.getVersionNumber()) + " should be equal to " + static_cast<std::string>(ver2));
-  BOOST_CHECK(acc1.dataValidity() == DataValidity::ok);
+  BOOST_TEST(acc1.dataValidity() == DataValidity::ok);
 
   eqfct->counter = id1;
   DoocsServerTestHelper::runUpdate();
@@ -1659,13 +1659,13 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
   acc2.read();
   BOOST_CHECK_MESSAGE(acc2.getVersionNumber() == ver1,
       static_cast<std::string>(acc2.getVersionNumber()) + " should be equal to " + static_cast<std::string>(ver1));
-  BOOST_CHECK(acc2.dataValidity() == DataValidity::ok);
+  BOOST_TEST(acc2.dataValidity() == DataValidity::ok);
 
   // backwards going eventId on same accessor does not change VersionNumber. Data validity stays ok
   acc1.read();
   BOOST_CHECK_MESSAGE(acc1.getVersionNumber() == ver2,
       static_cast<std::string>(acc1.getVersionNumber()) + " should be equal to " + static_cast<std::string>(ver2));
-  BOOST_CHECK(acc1.dataValidity() == DataValidity::ok);
+  BOOST_TEST(acc1.dataValidity() == DataValidity::ok);
 
   //++++++++++++++++++++++++++++++++++++++++++++++
   // Check eventID 0 mixed with regular updates
@@ -1693,8 +1693,8 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
   acc1_id.read();
   auto acc1VersionForId0 = acc1.getVersionNumber();
   auto acc1_idVersionForId0 = acc1_id.getVersionNumber();
-  BOOST_CHECK(acc1.getVersionNumber() > lastRegularAcc1Version);
-  BOOST_CHECK(acc1_id.getVersionNumber() > lastRegularAcc1Version);
+  BOOST_TEST(acc1.getVersionNumber() > lastRegularAcc1Version);
+  BOOST_TEST(acc1_id.getVersionNumber() > lastRegularAcc1Version);
   BOOST_CHECK_EQUAL(acc1_id, 0);
 
   // Now send the same eventID again as we had it before the 0 (a new version has already been tested in the start
@@ -1728,7 +1728,7 @@ BOOST_AUTO_TEST_CASE(testEventIdMapping) {
 
   acc1.read();
   acc1_id.read();
-  BOOST_CHECK(acc1.getVersionNumber() > acc1VersionForId0);
+  BOOST_TEST(acc1.getVersionNumber() > acc1VersionForId0);
 
   BOOST_CHECK_MESSAGE(acc1.getVersionNumber() == acc1_id.getVersionNumber(),
       static_cast<std::string>(acc1.getVersionNumber()) + " should be equal to " +
