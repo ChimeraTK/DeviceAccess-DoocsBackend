@@ -1,9 +1,5 @@
-/*
- * testDoocsBackend.cpp
- *
- *  Created on: Apr 27, 2016
- *      Author: Martin Hierholzer
- */
+
+#include "eq_dummy.h"
 
 #include <random>
 #include <thread>
@@ -30,7 +26,7 @@ class DoocsLauncher : public ThreadedDoocsServer {
  public:
   DoocsLauncher()
   : ThreadedDoocsServer("testZeroMQ.conf", boost::unit_test::framework::master_test_suite().argc,
-        boost::unit_test::framework::master_test_suite().argv) {
+        boost::unit_test::framework::master_test_suite().argv, eq_dummy::createServer()) {
     // set CDDs for the two doocs addresses used in the test
     DoocsServer1 = "(doocs:doocs://localhost:" + rpcNo() + "/F/D)";
     DoocsServer2 = "(doocs:doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY)";

@@ -37,7 +37,7 @@ class DoocsLauncher : public ThreadedDoocsServer {
  public:
   DoocsLauncher()
   : ThreadedDoocsServer("testUnifiedBackendTest.conf", boost::unit_test::framework::master_test_suite().argc,
-        boost::unit_test::framework::master_test_suite().argv) {
+        boost::unit_test::framework::master_test_suite().argv, eq_dummy::createServer()) {
     // set CDDs for the two doocs addresses used in the test
     rpc_no = rpcNo();
     DoocsServer = "doocs:doocs://localhost:" + rpcNo() + "/F/D";

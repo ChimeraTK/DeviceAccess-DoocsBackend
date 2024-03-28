@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.16)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 set(${PROJECT_NAME}_MAJOR_VERSION 01)
-set(${PROJECT_NAME}_MINOR_VERSION 08)
-set(${PROJECT_NAME}_PATCH_VERSION 01)
+set(${PROJECT_NAME}_MINOR_VERSION 09)
+set(${PROJECT_NAME}_PATCH_VERSION 00)
 include(cmake/set_version_numbers.cmake)
 
 include(cmake/set_default_build_to_release.cmake)
@@ -15,8 +15,8 @@ include(cmake/enable_code_coverage_report.cmake)
 FIND_PACKAGE(ChimeraTK-DeviceAccess 03.14 REQUIRED)
 
 # we need the zmq client which is part of server component
-FIND_PACKAGE(DOOCS 23.06 REQUIRED COMPONENTS server)
-FIND_PACKAGE(doocs-server-test-helper 01.06 REQUIRED)
+FIND_PACKAGE(DOOCS 24.03 REQUIRED COMPONENTS server)
+FIND_PACKAGE(doocs-server-test-helper 01.07 REQUIRED)
 FIND_PACKAGE(Boost REQUIRED COMPONENTS thread system filesystem unit_test_framework)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -56,7 +56,7 @@ if(BUILD_TESTS)
     get_filename_component(excutableName ${testExecutableSrcFile} NAME_WE)
 
     # each test includes a DOOCS server
-    add_executable(${excutableName} ${testExecutableSrcFile} ${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer/doocsDummy_rpc_server.cc ${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer/eq_dummy.cc)
+    add_executable(${excutableName} ${testExecutableSrcFile} ${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer/eq_dummy.cc)
     target_include_directories(${excutableName} PRIVATE "${CMAKE_SOURCE_DIR}/tests/DoocsDummyServer")
     target_link_libraries(${excutableName}
       PRIVATE ChimeraTK::doocs-server-test-helper ChimeraTK::ChimeraTK-DeviceAccess DOOCS::server ${PROJECT_NAME})
