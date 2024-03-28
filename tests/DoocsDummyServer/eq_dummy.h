@@ -1,12 +1,12 @@
-#ifndef EQ_INFO_H
-#define EQ_INFO_H
+#pragma once
 
 #include <d_fct.h>
+#include <doocs/Server.h>
 #include <eq_fct.h>
 
 class eq_dummy : public EqFct {
  public:
-  eq_dummy();
+  eq_dummy(const EqFctParameters& p);
   virtual ~eq_dummy();
 
   D_int prop_someInt;
@@ -38,9 +38,11 @@ class eq_dummy : public EqFct {
   void post_init();
   void update();
 
-  int fct_code() { return fctCode; }
+  static constexpr int code = 10;
 
-  static constexpr int fctCode = 10;
+  static std::unique_ptr<doocs::Server> createServer() {
+    auto server = std::make_unique<doocs::Server>("Dummy DOOCS server");
+    server->register_location_class<eq_dummy>();
+    return server;
+  }
 };
-
-#endif /* EQ_INFO_H */

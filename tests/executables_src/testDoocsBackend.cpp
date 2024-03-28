@@ -38,7 +38,7 @@ class DoocsLauncher : public ThreadedDoocsServer {
  public:
   DoocsLauncher()
   : ThreadedDoocsServer("testDoocsBackend.conf", boost::unit_test::framework::master_test_suite().argc,
-        boost::unit_test::framework::master_test_suite().argv) {
+        boost::unit_test::framework::master_test_suite().argv, eq_dummy::createServer()) {
     rpc_no = rpcNo();
 
     // use different cache files for each run to avoid conflicts (RPC numbers are protected by lock)

@@ -3,8 +3,8 @@
 #include <iostream>
 #include <unistd.h>
 
-eq_dummy::eq_dummy()
-: EqFct("NAME = location"), prop_someInt("SOME_INT Some integer property", this),
+eq_dummy::eq_dummy(const EqFctParameters& p)
+: EqFct(p), prop_someInt("SOME_INT Some integer property", this),
   prop_someReadonlyInt("SOME_RO_INT Some read-only integer property", this), prop_someFloat("SOME_FLOAT", this),
   prop_someDouble("SOME_DOUBLE", this), prop_someString("SOME_STRING", this), prop_someStatus("SOME_STATUS", this),
   prop_someBit("SOME_BIT", 0, &prop_someStatus.stat_, this), prop_someIntArray("SOME_INT_ARRAY", 42, this),
