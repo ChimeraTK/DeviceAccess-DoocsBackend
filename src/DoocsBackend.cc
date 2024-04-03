@@ -10,12 +10,10 @@
 #include "CatalogueCache.h"
 #include "CatalogueFetcher.h"
 #include "DoocsBackendEventIdAccessor.h"
-#include "DoocsBackendFloatRegisterAccessor.h"
 #include "DoocsBackendIFFFRegisterAccessor.h"
 #include "DoocsBackendIIIIRegisterAccessor.h"
 #include "DoocsBackendImageRegisterAccessor.h"
-#include "DoocsBackendIntRegisterAccessor.h"
-#include "DoocsBackendLongRegisterAccessor.h"
+#include "DoocsBackendNumericRegisterAccessor.h"
 #include "DoocsBackendStringRegisterAccessor.h"
 #include "DoocsBackendTimeStampAccessor.h"
 #include "RegisterInfo.h"
@@ -317,51 +315,74 @@ namespace ChimeraTK {
       extraLevelUsed = true;
       p.reset(new DoocsBackendTimeStampRegisterAccessor<UserType>(sharedThis, path, registerPathName, flags));
     }
-    else if(doocsTypeId == DATA_INT || doocsTypeId == DATA_A_INT || doocsTypeId == DATA_BOOL ||
-        doocsTypeId == DATA_A_BOOL || doocsTypeId == DATA_A_SHORT) {
-      p.reset(new DoocsBackendIntRegisterAccessor<UserType>(
-          sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags));
-    }
-    else if(doocsTypeId == DATA_A_LONG) {
-      p.reset(new DoocsBackendLongRegisterAccessor<UserType>(
-          sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags));
-    }
-    else if(doocsTypeId == DATA_FLOAT || doocsTypeId == DATA_A_FLOAT || doocsTypeId == DATA_DOUBLE ||
-        doocsTypeId == DATA_A_DOUBLE || doocsTypeId == DATA_SPECTRUM) {
-      p.reset(new DoocsBackendFloatRegisterAccessor<UserType>(
-          sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags));
-    }
-    else if(doocsTypeId == DATA_TEXT || doocsTypeId == DATA_STRING) {
-      p.reset(new DoocsBackendStringRegisterAccessor<UserType>(
-          sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags));
-    }
-    else if(doocsTypeId == DATA_IIII) {
-      p.reset(new DoocsBackendIIIIRegisterAccessor<UserType>(
-          sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags));
-    }
-    else if(doocsTypeId == DATA_IFFF) {
-      extraLevelUsed = true;
-      p.reset(new DoocsBackendIFFFRegisterAccessor<UserType>(
-          sharedThis, path, field, registerPathName, numberOfWords, wordOffsetInRegister, flags));
-    }
-    else if(doocsTypeId == DATA_IMAGE) {
-      auto accImpl = new DoocsBackendImageRegisterAccessor(
-          sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags);
-      if constexpr(std::is_same_v<UserType, std::uint8_t>) {
-        p.reset(accImpl);
-      }
-      else {
-        boost::shared_ptr<NDRegisterAccessor<std::uint8_t>> pImpl(accImpl);
-        // any UserType can hold uint8
-        boost::shared_ptr<NDRegisterAccessor<UserType>> accDecorated(
-            new TypeChangingRangeCheckingDecorator<UserType, std::uint8_t>(
-                boost::dynamic_pointer_cast<ChimeraTK::NDRegisterAccessor<std::uint8_t>>(pImpl)));
-        p = accDecorated;
-      }
-    }
     else {
-      throw ChimeraTK::logic_error("Unsupported DOOCS data type " + std::string(EqData().type_string(doocsTypeId)) +
-          " of property '" + _serverAddress + registerPathName + "'");
+      switch(doocsTypeId) {
+        case DATA_BOOL:
+        case DATA_A_BOOL:
+        case DATA_SHORT:
+        case DATA_A_SHORT:
+        case DATA_USHORT:
+        case DATA_A_USHORT:
+        case DATA_INT:
+        case DATA_A_INT:
+        case DATA_UINT:
+        case DATA_A_UINT:
+        case DATA_LONG:
+        case DATA_A_LONG:
+        case DATA_ULONG:
+        case DATA_A_ULONG:
+        case DATA_FLOAT:
+        case DATA_SPECTRUM:
+        case DATA_GSPECTRUM:
+        case DATA_A_FLOAT:
+        case DATA_DOUBLE:
+        case DATA_A_DOUBLE:
+          p.reset(new DoocsBackendNumericRegisterAccessor<UserType>(
+              sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags));
+          break;
+
+        case DATA_IIII:
+          p.reset(new DoocsBackendIIIIRegisterAccessor<UserType>(
+              sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags));
+          break;
+
+        case DATA_IFFF:
+          if(!hasExtraLevel) {
+            throw ChimeraTK::logic_error("DOOCS property of IFFF type '" + _serverAddress + registerPathName +
+                "' cannot be accessed as a whole.");
+          }
+          extraLevelUsed = true;
+          p.reset(new DoocsBackendIFFFRegisterAccessor<UserType>(
+              sharedThis, path, field, registerPathName, numberOfWords, wordOffsetInRegister, flags));
+          break;
+
+        case DATA_TEXT:
+        case DATA_STRING:
+          p.reset(new DoocsBackendStringRegisterAccessor<UserType>(
+              sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags));
+          break;
+
+        case DATA_IMAGE: {
+          auto accImpl = new DoocsBackendImageRegisterAccessor(
+              sharedThis, path, registerPathName, numberOfWords, wordOffsetInRegister, flags);
+          if constexpr(std::is_same_v<UserType, std::uint8_t>) {
+            p.reset(accImpl);
+          }
+          else {
+            boost::shared_ptr<NDRegisterAccessor<std::uint8_t>> pImpl(accImpl);
+            // any UserType can hold uint8
+            boost::shared_ptr<NDRegisterAccessor<UserType>> accDecorated(
+                new TypeChangingRangeCheckingDecorator<UserType, std::uint8_t>(
+                    boost::dynamic_pointer_cast<ChimeraTK::NDRegisterAccessor<std::uint8_t>>(pImpl)));
+            p = accDecorated;
+          }
+          break;
+        }
+
+        default:
+          throw ChimeraTK::logic_error("Unsupported DOOCS data type " + std::string(EqData().type_string(doocsTypeId)) +
+              " of property '" + _serverAddress + registerPathName + "'");
+      }
     }
 
     // if the field name has been specified but the data type does not use it, throw an exception
@@ -376,8 +397,8 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   bool DoocsBackend::isCommunicationError(int doocs_error) {
-    // logic_error-like errors are caught at a different place. If such error appears later, a runtime_error need to be
-    // generated (device does not behave as expected, as it is not expected to change)
+    // logic_error-like errors are caught at a different place. If such error appears later, a runtime_error need to
+    // be generated (device does not behave as expected, as it is not expected to change)
     switch(doocs_error) {
       case eq_errors::unsup_domain:
       case eq_errors::no_ens_entry:
