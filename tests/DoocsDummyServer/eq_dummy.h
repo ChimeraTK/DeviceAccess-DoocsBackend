@@ -40,6 +40,8 @@ class eq_dummy : public EqFct {
 
   static constexpr int code = 10;
 
+  int fct_code() override { return code; }
+
   static std::unique_ptr<doocs::Server> createServer() {
     auto server = std::make_unique<doocs::Server>("Dummy DOOCS server");
     server->register_location_class<eq_dummy>();
