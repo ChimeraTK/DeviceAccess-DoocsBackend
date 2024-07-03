@@ -34,7 +34,7 @@ namespace ChimeraTK {
     EqCall eq;
 
     /// DOOCS data structures
-    EqData src, dst;
+    doocs::EqData src, dst;
 
     /// flag if the DOOCS data type is an array or not
     bool isArray{false};
@@ -56,7 +56,7 @@ namespace ChimeraTK {
     bool isActiveZMQ{false};
 
     /// future_queue used to notify the TransferFuture about completed transfers
-    cppext::future_queue<EqData> notifications;
+    cppext::future_queue<doocs::EqData> notifications;
 
     /// Flag whether shutdown() has been called or not
     bool shutdownCalled{false};
@@ -192,7 +192,7 @@ namespace ChimeraTK {
     DoocsBackendRegisterAccessor(boost::shared_ptr<DoocsBackend> backend, const std::string& path,
         const std::string& registerPathName, size_t numberOfWords, size_t wordOffsetInRegister, AccessModeFlags flags);
 
-    /// internal write from EqData src
+    /// internal write from doocs::EqData src
     void write_internal();
 
     /**
@@ -222,7 +222,7 @@ namespace ChimeraTK {
     // from catalogue (-> cache)
     int rc = 1;
     if(_backend->isOpen()) {
-      EqData tmp;
+      doocs::EqData tmp;
       rc = eq.get(&ea, &tmp, &dst);
     }
     if(rc) {
@@ -283,7 +283,7 @@ namespace ChimeraTK {
     NDRegisterAccessor<UserType>::buffer_2D.resize(1);
     NDRegisterAccessor<UserType>::buffer_2D[0].resize(nElements);
 
-    // set proper type information in the source EqData
+    // set proper type information in the source doocs::EqData
     src.set_type(typeId);
     if(typeId == DATA_IMAGE) {
       // DOOCS data structure has its own image header format and length() is only used for body length
@@ -331,8 +331,8 @@ namespace ChimeraTK {
         useZMQ = true;
 
         // Create notification queue.
-        notifications = cppext::future_queue<EqData>(3);
-        _readQueue = notifications.then<void>([this](EqData& data) { this->dst = data; }, std::launch::deferred);
+        notifications = cppext::future_queue<doocs::EqData>(3);
+        _readQueue = notifications.then<void>([this](doocs::EqData& data) { this->dst = data; }, std::launch::deferred);
       }
 
       initialise(info);
@@ -363,7 +363,7 @@ namespace ChimeraTK {
     boost::this_thread::interruption_point();
 
     // read data
-    EqData tmp;
+    doocs::EqData tmp;
     int rc = eq.get(&ea, &tmp, &dst);
 
     // check error

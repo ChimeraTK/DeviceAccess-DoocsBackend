@@ -27,7 +27,7 @@ void CatalogueFetcher::fillCatalogue(std::string fixedComponents, long level) {
   // obtain list of elements within the given partial address
   EqAdr ea;
   EqCall eq;
-  EqData src, propList;
+  doocs::EqData src, propList;
   ea.adr(fixedComponents + "/*");
   int rc = eq.names(&ea, &propList);
   if(rc) {
@@ -63,7 +63,7 @@ void CatalogueFetcher::fillCatalogue(std::string fixedComponents, long level) {
       // read property once to determine its length and data type
       ///@todo Is there a more efficient way to do this?
       std::string fqn = fixedComponents + "/" + name;
-      EqData dst;
+      doocs::EqData dst;
       ea.adr(fqn); // strip leading slash
       rc = eq.get(&ea, &src, &dst);
       if((rc && ChimeraTK::DoocsBackend::isCommunicationError(dst.error())) || dst.error() == eq_errors::device_error) {
@@ -113,8 +113,8 @@ bool CatalogueFetcher::checkZmqAvailability(const std::string& fullQualifiedName
   char* sp;
   time_t tm;
   EqAdr ea;
-  EqData dat;
-  EqData dst;
+  doocs::EqData dat;
+  doocs::EqData dst;
   EqCall eq;
   int portp;
 

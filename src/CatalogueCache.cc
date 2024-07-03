@@ -232,7 +232,7 @@ namespace Cache {
     auto typeId = registerTag->add_child("doocs_type_id");
     typeId->set_child_text(std::to_string(r.doocsTypeId));
 
-    std::string comment_text = std::string("doocs id: ") + EqData().type_string(r.doocsTypeId);
+    std::string comment_text = std::string("doocs id: ") + doocs::EqData().type_string(r.doocsTypeId);
     registerTag->add_child_comment(comment_text);
   }
 
