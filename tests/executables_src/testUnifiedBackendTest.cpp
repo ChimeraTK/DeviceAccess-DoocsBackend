@@ -45,7 +45,7 @@ class DoocsLauncher : public ThreadedDoocsServer {
     // wait until server has started (both the update thread and the rpc thread)
     EqCall eq;
     EqAdr ea;
-    EqData src, dst;
+    doocs::EqData src, dst;
     ea.adr("doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY/SOME_ZMQINT");
     while(eq.get(&ea, &src, &dst)) usleep(100000);
 
@@ -55,7 +55,7 @@ class DoocsLauncher : public ThreadedDoocsServer {
     std::cout << "ZeroMQ Subscribe" << std::endl;
     [[maybe_unused]] int err = dmsg_attach(
         &ea, &dst, nullptr,
-        [](void*, EqData* data, dmsg_info_t*) {
+        [](void*, doocs::EqData* data, dmsg_info_t*) {
           if(!data->error()) zmqStartup_gotData = true;
         },
         &tag);

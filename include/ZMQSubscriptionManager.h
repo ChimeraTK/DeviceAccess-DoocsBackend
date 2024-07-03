@@ -115,7 +115,7 @@ namespace ChimeraTK {
       /// This is a static function so we can pass a plain pointer to the DOOCS
       /// client. The first argument will contain the pointer to the object (will be
       /// statically casted into DoocsBackendRegisterAccessor<UserType>*).
-      static void zmq_callback(void* self, EqData* data, dmsg_info_t* info);
+      static void zmq_callback(void* self, doocs::EqData* data, dmsg_info_t* info);
     };
 
   } // namespace DoocsBackendNamespace

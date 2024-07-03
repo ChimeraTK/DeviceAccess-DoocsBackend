@@ -55,7 +55,7 @@ namespace ChimeraTK {
     DoocsBackendRegisterAccessor<UserType>::doPostRead(type, hasNewData);
     if(!hasNewData) return;
 
-    EqData d = DoocsBackendRegisterAccessor<UserType>::dst;
+    doocs::EqData d = DoocsBackendRegisterAccessor<UserType>::dst;
     auto id = d.get_event_id();
 
     UserType val = numericToUserType<UserType>(id.to_int());

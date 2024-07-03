@@ -171,7 +171,7 @@ namespace ChimeraTK {
       EqAdr ea;
       ea.adr(lastFailedAddress);
       EqCall eq;
-      EqData src, dst;
+      doocs::EqData src, dst;
       int rc = eq.get(&ea, &src, &dst);
       // if again error received, throw exception
       if(rc && isCommunicationError(dst.error())) {
@@ -282,7 +282,7 @@ namespace ChimeraTK {
     if(isOpen()) {
       EqAdr ea;
       EqCall eq;
-      EqData src, dst;
+      doocs::EqData src, dst;
       ea.adr(path);
       int rc = eq.get(&ea, &src, &dst);
       if(rc) {
@@ -380,7 +380,7 @@ namespace ChimeraTK {
         }
 
         default:
-          throw ChimeraTK::logic_error("Unsupported DOOCS data type " + std::string(EqData().type_string(doocsTypeId)) +
+          throw ChimeraTK::logic_error("Unsupported DOOCS data type " + std::string(doocs::EqData().type_string(doocsTypeId)) +
               " of property '" + _serverAddress + registerPathName + "'");
       }
     }
@@ -388,7 +388,7 @@ namespace ChimeraTK {
     // if the field name has been specified but the data type does not use it, throw an exception
     if(hasExtraLevel && !extraLevelUsed) {
       throw ChimeraTK::logic_error("Specifiaction of field name is not supported for the DOOCS data type " +
-          std::string(EqData().type_string(doocsTypeId)) + ": " + _serverAddress + registerPathName);
+          std::string(doocs::EqData().type_string(doocsTypeId)) + ": " + _serverAddress + registerPathName);
     }
 
     p->setExceptionBackend(shared_from_this());

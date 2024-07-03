@@ -27,16 +27,16 @@ namespace ChimeraTK {
 
     void doPreWrite(TransferType type, VersionNumber) override;
 
-    // simple helper function to call the correct EqData::get_...() function to fetch data from dst
+    // simple helper function to call the correct doocs::EqData::get_...() function to fetch data from dst
     template<typename T>
     T dataGet(int index);
 
-    // Helper function to call a callable for a C++ numeric type corresponding to the type in the EqData object.
+    // Helper function to call a callable for a C++ numeric type corresponding to the type in the doocs::EqData object.
     // Calling this function for an unsupported data type will throw a runtime error.
     // Note: This function does not support IFFF, since the data type depends on the index there. Calling this
     // function with an IFFF raises an assertion.
     template<typename CALLABLE>
-    void callForDoocsType(const EqData& data, CALLABLE callable);
+    void callForDoocsType(const doocs::EqData& data, CALLABLE callable);
 
     friend class DoocsBackend;
   };
@@ -76,7 +76,7 @@ namespace ChimeraTK {
 
   template<typename UserType>
   template<typename CALLABLE>
-  void DoocsBackendNumericRegisterAccessor<UserType>::callForDoocsType(const EqData& data, CALLABLE callable) {
+  void DoocsBackendNumericRegisterAccessor<UserType>::callForDoocsType(const doocs::EqData& data, CALLABLE callable) {
     switch(data.type()) {
       case DATA_BOOL:
       case DATA_A_BOOL:
