@@ -2,7 +2,7 @@
 
 #include "RegisterInfo.h"
 #include "StringUtility.h"
-#include <eq_data.h>
+#include <doocs/EqCall.h>
 #include <eq_types.h>
 #include <libxml++/libxml++.h>
 

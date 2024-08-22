@@ -4,7 +4,7 @@
 #include "DoocsBackend.h"
 #include "RegisterInfo.h"
 #include "StringUtility.h"
-#include <eq_client.h>
+#include <doocs/EqCall.h>
 
 const std::vector<std::string> IGNORE_PATTERNS = {".HIST", ".FILT", "._FILT", ".EGU", ".DESC", ".HSTAT", "._HSTAT",
     "._HIST", ".LIST", ".SAVE", ".COMMENT", ".XEGU", ".POLYPARA", "MESSAGE.TICKER"};
@@ -25,8 +25,8 @@ std::pair<DoocsBackendRegisterCatalogue, bool> CatalogueFetcher::fetch() {
 
 void CatalogueFetcher::fillCatalogue(std::string fixedComponents, long level) {
   // obtain list of elements within the given partial address
-  EqAdr ea;
-  EqCall eq;
+  doocs::EqAdr ea;
+  doocs::EqCall eq;
   doocs::EqData src, propList;
   ea.adr(fixedComponents + "/*");
   int rc = eq.names(&ea, &propList);
@@ -112,10 +112,10 @@ bool CatalogueFetcher::checkZmqAvailability(const std::string& fullQualifiedName
   float f2;
   char* sp;
   time_t tm;
-  EqAdr ea;
+  doocs::EqAdr ea;
   doocs::EqData dat;
   doocs::EqData dst;
-  EqCall eq;
+  doocs::EqCall eq;
   int portp;
 
   ea.adr(fullLocationPath + "/SPN");

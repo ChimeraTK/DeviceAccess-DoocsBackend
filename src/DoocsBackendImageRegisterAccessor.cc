@@ -3,7 +3,7 @@
 
 #include "DoocsBackendImageRegisterAccessor.h"
 
-#include <eq_client.h>
+#include <doocs/EqData.h>
 #include <type_traits>
 
 #include <ChimeraTK/MappedImage.h>

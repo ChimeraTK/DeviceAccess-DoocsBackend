@@ -9,7 +9,7 @@
 #include "eq_dummy.h"
 #include <doocs-server-test-helper/doocsServerTestHelper.h>
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
-#include <eq_client.h>
+#include <doocs/EqCall.h>
 
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/MappedImage.h>
@@ -53,8 +53,8 @@ class DoocsLauncher : public ThreadedDoocsServer {
         "(doocs:doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY?cacheFile=" + cacheFile2 + "&updateCache=1)";
 
     // wait until server has started (both the update thread and the rpc thread)
-    EqCall eq;
-    EqAdr ea;
+    doocs::EqCall eq;
+    doocs::EqAdr ea;
     doocs::EqData src, dst;
     ea.adr("doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY/SOME_ZMQINT");
     while(eq.get(&ea, &src, &dst)) usleep(100000);

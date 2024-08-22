@@ -73,7 +73,7 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
       const std::string& path, const std::list<DoocsBackendRegisterAccessorBase*>& accessors) {
     // Poll initial value vie RPC
     doocs::EqData src, dst;
-    EqAdr adr;
+    doocs::EqAdr adr;
     EqCall eq;
     adr.adr(path);
     auto rc = eq.get(&adr, &src, &dst);
@@ -138,7 +138,7 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
 
     // subscribe to property
     doocs::EqData dst;
-    EqAdr ea;
+    doocs::EqAdr ea;
     ea.adr(path);
     dmsg_t tag;
     int err = dmsg_attach(&ea, &dst, (void*)&(subscriptionMap[path]), &zmq_callback, &tag);
@@ -178,7 +178,7 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
     }
 
     // remove ZMQ subscription. This will also join the ZMQ subscription thread
-    EqAdr ea;
+    doocs::EqAdr ea;
     ea.adr(path);
     dmsg_detach(&ea, nullptr); // nullptr = remove all subscriptions for that address
   }

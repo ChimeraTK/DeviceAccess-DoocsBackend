@@ -3,7 +3,7 @@
 #pragma once
 
 #include "DoocsBackendRegisterAccessor.h"
-#include <eq_client.h>
+#include <doocs/EqCall.h>
 #include <type_traits>
 
 #include <ChimeraTK/SupportedUserTypes.h>

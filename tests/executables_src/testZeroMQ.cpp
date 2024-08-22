@@ -13,7 +13,7 @@
 #include <boost/test/included/unit_test.hpp>
 // For CHECK_TIMEOUT
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
-#include <eq_client.h>
+#include <doocs/EqCall.h>
 
 #include <ChimeraTK/UnifiedBackendTest.h>
 
@@ -31,8 +31,8 @@ class DoocsLauncher : public ThreadedDoocsServer {
     DoocsServer1 = "(doocs:doocs://localhost:" + rpcNo() + "/F/D)";
     DoocsServer2 = "(doocs:doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY)";
     // wait until server has started (both the update thread and the rpc thread)
-    EqCall eq;
-    EqAdr ea;
+    doocs::EqCall eq;
+    doocs::EqAdr ea;
     doocs::EqData src, dst;
     ea.adr("doocs://localhost:" + rpcNo() + "/F/D/MYDUMMY/SOME_ZMQINT");
     while(eq.get(&ea, &src, &dst)) usleep(100000);
