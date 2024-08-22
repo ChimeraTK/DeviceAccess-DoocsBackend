@@ -9,7 +9,7 @@
 #define MTCA4U_DOOCS_BACKEND_STRING_REGISTER_ACCESSOR_H
 
 #include "DoocsBackendRegisterAccessor.h"
-#include <eq_client.h>
+#include <doocs/EqCall.h>
 #include <type_traits>
 
 namespace ChimeraTK {

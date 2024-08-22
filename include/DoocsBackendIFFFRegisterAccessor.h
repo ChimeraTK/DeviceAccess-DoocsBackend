@@ -9,7 +9,7 @@
 #define CHIMERATK_DOOCS_BACKEND_IFFF_REGISTER_ACCESSOR_H
 
 #include "DoocsBackendRegisterAccessor.h"
-#include <eq_client.h>
+#include <doocs/EqCall.h>
 #include <type_traits>
 
 namespace ChimeraTK {

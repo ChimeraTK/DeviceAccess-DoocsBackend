@@ -4,7 +4,7 @@
 #pragma once
 
 #include "DoocsBackendRegisterAccessor.h"
-#include <eq_client.h>
+#include <doocs/EqCall.h>
 
 #include <ChimeraTK/MappedImage.h>
 

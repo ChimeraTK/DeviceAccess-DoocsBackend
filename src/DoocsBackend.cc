@@ -168,7 +168,7 @@ namespace ChimeraTK {
     std::unique_lock<std::mutex> lk(_mxRecovery);
     if(lastFailedAddress != "") {
       // open() is called after a runtime_error: check if device is recovered.
-      EqAdr ea;
+      doocs::EqAdr ea;
       ea.adr(lastFailedAddress);
       EqCall eq;
       doocs::EqData src, dst;
@@ -280,7 +280,7 @@ namespace ChimeraTK {
     // if backend is open, read property once to obtain type
     int doocsTypeId = DATA_NULL;
     if(isOpen()) {
-      EqAdr ea;
+      doocs::EqAdr ea;
       EqCall eq;
       doocs::EqData src, dst;
       ea.adr(path);
@@ -380,8 +380,9 @@ namespace ChimeraTK {
         }
 
         default:
-          throw ChimeraTK::logic_error("Unsupported DOOCS data type " + std::string(doocs::EqData().type_string(doocsTypeId)) +
-              " of property '" + _serverAddress + registerPathName + "'");
+          throw ChimeraTK::logic_error("Unsupported DOOCS data type " +
+              std::string(doocs::EqData().type_string(doocsTypeId)) + " of property '" + _serverAddress +
+              registerPathName + "'");
       }
     }
 

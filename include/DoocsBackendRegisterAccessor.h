@@ -4,7 +4,7 @@
 #include "EventIdMapper.h"
 #include "RegisterInfo.h"
 #include "ZMQSubscriptionManager.h"
-#include <eq_client.h>
+#include <doocs/EqCall.h>
 #include <eq_errors.h>
 #include <eq_fct.h>
 #include <type_traits>
@@ -28,10 +28,10 @@ namespace ChimeraTK {
     std::string _path;
 
     /// DOOCS address structure
-    EqAdr ea;
+    doocs::EqAdr ea;
 
     /// DOOCS rpc call object
-    EqCall eq;
+    doocs::EqCall eq;
 
     /// DOOCS data structures
     doocs::EqData src, dst;
