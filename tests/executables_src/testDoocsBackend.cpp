@@ -1222,8 +1222,11 @@ BOOST_AUTO_TEST_CASE(testDestruction) {
   server->lock();
   {
     auto d = ChimeraTK::Device(DoocsLauncher::DoocsServer2_cached);
-    (void)std::async(std::launch::async, [=]() { server->unlock(); });
-  } // should not block here on instance destruction.
+    d.open();
+    usleep(10000); // give it a chance to start filling the catalogue
+    // should not block here on instance destruction.
+  }
+  server->unlock();
 }
 
 /**********************************************************************************************************************/
