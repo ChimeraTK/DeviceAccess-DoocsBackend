@@ -1,5 +1,5 @@
-PROJECT(ChimeraTK-DeviceAccess-DoocsBackend)
 cmake_minimum_required(VERSION 3.16)
+PROJECT(ChimeraTK-DeviceAccess-DoocsBackend)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 

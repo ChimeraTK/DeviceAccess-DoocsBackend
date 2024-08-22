@@ -20,10 +20,6 @@ class DoocsBackendRegisterCatalogue : public ChimeraTK::BackendRegisterCatalogue
 
 class DoocsBackendRegisterInfo : public ChimeraTK::BackendRegisterInfoBase {
  public:
-  DoocsBackendRegisterInfo() = default;
-
-  DoocsBackendRegisterInfo(const DoocsBackendRegisterInfo& other) = default;
-
   ChimeraTK::RegisterPath getRegisterName() const override { return _name; }
 
   unsigned int getNumberOfElements() const override { return _length; }
