@@ -59,9 +59,13 @@ BOOST_AUTO_TEST_CASE(testZeroMQ) {
 
   BOOST_CHECK(acc.readNonBlocking() == false);
 
-  // send updates until the ZMQ interface is initialised (this is done in the
-  // background unfortunately)
-  while(acc.readNonBlocking() == false) {
+  // Send updates until the ZMQ interface is initialised (this is done in the background unfortunately).
+  // For some reason, only one single successful update does not necessarily mean the connection is working
+  // reliably already, so we make sure that we got 10 successful updates (note that ic is incremented and
+  // checked only if readNonBlocking() was successful). Without this trick, the test is failing almost always
+  // when compiling with TSAN.
+  size_t ic = 0;
+  while(!acc.readNonBlocking() || ++ic < 10) {
     DoocsServerTestHelper::runUpdate();
   }
   // empty the queue
