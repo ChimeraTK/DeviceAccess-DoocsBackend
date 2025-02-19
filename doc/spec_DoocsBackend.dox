@@ -8,7 +8,7 @@ namespace ChimeraTK {
 ## A. Introduction ##
 
 
-This documnent is currently still **INCOMPLETE**!
+This document is currently still **INCOMPLETE**!
 
 ## B. Behavioural specification ##
 
@@ -49,8 +49,8 @@ This documnent is currently still **INCOMPLETE**!
     - 1.3.4 If both the new EventID and the new VersionNumer are >= the previous one
       - 1.3.4.1 _eventID and _versionNumber are updated
       - 1.3.4.2 the _dataValidity is set to the incoming data validity from the EqData
-      
-      
+
+
 
 
 ### Comments ###

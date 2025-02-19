@@ -1,23 +1,20 @@
-#ifndef CHIMERATK_DOOCS_BACKEND_REGISTER_ACCESSOR_H
-#define CHIMERATK_DOOCS_BACKEND_REGISTER_ACCESSOR_H
+// SPDX-FileCopyrightText: Deutsches Elektronen-Synchrotron DESY, MSK, ChimeraTK Project <chimeratk-support@desy.de>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+#pragma once
+
 #include "DoocsBackend.h"
-#include "EventIdMapper.h"
 #include "RegisterInfo.h"
 #include "ZMQSubscriptionManager.h"
 #include <doocs/EqCall.h>
 #include <eq_errors.h>
-#include <eq_fct.h>
-#include <type_traits>
 
 #include <ChimeraTK/AccessMode.h>
+#include <ChimeraTK/async/DataConsistencyKey.h>
 #include <ChimeraTK/Exception.h>
 #include <ChimeraTK/FixedPointConverter.h>
 #include <ChimeraTK/MappedImage.h>
 #include <ChimeraTK/NDRegisterAccessor.h>
 #include <ChimeraTK/RegisterPath.h>
-
-#include <mutex>
-#include <queue>
 
 namespace ChimeraTK {
 
@@ -140,7 +137,8 @@ namespace ChimeraTK {
       // we do not hand out the VersionNumber{nullptr} then
       // if(_lastEventId == doocs::EventId() || _lastEventId != dst.get_event_id()) {
       // Get VersionNumber from the EventIdMapper. See spec B.1.3.3.
-      auto newVersionNumber = EventIdMapper::getInstance().getVersionForEventId(dst.get_event_id());
+      auto newVersionNumber =
+          _backend->_dataConsistencyRealm->getVersion(async::DataConsistencyKey(dst.get_event_id().to_int()));
 
       // Minimum version is _backend->_startVersion. See spec. B.1.3.3.1.
       auto startVersion = _backend->getStartVersion();
@@ -396,5 +394,3 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
 } // namespace ChimeraTK
-
-#endif /* CHIMERATK_DOOCS_BACKEND_REGISTER_ACCESSOR_H */

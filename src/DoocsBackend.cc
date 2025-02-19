@@ -20,6 +20,7 @@
 #include "StringUtility.h"
 #include "ZMQSubscriptionManager.h"
 
+#include <ChimeraTK/async/DataConsistencyRealmStore.h>
 #include <ChimeraTK/BackendFactory.h>
 #include <ChimeraTK/DeviceAccessVersion.h>
 #include <ChimeraTK/TypeChangingDecorator.h>
@@ -79,8 +80,8 @@ namespace ChimeraTK {
 
   /********************************************************************************************************************/
 
-  DoocsBackend::DoocsBackend(
-      const std::string& serverAddress, const std::string& cacheFile, const std::string& updateCache)
+  DoocsBackend::DoocsBackend(const std::string& serverAddress, const std::string& cacheFile,
+      const std::string& updateCache, const std::string& dataConsistencyRealmName)
   : _serverAddress(serverAddress), _cacheFile(cacheFile) {
     if(cacheFileExists() && isCachingEnabled()) {
       // provide catalogue immediately from cache
@@ -101,6 +102,8 @@ namespace ChimeraTK {
     // frequent RPC polls on rarely changing ZeroMQ variables (every 10 seconds instead of every 4 minutes), but this
     // is acceptable as it is still slow enough.
     doocs::zmq_set_subscription_timeout(10);
+
+    _dataConsistencyRealm = async::DataConsistencyRealmStore::getInstance().getRealm(dataConsistencyRealmName);
 
     FILL_VIRTUAL_FUNCTION_TEMPLATE_VTABLE(getRegisterAccessor_impl);
   }
@@ -158,8 +161,14 @@ namespace ChimeraTK {
       // empty updateCache string => no cache update
     }
 
+    std::string dataConsistencyRealmName{"doocsEventId"};
+    if(parameters.find("location") != parameters.end()) {
+      dataConsistencyRealmName = parameters.at("location");
+    }
+
     // create and return the backend
-    return boost::shared_ptr<DeviceBackend>(new DoocsBackend(address, cacheFile, updateCache));
+    return boost::shared_ptr<DeviceBackend>(
+        new DoocsBackend(address, cacheFile, updateCache, dataConsistencyRealmName));
   }
 
   /********************************************************************************************************************/
