@@ -9,6 +9,7 @@
 
 #include "RegisterInfo.h"
 
+#include <ChimeraTK/async/DataConsistencyRealm.h>
 #include <ChimeraTK/DeviceBackendImpl.h>
 #include <ChimeraTK/VersionNumber.h>
 
@@ -57,8 +58,8 @@ namespace ChimeraTK {
    public:
     ~DoocsBackend() override;
 
-    DoocsBackend(
-        const std::string& serverAddress, const std::string& cacheFile = {}, const std::string& updateCache = {});
+    DoocsBackend(const std::string& serverAddress, const std::string& cacheFile, const std::string& updateCache,
+        const std::string& dataConsistencyRealmName);
 
     RegisterCatalogue getRegisterCatalogue() const override;
 
@@ -128,6 +129,8 @@ namespace ChimeraTK {
 
     /// contains DOOCS address which triggered runtime_error, when _hasActiveException == true and _opend == true
     std::string lastFailedAddress;
+
+    std::shared_ptr<async::DataConsistencyRealm> _dataConsistencyRealm;
   };
 
 } // namespace ChimeraTK
