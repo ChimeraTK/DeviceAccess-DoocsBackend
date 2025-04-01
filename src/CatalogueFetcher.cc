@@ -4,6 +4,7 @@
 #include "DoocsBackend.h"
 #include "RegisterInfo.h"
 #include "StringUtility.h"
+
 #include <doocs/EqCall.h>
 
 const std::vector<std::string> IGNORE_PATTERNS = {".HIST", ".FILT", "._FILT", ".EGU", ".DESC", ".HSTAT", "._HSTAT",
@@ -16,9 +17,9 @@ std::pair<DoocsBackendRegisterCatalogue, bool> CatalogueFetcher::fetch() {
 
   fillCatalogue(serverAddress_, nSlashes);
 
-  bool isCatalogueComplete = not(isCancelled() || locationLookupError_ || catalogue_.getNumberOfRegisters() == 0);
+  catalogue_._isCatalogueComplete = !isCancelled() && !locationLookupError_ && catalogue_.getNumberOfRegisters() != 0;
 
-  return {std::move(catalogue_), isCatalogueComplete};
+  return {std::move(catalogue_), catalogue_._isCatalogueComplete};
 }
 
 /********************************************************************************************************************/

@@ -86,6 +86,7 @@ namespace ChimeraTK {
     if(cacheFileExists() && isCachingEnabled()) {
       // provide catalogue immediately from cache
       catalogue = Cache::readCatalogue(_cacheFile);
+      _catalogueFromCache = true;
 
       // update cache file in the background
       if(updateCache == "1") {
@@ -193,6 +194,14 @@ namespace ChimeraTK {
     }
     _startVersion = {};
     setOpenedAndClearException();
+
+    // re-trigger catalogue filling? Only done if catalogue is not taken from cache, is not currently begin fetched, and
+    // the catalogue is incomplete.
+    if(!_catalogueFromCache && !_catalogueFuture.valid() && !catalogue.isComplete()) {
+      _cancelFlag = std::promise<void>{};
+      _catalogueFuture =
+          std::async(std::launch::async, fetchCatalogue, _serverAddress, _cacheFile, _cancelFlag.get_future());
+    }
   }
 
   /********************************************************************************************************************/

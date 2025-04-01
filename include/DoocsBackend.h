@@ -117,6 +117,7 @@ namespace ChimeraTK {
     std::promise<void> _cancelFlag{};
     mutable std::future<DoocsBackendRegisterCatalogue> _catalogueFuture;
     mutable DoocsBackendRegisterCatalogue catalogue;
+    bool _catalogueFromCache{false}; // controls whether open() might re-trigger catalogue filling
 
     bool cacheFileExists();
     bool isCachingEnabled() const;
