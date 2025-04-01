@@ -14,6 +14,12 @@ class DoocsBackendRegisterCatalogue : public ChimeraTK::BackendRegisterCatalogue
   // Add all registers for the given property. Registers which exist already in the catalogue (with the same name) are
   // skipped.
   void addProperty(const std::string& name, unsigned int length, int doocsType, ChimeraTK::AccessModeFlags flags);
+
+  [[nodiscard]] bool isComplete() const { return _isCatalogueComplete; }
+
+ private:
+  bool _isCatalogueComplete{false};
+  friend class CatalogueFetcher;
 };
 
 /**********************************************************************************************************************/
