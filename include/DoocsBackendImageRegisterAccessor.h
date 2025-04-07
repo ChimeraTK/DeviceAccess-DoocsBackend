@@ -4,9 +4,10 @@
 #pragma once
 
 #include "DoocsBackendRegisterAccessor.h"
-#include <doocs/EqCall.h>
 
 #include <ChimeraTK/MappedImage.h>
+
+#include <doocs/EqCall.h>
 
 namespace ChimeraTK {
 

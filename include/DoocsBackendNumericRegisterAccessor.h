@@ -3,12 +3,13 @@
 #pragma once
 
 #include "DoocsBackendRegisterAccessor.h"
-#include <doocs/EqCall.h>
-#include <type_traits>
 
 #include <ChimeraTK/SupportedUserTypes.h>
 
+#include <doocs/EqCall.h>
+
 #include <string>
+#include <type_traits>
 
 namespace ChimeraTK {
 

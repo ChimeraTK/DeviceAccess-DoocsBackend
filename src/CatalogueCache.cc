@@ -2,12 +2,14 @@
 
 #include "RegisterInfo.h"
 #include "StringUtility.h"
+
 #include <doocs/EqCall.h>
-#include <eq_types.h>
 #include <libxml++/libxml++.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
+
+#include <eq_types.h>
 
 #include <cerrno>
 #include <cstdlib>

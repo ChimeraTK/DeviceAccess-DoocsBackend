@@ -5,17 +5,17 @@
 #include <thread>
 
 #define BOOST_TEST_MODULE testZeroMQ
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
-
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/TransferGroup.h>
 
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
+
 #include <boost/test/included/unit_test.hpp>
 // For CHECK_TIMEOUT
+#include <ChimeraTK/UnifiedBackendTest.h>
+
 #include <doocs-server-test-helper/ThreadedDoocsServer.h>
 #include <doocs/EqCall.h>
-
-#include <ChimeraTK/UnifiedBackendTest.h>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;

@@ -1,8 +1,8 @@
 #include "RegisterInfo.h"
 
-#include <eq_types.h>
-
 #include <boost/shared_ptr.hpp>
+
+#include <eq_types.h>
 
 /*******************************************************************************************************************/
 

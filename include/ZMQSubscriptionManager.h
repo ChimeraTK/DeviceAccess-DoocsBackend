@@ -1,15 +1,15 @@
 #ifndef CHIMERATK_DOOCS_BACKEND_ZMQSUBSCRIPTIONMANAGER_H
 #define CHIMERATK_DOOCS_BACKEND_ZMQSUBSCRIPTIONMANAGER_H
 
-#include <eq_fct.h>
-
 #include <ChimeraTK/Exception.h>
 
 #include <boost/shared_ptr.hpp>
 
+#include <eq_fct.h>
+#include <pthread.h>
+
 #include <map>
 #include <mutex>
-#include <pthread.h>
 #include <string>
 #include <vector>
 

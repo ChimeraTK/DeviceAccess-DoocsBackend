@@ -1,7 +1,8 @@
 #pragma once
 
-#include <d_fct.h>
 #include <doocs/Server.h>
+
+#include <d_fct.h>
 #include <eq_fct.h>
 
 class eq_dummy : public EqFct {

@@ -3,11 +3,11 @@
 
 #include "DoocsBackendImageRegisterAccessor.h"
 
-#include <doocs/EqData.h>
-#include <type_traits>
-
 #include <ChimeraTK/MappedImage.h>
 
+#include <doocs/EqData.h>
+
+#include <type_traits>
 #include <utility>
 
 namespace ChimeraTK {
