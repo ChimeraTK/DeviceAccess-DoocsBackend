@@ -1,7 +1,8 @@
 #include "eq_dummy.h"
 
-#include <iostream>
 #include <unistd.h>
+
+#include <iostream>
 
 eq_dummy::eq_dummy(const EqFctParameters& p)
 : EqFct(p), prop_someInt("SOME_INT Some integer property", this),

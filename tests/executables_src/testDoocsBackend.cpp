@@ -7,23 +7,25 @@
 #define BOOST_TEST_MODULE testDoocsBackend
 
 #include "eq_dummy.h"
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
-#include <doocs/EqCall.h>
 
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/MappedImage.h>
 #include <ChimeraTK/TransferGroup.h>
 
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+#include <doocs/EqCall.h>
+
 #include <boost/filesystem.hpp>
 #include <boost/test/included/unit_test.hpp>
+
+#include <unistd.h>
 
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <random>
 #include <thread>
-#include <unistd.h>
 
 using namespace boost::unit_test_framework;
 using namespace ChimeraTK;
@@ -1319,7 +1321,9 @@ BOOST_AUTO_TEST_CASE(testCacheXmlReplacementBehaviorOnFailure) {
   auto creation_time = createDummyXml(DoocsLauncher::cacheFile2);
   auto server = find_device("MYDUMMY");
   server->lock();
-  { auto d = ChimeraTK::Device(DoocsLauncher::DoocsServer2_cached); }
+  {
+    auto d = ChimeraTK::Device(DoocsLauncher::DoocsServer2_cached);
+  }
   server->unlock();
   auto modification_time = boost::filesystem::last_write_time(DoocsLauncher::cacheFile2);
   BOOST_TEST(creation_time == modification_time);

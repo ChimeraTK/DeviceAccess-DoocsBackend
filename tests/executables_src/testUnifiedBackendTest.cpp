@@ -5,21 +5,23 @@
  *      Author: Martin Hierholzer
  */
 
+#include <unistd.h>
+
 #include <cstdlib>
 #include <iostream>
 #include <random>
 #include <thread>
-#include <unistd.h>
 
 #define BOOST_TEST_MODULE testUnifiedBackendTest
 #include "eq_dummy.h"
-#include <doocs-server-test-helper/doocsServerTestHelper.h>
-#include <doocs-server-test-helper/ThreadedDoocsServer.h>
-#include <doocs/EqCall.h>
 
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/TransferGroup.h>
 #include <ChimeraTK/UnifiedBackendTest.h>
+
+#include <doocs-server-test-helper/doocsServerTestHelper.h>
+#include <doocs-server-test-helper/ThreadedDoocsServer.h>
+#include <doocs/EqCall.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/test/included/unit_test.hpp>

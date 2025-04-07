@@ -5,8 +5,6 @@
 #include "DoocsBackend.h"
 #include "RegisterInfo.h"
 #include "ZMQSubscriptionManager.h"
-#include <doocs/EqCall.h>
-#include <eq_errors.h>
 
 #include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/async/DataConsistencyKey.h>
@@ -15,6 +13,10 @@
 #include <ChimeraTK/MappedImage.h>
 #include <ChimeraTK/NDRegisterAccessor.h>
 #include <ChimeraTK/RegisterPath.h>
+
+#include <doocs/EqCall.h>
+
+#include <eq_errors.h>
 
 namespace ChimeraTK {
 

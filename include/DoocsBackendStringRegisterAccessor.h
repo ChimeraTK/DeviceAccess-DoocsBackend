@@ -9,7 +9,9 @@
 #define MTCA4U_DOOCS_BACKEND_STRING_REGISTER_ACCESSOR_H
 
 #include "DoocsBackendRegisterAccessor.h"
+
 #include <doocs/EqCall.h>
+
 #include <type_traits>
 
 namespace ChimeraTK {
@@ -88,7 +90,7 @@ namespace ChimeraTK {
       TransferType, bool) { // LCOV_EXCL_LINE (already prevented in constructor)
     throw ChimeraTK::logic_error("Trying to access a string DOOCS property with a non-string user data "
                                  "type."); // LCOV_EXCL_LINE
-  }                                        // LCOV_EXCL_LINE
+  } // LCOV_EXCL_LINE
 
   /**********************************************************************************************************************/
 
@@ -97,7 +99,7 @@ namespace ChimeraTK {
       TransferType, VersionNumber) { // LCOV_EXCL_LINE (already prevented in constructor)
     throw ChimeraTK::logic_error("Trying to access a string DOOCS property with a non-string user data "
                                  "type."); // LCOV_EXCL_LINE
-  }                                        // LCOV_EXCL_LINE
+  } // LCOV_EXCL_LINE
 
 } // namespace ChimeraTK
 
