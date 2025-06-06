@@ -251,10 +251,15 @@ namespace ChimeraTK {
   /********************************************************************************************************************/
 
   void DoocsBackend::activateAsyncRead() noexcept {
-    if(!isFunctional()) { // Spec TransferElement 8.5.4
+    if(!isFunctional()) { // Spec TransferElement 8.5.4.1 and 8.5.4.2 : No effect if closed or has error
       return;
     }
-    _asyncReadActivated = true;
+    auto wasActive = _asyncReadActivated.exchange(
+        true);      // Spec TransferElement 8.5.7 : Thread safe against other activateAsyncRead() calls
+    if(wasActive) { // Spec TransferElement 8.5.4.3 : No effect if already active
+      return;
+    }
+
     DoocsBackendNamespace::ZMQSubscriptionManager::getInstance().activateAllListeners(this);
   }
 
