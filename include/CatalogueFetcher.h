@@ -19,6 +19,9 @@ class CatalogueFetcher {
   std::future<void> cancelFlag_;
   DoocsBackendRegisterCatalogue catalogue_;
   bool locationLookupError_{false};
+  std::string _failedPropertyFirst;
+  std::string _failedPropertyError;
+  size_t _failedPropertyCount{0};
 
   void fillCatalogue(std::string fixedComponents, long level);
   bool isCancelled() const { return (cancelFlag_.wait_for(std::chrono::microseconds(0)) == std::future_status::ready); }

@@ -19,6 +19,13 @@ std::pair<DoocsBackendRegisterCatalogue, bool> CatalogueFetcher::fetch() {
 
   catalogue_._isCatalogueComplete = !isCancelled() && !locationLookupError_ && catalogue_.getNumberOfRegisters() != 0;
 
+  if(!_failedPropertyFirst.empty()) {
+    std::cerr << std::format("DoocsBackend::CatalogueFetcher: Failed to query shape information for {} properties. "
+                             "First failed property '{}' failed with error '{}'.",
+                     _failedPropertyCount, _failedPropertyFirst, _failedPropertyError)
+              << std::endl;
+  }
+
   return {std::move(catalogue_), catalogue_._isCatalogueComplete};
 }
 
@@ -72,12 +79,15 @@ void CatalogueFetcher::fillCatalogue(std::string fixedComponents, long level) {
         // device_error seems to be reported permanently by some x2timer properties, so exclude them, too.
         continue;
       }
-      else if(rc && dst.error()) {
+      if(rc && dst.error()) {
         // If error has been set, the shape information is not correct (because DOOCS seems to store a string instead).
         // Until a better solution has been found, the entire catalogue fetching is marked as errornous to prevent
         // saving it to the cache file.
-        std::cout << "DoocsBackend::CatalogueFetcher: Failed to query shape information for " + fqn
-                  << ": \"" + dst.get_string() + "\" (" + std::to_string(dst.error()) + ")" << std::endl;
+        if(!locationLookupError_) {
+          _failedPropertyFirst = fqn;
+          _failedPropertyError = dst.get_string();
+        }
+        _failedPropertyCount++;
         locationLookupError_ = true;
         continue;
       }
