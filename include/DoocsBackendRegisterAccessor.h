@@ -186,7 +186,11 @@ namespace ChimeraTK {
 
     void replaceTransferElement(boost::shared_ptr<TransferElement> /*newElement*/) override {} // LCOV_EXCL_LINE
 
-    void interrupt() override { this->interrupt_impl(this->notifications); }
+    void interrupt() override {
+      if(this->getAccessModeFlags().has(AccessMode::wait_for_new_data)) {
+        this->interrupt_impl(this->notifications);
+      }
+    }
 
    protected:
     DoocsBackendRegisterAccessor(boost::shared_ptr<DoocsBackend> backend, const std::string& path,
