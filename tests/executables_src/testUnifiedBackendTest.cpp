@@ -304,17 +304,6 @@ std::vector<std::vector<std::string>> RegSomeString::generateValue<std::string>(
   return {{"This is a string: " + std::to_string(someValue)}};
 }
 
-/**********************************************************************************************************************/
-
-struct RegSomeStatus : ScalarDefaults<RegSomeStatus> {
-  std::string path() { return "MYDUMMY/SOME_STATUS"; }
-  D_status& prop{location->prop_someStatus};
-  typedef uint16_t minimumUserType;
-  uint16_t increment{32000};
-};
-
-/**********************************************************************************************************************/
-
 struct RegSomeBit : ScalarDefaults<RegSomeBit> {
   std::string path() { return "MYDUMMY/SOME_BIT"; }
   D_bit& prop{location->prop_someBit};
@@ -554,7 +543,6 @@ BOOST_AUTO_TEST_CASE(unifiedBackendTest) {
                  .addRegister<RegSomeFloat>()
                  .addRegister<RegSomeDouble>()
                  .addRegister<RegSomeString>()
-                 .addRegister<RegSomeStatus>()
                  .addRegister<RegSomeBit>()
                  .addRegister<RegSomeIntArray>()
                  .addRegister<RegSomeShortArray>()

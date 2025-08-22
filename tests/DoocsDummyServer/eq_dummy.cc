@@ -7,8 +7,8 @@
 eq_dummy::eq_dummy(const EqFctParameters& p)
 : EqFct(p), prop_someInt("SOME_INT Some integer property", this),
   prop_someReadonlyInt("SOME_RO_INT Some read-only integer property", this), prop_someFloat("SOME_FLOAT", this),
-  prop_someDouble("SOME_DOUBLE", this), prop_someString("SOME_STRING", this), prop_someStatus("SOME_STATUS", this),
-  prop_someBit("SOME_BIT", 0, &prop_someStatus.stat_, this), prop_someIntArray("SOME_INT_ARRAY", 42, this),
+  prop_someDouble("SOME_DOUBLE", this), prop_someString("SOME_STRING", this),
+  prop_someBit("SOME_BIT", 0, &this->_someValue, this), prop_someIntArray("SOME_INT_ARRAY", 42, this),
   prop_someShortArray("SOME_SHORT_ARRAY", 5, this), prop_someLongArray("SOME_LONG_ARRAY", 5, this),
   prop_someFloatArray("SOME_FLOAT_ARRAY", 5, this), prop_someDoubleArray("SOME_DOUBLE_ARRAY", 5, this),
   prop_someSpectrum("SOME_SPECTRUM", 100, this), prop_someIIII("SOME_IIII", this), prop_someIFFF("SOME_IFFF", this),
@@ -37,10 +37,6 @@ void eq_dummy::init() {
   prop_someString.set_value("The quick brown fox jumps over the lazy dog.");
   prop_someString.set_mpnum(counter);
   prop_someString.set_tmstmp(startTime, 0);
-
-  prop_someStatus.set_value(3);
-  prop_someStatus.set_mpnum(counter);
-  prop_someStatus.set_tmstmp(startTime, 0);
 
   prop_someBit.set_mpnum(counter);
   prop_someBit.set_tmstmp(startTime, 0);
@@ -121,9 +117,6 @@ void eq_dummy::update() {
 
   prop_someString.set_mpnum(counter);
   prop_someString.set_tmstmp(startTime, 0);
-
-  prop_someStatus.set_mpnum(counter);
-  prop_someStatus.set_tmstmp(startTime, 0);
 
   prop_someBit.set_mpnum(counter);
   prop_someBit.set_tmstmp(startTime, 0);
