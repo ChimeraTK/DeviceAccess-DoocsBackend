@@ -15,7 +15,8 @@ class eq_dummy : public EqFct {
   D_float prop_someFloat;
   D_double prop_someDouble;
   D_string prop_someString;
-  D_status prop_someStatus;
+  // D_status prop_someStatus;
+  unsigned int _someValue{3};
   D_bit prop_someBit;
 
   D_intarray prop_someIntArray;

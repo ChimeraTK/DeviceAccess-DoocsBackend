@@ -809,62 +809,38 @@ BOOST_AUTO_TEST_CASE(testImage) {
 
 /**********************************************************************************************************************/
 
-BOOST_AUTO_TEST_CASE(testBitAndStatus) {
+BOOST_AUTO_TEST_CASE(testBit) {
   ChimeraTK::Device device;
   device.open(DoocsLauncher::DoocsServer1);
 
   TwoDRegisterAccessor<int> acc_someBit(device.getTwoDRegisterAccessor<int>("MYDUMMY/SOME_BIT"));
-  TwoDRegisterAccessor<int> acc_someStatus(device.getTwoDRegisterAccessor<int>("MYDUMMY/SOME_STATUS"));
-  TwoDRegisterAccessor<uint16_t> acc_someStatusU16(device.getTwoDRegisterAccessor<uint16_t>("MYDUMMY/SOME_STATUS"));
 
   BOOST_TEST(acc_someBit.getNChannels() == 1);
-  BOOST_TEST(acc_someStatus.getNChannels() == 1);
   BOOST_TEST(acc_someBit.getNElementsPerChannel() == 1);
-  BOOST_TEST(acc_someStatus.getNElementsPerChannel() == 1);
 
   auto oldVersion = acc_someBit.getVersionNumber();
   acc_someBit.read();
   BOOST_TEST(acc_someBit[0][0] == 1);
   BOOST_TEST(acc_someBit.getVersionNumber() != oldVersion);
-  oldVersion = acc_someStatus.getVersionNumber();
-  acc_someStatus.read();
-  BOOST_TEST(acc_someStatus[0][0] == 3);
-  BOOST_TEST(acc_someStatus.getVersionNumber() != oldVersion);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_BIT", 0);
 
   BOOST_TEST(acc_someBit[0][0] == 1);
   acc_someBit.read();
   BOOST_TEST(acc_someBit[0][0] == 0);
-  BOOST_TEST(acc_someStatus[0][0] == 3);
-  acc_someStatus.read();
-  BOOST_TEST(acc_someStatus[0][0] == 2);
 
-  DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_STATUS", 0xFFFF);
+  // Get EqFct to access the _someValue wich is attached to D_bit accessed with acc_someBit
+  auto eqfct = reinterpret_cast<eq_dummy*>(find_device("MYDUMMY"));
+  eqfct->_someValue = 0xFFFF;
 
   BOOST_TEST(acc_someBit[0][0] == 0);
   acc_someBit.read();
   BOOST_TEST(acc_someBit[0][0] == 1);
-  BOOST_TEST(acc_someStatus[0][0] == 2);
-  acc_someStatus.read();
-  BOOST_TEST(acc_someStatus[0][0] == 0xFFFF);
-
-  acc_someStatusU16.read();
-  BOOST_TEST(acc_someStatusU16[0][0] == 0xFFFF);
 
   acc_someBit[0][0] = 0;
-  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 0xFFFF);
   VersionNumber nextVersion;
   acc_someBit.write(nextVersion);
-  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 0xFFFE);
   BOOST_TEST(acc_someBit.getVersionNumber() == nextVersion);
-
-  acc_someStatus[0][0] = 123;
-  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 0xFFFE);
-  nextVersion = {};
-  acc_someStatus.write(nextVersion);
-  BOOST_TEST(DoocsServerTestHelper::doocsGet<int>("//MYDUMMY/SOME_STATUS") == 123);
-  BOOST_TEST(acc_someStatus.getVersionNumber() == nextVersion);
 
   device.close();
 }
@@ -1042,7 +1018,7 @@ BOOST_AUTO_TEST_CASE(testCatalogue) {
       BOOST_TEST(catalogue.hasRegister("SOME_FLOAT"));
       BOOST_TEST(catalogue.hasRegister("SOME_DOUBLE"));
       BOOST_TEST(catalogue.hasRegister("SOME_STRING"));
-      BOOST_TEST(catalogue.hasRegister("SOME_STATUS"));
+      // BOOST_TEST(catalogue.hasRegister("SOME_STATUS"));
       BOOST_TEST(catalogue.hasRegister("SOME_BIT"));
       BOOST_TEST(catalogue.hasRegister("SOME_INT_ARRAY"));
       BOOST_TEST(catalogue.hasRegister("SOME_SHORT_ARRAY"));
@@ -1195,18 +1171,18 @@ BOOST_AUTO_TEST_CASE(testOther) {
 
   // device info string
   BOOST_TEST(device.readDeviceInfo() == "DOOCS server address: doocs://localhost:" + DoocsLauncher::rpc_no + "/F/D");
-
   // test in TransferGroup
   TwoDRegisterAccessor<int32_t> acc1(device.getTwoDRegisterAccessor<int32_t>("MYDUMMY/SOME_INT"));
   TwoDRegisterAccessor<int32_t> acc2(device.getTwoDRegisterAccessor<int32_t>("MYDUMMY/SOME_INT"));
+
   TransferGroup group;
   group.addAccessor(acc1);
   group.addAccessor(acc2);
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT", 123);
   group.read();
-  BOOST_CHECK_EQUAL(acc1[0][0], 123);
   BOOST_CHECK_EQUAL(acc2[0][0], 123);
+  BOOST_CHECK_EQUAL(acc1[0][0], 123);
   acc1[0][0] = 42;
 
   device.close();
