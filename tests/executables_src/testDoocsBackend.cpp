@@ -840,6 +840,7 @@ BOOST_AUTO_TEST_CASE(testBit) {
   acc_someBit[0][0] = 0;
   VersionNumber nextVersion;
   acc_someBit.write(nextVersion);
+  BOOST_TEST(eqfct->_someValue = 0xFFFE);
   BOOST_TEST(acc_someBit.getVersionNumber() == nextVersion);
 
   device.close();
