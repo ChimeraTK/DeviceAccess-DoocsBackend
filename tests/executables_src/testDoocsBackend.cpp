@@ -830,7 +830,7 @@ BOOST_AUTO_TEST_CASE(testBit) {
   BOOST_TEST(acc_someBit[0][0] == 0);
 
   // Get EqFct to access the _someValue wich is attached to D_bit accessed with acc_someBit
-  auto eqfct = reinterpret_cast<eq_dummy*>(find_device("MYDUMMY"));
+  auto eqfct = dynamic_cast<eq_dummy*>(find_device("MYDUMMY"));
   eqfct->_someValue = 0xFFFF;
 
   BOOST_TEST(acc_someBit[0][0] == 0);
@@ -1018,7 +1018,6 @@ BOOST_AUTO_TEST_CASE(testCatalogue) {
       BOOST_TEST(catalogue.hasRegister("SOME_FLOAT"));
       BOOST_TEST(catalogue.hasRegister("SOME_DOUBLE"));
       BOOST_TEST(catalogue.hasRegister("SOME_STRING"));
-      // BOOST_TEST(catalogue.hasRegister("SOME_STATUS"));
       BOOST_TEST(catalogue.hasRegister("SOME_BIT"));
       BOOST_TEST(catalogue.hasRegister("SOME_INT_ARRAY"));
       BOOST_TEST(catalogue.hasRegister("SOME_SHORT_ARRAY"));
@@ -1181,8 +1180,8 @@ BOOST_AUTO_TEST_CASE(testOther) {
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT", 123);
   group.read();
-  BOOST_CHECK_EQUAL(acc2[0][0], 123);
   BOOST_CHECK_EQUAL(acc1[0][0], 123);
+  BOOST_CHECK_EQUAL(acc2[0][0], 123);
   acc1[0][0] = 42;
 
   device.close();

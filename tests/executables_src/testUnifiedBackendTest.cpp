@@ -543,7 +543,6 @@ BOOST_AUTO_TEST_CASE(unifiedBackendTest) {
                  .addRegister<RegSomeFloat>()
                  .addRegister<RegSomeDouble>()
                  .addRegister<RegSomeString>()
-                 //.addRegister<RegSomeStatus>()
                  .addRegister<RegSomeBit>()
                  .addRegister<RegSomeIntArray>()
                  .addRegister<RegSomeShortArray>()
