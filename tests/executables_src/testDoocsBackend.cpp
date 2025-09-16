@@ -8,6 +8,7 @@
 
 #include "eq_dummy.h"
 
+#include <ChimeraTK/CopyRegisterDecorator.h>
 #include <ChimeraTK/Device.h>
 #include <ChimeraTK/MappedImage.h>
 #include <ChimeraTK/TransferGroup.h>
@@ -1179,9 +1180,22 @@ BOOST_AUTO_TEST_CASE(testOther) {
   TwoDRegisterAccessor<int32_t> acc1(device.getTwoDRegisterAccessor<int32_t>("MYDUMMY/SOME_INT"));
   TwoDRegisterAccessor<int32_t> acc2(device.getTwoDRegisterAccessor<int32_t>("MYDUMMY/SOME_INT"));
 
+  BOOST_TEST(acc1.getHighLevelImplElement()->mayReplaceOther(acc2.getHighLevelImplElement()));
+  BOOST_TEST(acc2.getHighLevelImplElement()->mayReplaceOther(acc1.getHighLevelImplElement()));
+  BOOST_TEST(acc1.getHardwareAccessingElements().size() == 1);
+  BOOST_TEST(acc2.getHardwareAccessingElements().size() == 1);
+  BOOST_TEST(acc1.getHardwareAccessingElements().front() != acc2.getHardwareAccessingElements().front());
+
   TransferGroup group;
   group.addAccessor(acc1);
+  auto acc2impl = acc2.getHighLevelImplElement();
   group.addAccessor(acc2);
+  BOOST_TEST(acc2impl != acc2.getHighLevelImplElement());
+  BOOST_TEST(boost::dynamic_pointer_cast<ChimeraTK::CopyRegisterDecorator<int32_t>>(acc1.getHighLevelImplElement()) ==
+      nullptr);
+  BOOST_TEST(boost::dynamic_pointer_cast<ChimeraTK::CopyRegisterDecorator<int32_t>>(acc2.getHighLevelImplElement()) !=
+      nullptr);
+  BOOST_TEST(acc1.getHardwareAccessingElements().front() == acc2.getHardwareAccessingElements().front());
 
   DoocsServerTestHelper::doocsSet("//MYDUMMY/SOME_INT", 123);
   group.read();
