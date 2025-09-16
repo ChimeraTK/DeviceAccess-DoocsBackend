@@ -993,6 +993,10 @@ void deleteFile(const std::string& filename) {
   if(unlink(filename.c_str()) < 0) throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)));
 }
 
+void deleteFileIfExisting(const std::string& filename) {
+  unlink(filename.c_str());
+}
+
 /**********************************************************************************************************************/
 
 BOOST_AUTO_TEST_CASE(testCatalogue) {
@@ -1216,6 +1220,8 @@ bool file_exists(const std::string& name) {
 
 BOOST_AUTO_TEST_CASE(testCacheFileCreation) {
   {
+    deleteFileIfExisting(DoocsLauncher::cacheFile1);
+    deleteFileIfExisting(DoocsLauncher::cacheFile2);
     BOOST_TEST(file_exists(DoocsLauncher::cacheFile1) == false);
     BOOST_TEST(file_exists(DoocsLauncher::cacheFile2) == false);
 
