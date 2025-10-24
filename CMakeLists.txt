@@ -15,7 +15,7 @@ include(cmake/enable_code_coverage_report.cmake)
 FIND_PACKAGE(ChimeraTK-DeviceAccess 03.20 REQUIRED)
 
 # we need the zmq client which is part of server component
-FIND_PACKAGE(DOOCS 24.03 REQUIRED COMPONENTS server)
+FIND_PACKAGE(DOOCS 25.10 REQUIRED COMPONENTS server)
 FIND_PACKAGE(doocs-server-test-helper 01.07 REQUIRED)
 FIND_PACKAGE(Boost REQUIRED COMPONENTS thread system filesystem unit_test_framework)
 

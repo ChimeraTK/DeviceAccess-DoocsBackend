@@ -425,7 +425,6 @@ namespace ChimeraTK {
     // be generated (device does not behave as expected, as it is not expected to change)
     switch(doocs_error) {
       case eq_errors::unsup_domain:
-      case eq_errors::no_ens_entry:
       case eq_errors::ill_monitor:
       case eq_errors::faulty_chans:
       case eq_errors::unavail_serv:
@@ -433,12 +432,9 @@ namespace ChimeraTK {
       case eq_errors::rpc_prot_error:
       case eq_errors::ens_fault:
       case eq_errors::ill_protocol:
-      case eq_errors::ill_location:
-      case eq_errors::ill_property:
       case eq_errors::no_connection:
-      case eq_errors::conn_timeout:
-      case eq_errors::alias_error:
       case eq_errors::no_permission:
+      case eq_errors::remote_error:
         return true;
       default:
         return false;
