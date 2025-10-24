@@ -50,7 +50,7 @@ void CatalogueFetcher::fillCatalogue(std::string fixedComponents, long level) {
 
   // iterate over list
 
-  for(int i = 0; i < propList.array_length() && (isCancelled() == false); ++i) {
+  for(int i = 0; i < propList.array_length() && not isCancelled(); ++i) {
     // obtain the name of the element
     auto u = propList.get_ustr(i);
     std::string name(u->str_data.str_data_val);
