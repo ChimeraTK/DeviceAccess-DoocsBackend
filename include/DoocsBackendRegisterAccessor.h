@@ -172,6 +172,7 @@ namespace ChimeraTK {
     bool mayReplaceOther(const boost::shared_ptr<TransferElement const>& other) const override {
       auto rhsCasted = boost::dynamic_pointer_cast<const DoocsBackendRegisterAccessor<UserType>>(other);
       if(!rhsCasted) return false;
+      if(rhsCasted.get() == this) return false;
       if(_path != rhsCasted->_path) return false;
       if(nElements != rhsCasted->nElements) return false;
       if(elementOffset != rhsCasted->elementOffset) return false;
