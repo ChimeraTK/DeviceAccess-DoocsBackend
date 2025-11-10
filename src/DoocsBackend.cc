@@ -163,8 +163,8 @@ namespace ChimeraTK {
     }
 
     std::string dataConsistencyRealmName{"doocsEventId"};
-    if(parameters.find("location") != parameters.end()) {
-      dataConsistencyRealmName = parameters.at("location");
+    if(parameters.find("dataConsistencyRealmName") != parameters.end()) {
+      dataConsistencyRealmName = parameters.at("dataConsistencyRealmName");
     }
 
     // create and return the backend
