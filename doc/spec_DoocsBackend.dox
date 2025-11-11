@@ -3,7 +3,7 @@ namespace ChimeraTK {
 /**
 \page spec_DoocsBackend Technical specification: DeviceAccess DoocsBackend V0.0WIP
 
-> **This is just a stub to get started.**
+**This is just a stub to get started.**
 
 ## A. Introduction ##
 
@@ -21,13 +21,13 @@ This document is currently still **INCOMPLETE**!
     - VersionNumbers are always increasing. (FIXME Reference)
 
   - 1.1 An EventIdMapper is used across all Doocs backends to allow consistent VersionNumbers across backends
-   - 1.1.1 The VersionNumber for \c EventID=0 is always \c VersionNumber(nullptr). It is not added to the map.
+   - \anchor DoocsBackend_b_1_1_1 1.1.1 The VersionNumber for \c EventID=0 is always \c VersionNumber(nullptr). It is not added to the map.
    - 1.1.2 If an EventID is in the map, the according VersionNumber is returned by the mapper.
    - 1.1.3 If an EventID is newer than the newest entry in the map, a new VersionNumber is generated and it is added to the map.
      - \anchor DoocsBackend_b_1_1_3_1 1.1.3.1 Whenever a new EventID is added to the map, all EventIDs between the newest EventID in the map and the incoming EventID are added to the map as well.  This guarantees that a larger EventID always has a larger VersionNumber, even if EventIDs are not created in increasing order. \ref DoocsBackend_comment_b_1_1_3_1 "(*)"
    - 1.1.4 The size of the map is limited to avoid infitely increasing memory for long-running servers
      - 1.1.4.1 If the map has reached the maximum size, the oldest entries are removed
-     - 1.1.4.2 If an EventID is older that the oldest entry in the map,  VersionNumber(nullptr) is returned
+     - \anchor DoocsBackend_b_1_1_4_2 1.1.4.2 If an EventID is older that the oldest entry in the map,  VersionNumber(nullptr) is returned
      - 1.1.4.3 Optional extension: The size can be configured via the CDD.
    - \anchor DoocsBackend_b_1_1_5 1.1.5 A VersionNumber(nullptr) returned as described in \ref DoocsBackend_b_1_1_1 "1.1.1" and \ref DoocsBackend_b_1_1_4_2 "1.1.4.2" is handled in \ref DoocsBackend_b_1_3_3_1 "1.3.3.1". \ref DoocsBackend_comment_b_1_1_5 "(*)" For these data no matching via the ChimeraTK::DataConsistencyGroup is possible.
 
