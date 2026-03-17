@@ -35,9 +35,9 @@ class eq_dummy : public EqFct {
   int64_t counter;
   int64_t startTime;
 
-  void init();
-  void post_init();
-  void update();
+  void init() override;
+  void post_init() override;
+  void update() override;
 
   static constexpr int code = 10;
 
