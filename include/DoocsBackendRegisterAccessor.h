@@ -9,7 +9,6 @@
 #include <ChimeraTK/AccessMode.h>
 #include <ChimeraTK/async/DataConsistencyKey.h>
 #include <ChimeraTK/Exception.h>
-#include <ChimeraTK/FixedPointConverter.h>
 #include <ChimeraTK/MappedImage.h>
 #include <ChimeraTK/NDRegisterAccessor.h>
 #include <ChimeraTK/RegisterPath.h>
