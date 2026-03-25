@@ -119,20 +119,16 @@ bool CatalogueFetcher::checkZmqAvailability(const std::string& fullQualifiedName
   auto propertyName = fullQualifiedName.substr(lastSlash + 1);
 
   int rc;
-  float f1;
-  float f2;
-  char* sp;
-  time_t tm;
   doocs::EqAdr ea;
   doocs::EqData dat;
   doocs::EqData dst;
   doocs::EqCall eq;
-  int portp;
+  int portp{0};
 
   ea.adr(fullLocationPath + "/SPN");
 
   // get channel port number
-  dat.set(1, 0.0f, 0.0f, time_t{0}, propertyName, 0);
+  dat.set(1, 0.0F, 0.0F, time_t{0}, propertyName, 0);
 
   // call get () to see whether it is supported
   rc = eq.get(&ea, &dat, &dst);
@@ -140,12 +136,12 @@ bool CatalogueFetcher::checkZmqAvailability(const std::string& fullQualifiedName
     return false;
   }
 
-  rc = dst.get_ustr(&portp, &f1, &f2, &tm, &sp, 0);
-  if(rc && !portp && !static_cast<int>(f1 + f2)) rc = 0; // not supported
-
-  if(!rc) {
-    dst.get_ustr(&portp, &f1, &f2, &tm, &sp, 0);
-    // get () not supported, call set ()
+  auto* ustr = dst.get_ustr();
+  if(ustr != nullptr) {
+    portp = ustr->i1_data;
+  }
+  if(ustr == nullptr || (portp == 0 && int(ustr->f1_data + ustr->f2_data) == 0)) {
+    // get() not supported, call set()
     rc = eq.set(&ea, &dat, &dst);
     if(rc) {
       return false;
@@ -156,7 +152,10 @@ bool CatalogueFetcher::checkZmqAvailability(const std::string& fullQualifiedName
     portp = dst.get_int();
   }
   else {
-    dst.get_ustr(&portp, &f1, &f2, &tm, &sp, 0);
+    ustr = dst.get_ustr();
+    if(ustr != nullptr) {
+      portp = ustr->i1_data;
+    }
   }
   return portp != 0;
 }
