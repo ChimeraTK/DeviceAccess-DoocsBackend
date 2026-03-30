@@ -110,8 +110,6 @@ namespace ChimeraTK {
       return _startVersion;
     }
 
-    static bool isCommunicationError(int doocs_error);
-
    private:
     std::string _cacheFile;
     std::promise<void> _cancelFlag{};

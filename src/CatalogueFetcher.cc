@@ -74,7 +74,8 @@ void CatalogueFetcher::fillCatalogue(std::string fixedComponents, long level) {
       doocs::EqData dst;
       ea.adr(fqn); // strip leading slash
       rc = eq.get(&ea, &src, &dst);
-      if((rc && ChimeraTK::DoocsBackend::isCommunicationError(dst.error())) || dst.error() == eq_errors::device_error) {
+      if(rc == doocs::TransactionResult::transaction_error || rc == doocs::TransactionResult::transport_error ||
+          dst.error() == eq_errors::device_error) {
         // if the property is not accessible, ignore it. This happens frequently e.g. for archiver-related properties.
         // device_error seems to be reported permanently by some x2timer properties, so exclude them, too.
         continue;
