@@ -7,8 +7,12 @@
 
 #include <doocs/EqCall.h>
 
+#include <boost/range/algorithm/find.hpp>
+
 const std::vector<std::string> IGNORE_PATTERNS = {".HIST", ".FILT", "._FILT", ".EGU", ".DESC", ".HSTAT", "._HSTAT",
-    "._HIST", ".LIST", ".SAVE", ".COMMENT", ".XEGU", ".POLYPARA", "MESSAGE.TICKER"};
+    "._HIST", ".LIST", ".SAVE", ".COMMENT", ".XEGU", ".POLYPARA"};
+
+const std::vector<std::string> IGNORE_LIST = {"MESSAGE.TICKER", "SPN"};
 
 /********************************************************************************************************************/
 
@@ -64,7 +68,7 @@ void CatalogueFetcher::fillCatalogue(std::string fixedComponents, long level) {
     else { // this is a property: create RegisterInfo entry and set its name
 
       // It matches one of DOOCS's internal properties; skip
-      if(detail::endsWith(name, IGNORE_PATTERNS).first) {
+      if(detail::endsWith(name, IGNORE_PATTERNS).first || boost::range::find(IGNORE_LIST, name) != IGNORE_LIST.end()) {
         continue;
       }
 
@@ -74,14 +78,14 @@ void CatalogueFetcher::fillCatalogue(std::string fixedComponents, long level) {
       doocs::EqData dst;
       ea.adr(fqn); // strip leading slash
       rc = eq.get(&ea, &src, &dst);
-      if((rc && ChimeraTK::DoocsBackend::isCommunicationError(dst.error())) || dst.error() == eq_errors::device_error) {
+      if((rc && doocs::is_system_error(dst.error())) || dst.error() == eq_errors::device_error) {
         // if the property is not accessible, ignore it. This happens frequently e.g. for archiver-related properties.
         // device_error seems to be reported permanently by some x2timer properties, so exclude them, too.
         continue;
       }
       if(rc && dst.error()) {
         // If error has been set, the shape information is not correct (because DOOCS seems to store a string instead).
-        // Until a better solution has been found, the entire catalogue fetching is marked as errornous to prevent
+        // Until a better solution has been found, the entire catalogue fetching is marked as erroneous to prevent
         // saving it to the cache file.
         if(!locationLookupError_) {
           _failedPropertyFirst = fqn;

@@ -2,7 +2,7 @@
 
 #include "DoocsBackendRegisterAccessor.h"
 
-namespace ChimeraTK { namespace DoocsBackendNamespace {
+namespace ChimeraTK::DoocsBackendNamespace {
 
   /******************************************************************************************************************/
 
@@ -77,7 +77,7 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
     EqCall eq;
     adr.adr(path);
     auto rc = eq.get(&adr, &src, &dst);
-    if(rc && DoocsBackend::isCommunicationError(dst.error())) {
+    if(rc == doocs::TransactionResult::transaction_error || rc == doocs::TransactionResult::transport_error) {
       // communication error: push to queues
       for(auto accessor : accessors) {
         pushError(accessor, "ZeroMQ connection for " + path + " interrupted: " + dst.get_string());
@@ -286,7 +286,7 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
     }
 
     // check for error
-    if(!DoocsBackend::isCommunicationError(data->error())) {
+    if(!doocs::is_system_error(data->error()) && data->error() != eq_errors::no_connection) {
       // Set flag that we have received an initial value. (If the flag is not set, any received value is by
       // definition the initial value.) This must be done independent from listener activation status, because this
       // is to keep track of the DOOCS-provided initial value.
@@ -317,4 +317,4 @@ namespace ChimeraTK { namespace DoocsBackendNamespace {
 
   /******************************************************************************************************************/
 
-}} // namespace ChimeraTK::DoocsBackendNamespace
+} // namespace ChimeraTK::DoocsBackendNamespace

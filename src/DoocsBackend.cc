@@ -184,7 +184,7 @@ namespace ChimeraTK {
       doocs::EqData src, dst;
       int rc = eq.get(&ea, &src, &dst);
       // if again error received, throw exception
-      if(rc && isCommunicationError(dst.error())) {
+      if(rc == doocs::TransactionResult::transaction_error || rc == doocs::TransactionResult::transport_error) {
         lk.unlock();
         auto message = std::string("Cannot read from DOOCS property: ") + dst.get_string();
         setException(message);
@@ -308,14 +308,7 @@ namespace ChimeraTK {
       doocs::EqData src, dst;
       ea.adr(path);
       int rc = eq.get(&ea, &src, &dst);
-      if(rc) {
-        if(rc == eq_errors::ill_property || rc == eq_errors::ill_location ||
-            rc == eq_errors::ill_address) { // no property by that name
-          throw ChimeraTK::logic_error("Property does not exist: " + path + "': " + dst.get_string());
-        }
-        // runtime errors are thrown later
-      }
-      else {
+      if(!rc) {
         doocsTypeId = dst.type();
       }
     }
@@ -418,27 +411,7 @@ namespace ChimeraTK {
     p->setExceptionBackend(shared_from_this());
     return p;
   }
-  /********************************************************************************************************************/
 
-  bool DoocsBackend::isCommunicationError(int doocs_error) {
-    // logic_error-like errors are caught at a different place. If such error appears later, a runtime_error need to
-    // be generated (device does not behave as expected, as it is not expected to change)
-    switch(doocs_error) {
-      case eq_errors::unsup_domain:
-      case eq_errors::ill_monitor:
-      case eq_errors::faulty_chans:
-      case eq_errors::unavail_serv:
-      case eq_errors::ill_serv:
-      case eq_errors::rpc_prot_error:
-      case eq_errors::ens_fault:
-      case eq_errors::ill_protocol:
-      case eq_errors::no_connection:
-      case eq_errors::no_permission:
-      case eq_errors::remote_error:
-        return true;
-      default:
-        return false;
-    }
-  }
+  /********************************************************************************************************************/
 
 } /* namespace ChimeraTK */
