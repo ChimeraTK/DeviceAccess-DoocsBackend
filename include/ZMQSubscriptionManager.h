@@ -41,7 +41,7 @@ namespace ChimeraTK {
 
       /// Deactivate all listeners for the given backend and push exceptions into the queues. Should be called from
       /// DoocsBackend::setException().
-      void deactivateAllListenersAndPushException(DoocsBackend* backend);
+      void deactivateAllListenersAndPushException(DoocsBackend* backend, const std::string& message);
 
      private:
       ZMQSubscriptionManager();
