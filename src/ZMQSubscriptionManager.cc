@@ -249,7 +249,8 @@ namespace ChimeraTK::DoocsBackendNamespace {
 
   /******************************************************************************************************************/
 
-  void ZMQSubscriptionManager::deactivateAllListenersAndPushException(DoocsBackend* backend) {
+  void ZMQSubscriptionManager::deactivateAllListenersAndPushException(
+      DoocsBackend* backend, const std::string& message) {
     std::unique_lock<std::mutex> lock(subscriptionMap_mutex);
 
     for(auto& subscription : subscriptionMap) {
@@ -257,7 +258,7 @@ namespace ChimeraTK::DoocsBackendNamespace {
       for(auto& listener : subscription.second.listeners) {
         // only handle listeners belonging to the current backend
         if(listener->_backend.get() != backend) continue;
-        pushError(listener, "Exception reported by another accessor.");
+        pushError(listener, message);
       }
     }
   }

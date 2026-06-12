@@ -245,7 +245,14 @@ namespace ChimeraTK {
 
   void DoocsBackend::setExceptionImpl() noexcept {
     _asyncReadActivated = false;
-    DoocsBackendNamespace::ZMQSubscriptionManager::getInstance().deactivateAllListenersAndPushException(this);
+    std::string message{"Unknown exception reported by another accessor"};
+    try {
+      checkActiveException();
+    }
+    catch(ChimeraTK::runtime_error& e) {
+      message = e.what();
+    }
+    DoocsBackendNamespace::ZMQSubscriptionManager::getInstance().deactivateAllListenersAndPushException(this, message);
   }
 
   /********************************************************************************************************************/

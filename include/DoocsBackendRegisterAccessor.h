@@ -358,9 +358,7 @@ namespace ChimeraTK {
 
   template<typename UserType>
   void DoocsBackendRegisterAccessor<UserType>::doReadTransferSynchronously() {
-    if(!_backend->isFunctional()) {
-      throw ChimeraTK::runtime_error(std::string("Exception reported by another accessor."));
-    }
+    _backend->checkActiveException();
 
     assert(!useZMQ);
 
@@ -381,9 +379,7 @@ namespace ChimeraTK {
 
   template<typename UserType>
   void DoocsBackendRegisterAccessor<UserType>::write_internal() {
-    if(!_backend->isFunctional()) {
-      throw ChimeraTK::runtime_error(std::string("Exception reported by another accessor."));
-    }
+    _backend->checkActiveException();
 
     // write data
     int rc = eq.set(&ea, &src, &dst);
