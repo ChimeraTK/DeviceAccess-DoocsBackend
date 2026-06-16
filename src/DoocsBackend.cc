@@ -186,7 +186,7 @@ namespace ChimeraTK {
       // if again error received, throw exception
       if(rc == doocs::TransactionResult::transaction_error || rc == doocs::TransactionResult::transport_error) {
         lk.unlock();
-        auto message = std::string("Cannot read from DOOCS property: ") + dst.get_string();
+        auto message = std::format("Cannot read from DOOCS property '{}': {}", lastFailedAddress, dst.get_string());
         setException(message);
         throw ChimeraTK::runtime_error(message);
       }
