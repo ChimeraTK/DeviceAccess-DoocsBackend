@@ -177,6 +177,12 @@ namespace ChimeraTK {
   void DoocsBackend::open() {
     std::unique_lock<std::mutex> lk(_mxRecovery);
     if(lastFailedAddress != "") {
+      // Check if the backend is already in the exception state. If so, obtain the stored exception
+      // message to use as a stable error message in case the recovery check fails again.
+      std::string storedExceptionMessage;
+      if(!isFunctional()) {
+        storedExceptionMessage = getActiveExceptionMessage();
+      }
       // open() is called after a runtime_error: check if device is recovered.
       doocs::EqAdr ea;
       ea.adr(lastFailedAddress);
@@ -186,7 +192,11 @@ namespace ChimeraTK {
       // if again error received, throw exception
       if(rc == doocs::TransactionResult::transaction_error || rc == doocs::TransactionResult::transport_error) {
         lk.unlock();
-        auto message = std::format("Cannot read from DOOCS property '{}': {}", lastFailedAddress, dst.get_string());
+        // Use the stored exception message if available to ensure stable error messages
+        // during recovery attempts, avoiding oscillation between different DOOCS error texts.
+        auto message = storedExceptionMessage.empty() || storedExceptionMessage == "(exception cleared)" ?
+            std::format("Cannot read from DOOCS property '{}': {}", lastFailedAddress, dst.get_string()) :
+            storedExceptionMessage;
         setException(message);
         throw ChimeraTK::runtime_error(message);
       }
