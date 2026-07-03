@@ -16,7 +16,6 @@ FIND_PACKAGE(ChimeraTK-DeviceAccess 03.20 REQUIRED)
 
 # we need the zmq client which is part of server component
 FIND_PACKAGE(DOOCS 25.10 REQUIRED COMPONENTS server)
-FIND_PACKAGE(doocs-server-test-helper 01.07 REQUIRED)
 FIND_PACKAGE(Boost REQUIRED COMPONENTS thread system filesystem unit_test_framework)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -44,6 +43,7 @@ target_link_options(${PROJECT_NAME} PUBLIC "-Wl,--no-as-needed")
 option(BUILD_TESTS "Build test programs" ON)
 
 if(BUILD_TESTS)
+  FIND_PACKAGE(doocs-server-test-helper 01.07 REQUIRED)
   # Create the executables for automated unit testing.
   # Currently we assume that they are all tests contained in one file, so
   # each file gives a new executable. This section has to be adapted if this should change.
